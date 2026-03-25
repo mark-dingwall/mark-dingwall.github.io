@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../reset.css">
+  <link rel="stylesheet" href="../css/sketch-gallery.css">
+  <title>Mark Dingwall - Sketches</title>
+</head>
+
+<body>
+  <canvas id="grove-canvas"></canvas>
+  <div id="ui-layer">
+    <a class="back-link" href="/">&larr; back</a>
+    <div class="header-content frosted">
+      <h1>Mark's Sketches</h1>
+      <p>Some things I've made for fun</p>
+    </div>
+    <div class="grid">
+      <div class="grid-cell frosted">
+        <a href="cubeworms/">
+          <img src="cubeworms/cubeworms.jpg" alt="Cubeworms">
+          <h2>Cubeworms</h2>
+          <p>Wanderers in the void</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="microbes/">
+          <img src="microbes/microbes.png" alt="Microbes">
+          <h2>Microbes</h2>
+          <p>Excited little dots</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="forest/">
+          <img src="forest/forest.png" alt="Forest">
+          <h2>Forest</h2>
+          <p>Patience is rewarded</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="drift2/">
+          <img src="drift2/drift2.png" alt="Drift V2">
+          <h2>Drift V2</h2>
+          <p>Drift Arts Festival</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="flowsphere/">
+          <img src="flowsphere/flowsphere.png" alt="Flowsphere">
+          <h2>Flowsphere</h2>
+          <p>Mystic marble</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="magnetites/">
+          <img src="magnetites/magnetites.png" alt="Magnetites">
+          <h2>Magnetites</h2>
+          <p>Heart of the Mountain</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="waterfall/">
+          <img src="waterfall/waterfall.jpg" alt="Waterfall">
+          <h2>Waterfall</h2>
+          <p>Drip, drip, drop</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="bioluminescence/">
+          <img src="bioluminescence/bioluminescence.jpg" alt="Bioluminescence">
+          <h2>Bioluminescence</h2>
+          <p>Tiny swimming things</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="drift1/">
+          <img src="drift1/drift1.png" alt="Drift V1">
+          <h2>Drift V1</h2>
+          <p>Drift Arts Festival</p>
+        </a>
+      </div>
+      <div class="grid-cell frosted">
+        <a href="constellations/">
+          <img src="constellations/constellations.jpg" alt="Constellations">
+          <h2>Constellations</h2>
+          <p>Linked lights</p>
+        </a>
+      </div>
+    </div>
+    <footer>
+      <div class="frosted">
+        <a href="https://github.com/Axionatic/axionatic.github.io" target="_blank">Get code</a>
+      </div>
+    </footer>
+  </div>
+  <button id="grove-toggle">[ hide ]</button>
+  <script src="utils/simplex.js"></script>
+  <script src="sketches.js"></script>
+  <script src="grove-bg.js"></script>
+  <script src="../marquee.js"></script>
+  <script>
+    const groveToggle = document.getElementById('grove-toggle');
+    const uiLayer = document.getElementById('ui-layer');
+    groveToggle.addEventListener('click', () => {
+      const hidden = uiLayer.classList.toggle('hidden');
+      groveToggle.textContent = hidden ? '[ show ]' : '[ hide ]';
+    });
+  </script>
+</body>
+
+</html>
