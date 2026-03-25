@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mark Dingwall - BitBrush</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/portfolio.css">
+  <style>
+    /* ── Page-specific overrides ─────────────────────────────────── */
+    #runway { height: 500vh; }
+    #header-panel { padding: 20px 32px; width: min(500px, 50vw); }
+
+    #title-overlay {
+      display: block;
+      margin: 0 auto;
+      font-family: 'Major Mono Display', monospace;
+      font-size: clamp(32px, 5vw, 56px);
+      letter-spacing: 0.05em;
+    }
+    .title-bit { color: #0cc; }
+    .title-brush { color: #fff; }
+    #mobile-tagline {
+      display: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    /* ── Demo panel ───────────────────────────────────────────────── */
+    #demo-panel {
+      position: fixed;
+      left: 50%;
+      top: 55%;
+      transform: translate(-50%, -50%);
+      width: 310px;
+      z-index: 10;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.4s ease;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .demo-header {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(13px, 1.2vw, 17px);
+      margin-bottom: 10px;
+    }
+    .mini-canvas-wrap {
+      width: 280px;
+      max-width: 100%;
+      aspect-ratio: 1;
+      margin: 0 auto;
+    }
+    #mini-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 1px solid rgba(0, 204, 204, 0.2);
+      border-radius: 4px;
+      cursor: crosshair;
+      image-rendering: pixelated;
+      touch-action: none;
+    }
+    .mini-palette {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .mini-swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      padding: 0;
+    }
+    .mini-swatch:hover { transform: scale(1.15); }
+    .mini-swatch.active {
+      border-color: #fff;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+    }
+    .mini-swatch:focus-visible {
+      outline: 2px solid #0cc;
+      outline-offset: 2px;
+    }
+    .mini-bank {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .bank-label {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 14px;
+    }
+    .bank-bar-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #bank-fill {
+      height: 100%;
+      background: #0cc;
+      border-radius: 4px;
+      transition: width 0.3s;
+      width: 100%;
+    }
+    .bank-count {
+      color: #0cc;
+      font-size: 14px;
+      min-width: 42px;
+      text-align: right;
+    }
+    .ghost-label {
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* ── Architecture SVG override ────────────────────────────────── */
+    .arch-svg { max-width: 400px; }
+    .arch-label-sm {
+      fill: rgba(0, 204, 204, 0.6);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* ── WebSocket flow visual ──────────────────────────────────────── */
+    .ws-flow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .flow-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 10px;
+    }
+    .flow-card.flow-client { border-color: rgba(0, 234, 170, 0.3); }
+    .flow-card.flow-server { border-color: rgba(0, 170, 255, 0.3); }
+    .flow-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .flow-client .flow-label { color: rgba(0, 234, 170, 0.6); }
+    .flow-server .flow-label { color: rgba(0, 170, 255, 0.6); }
+    .flow-detail {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3px;
+      line-height: 1.5;
+    }
+    .flow-match {
+      color: rgba(0, 204, 204, 0.5);
+      font-size: 20px;
+      flex-shrink: 0;
+      animation: pulse-match 2s ease-in-out infinite;
+    }
+    @keyframes pulse-match {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Banking visual ────────────────────────────────────────────── */
+    .bank-compare {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .bank-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .bank-card.bank-earn { border-color: rgba(0, 234, 170, 0.3); }
+    .bank-card.bank-spend { border-color: rgba(255, 102, 51, 0.3); }
+    .bank-icon {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .bank-earn .bank-icon { color: #0ea; }
+    .bank-spend .bank-icon { color: #f63; }
+    .bank-name {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 10px;
+    }
+    .bank-stat {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+    .bank-vs {
+      color: rgba(0, 204, 204, 0.4);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .bank-footer {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 14px;
+      color: rgba(0, 204, 204, 0.5);
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      #header-panel {
+        width: min(500px, 90vw);
+      }
+    }
+    @media (max-width: 600px) {
+      #header-panel {
+        padding: 16px 20px;
+        max-width: 94vw;
+        top: 2%;
+      }
+      #title-overlay {
+        font-size: clamp(24px, 8vw, 36px);
+      }
+      #mobile-tagline {
+        display: block;
+      }
+      #demo-panel {
+        top: auto;
+        bottom: 3%;
+        transform: translateX(-50%);
+        width: min(310px, 92vw);
+      }
+    }
+    @media (hover: none) {
+      #demo-panel {
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+    }
+
+    /* ── Tech content responsive override ────────────────────────── */
+    @media (max-width: 800px) {
+      .row-visual { max-width: 340px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flow-match { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="back-link" href="/">&larr; back</a>
+  <div id="progress-bar"></div>
+  <div id="canvas-container"></div>
+
+  <div id="header-panel">
+    <div id="title-overlay">
+      <span class="title-bit">Bit</span><span class="title-brush">Brush</span>
+    </div>
+    <p id="mobile-tagline">Multiplayer pixel canvas</p>
+    <p id="tech-subtitle">under the hood</p>
+  </div>
+
+  <div id="demo-panel">
+    <div class="demo-header">try it &mdash; paint some pixels</div>
+    <div class="mini-canvas-wrap">
+      <canvas id="mini-canvas"></canvas>
+    </div>
+    <div class="mini-palette" id="mini-palette"></div>
+    <div class="mini-bank">
+      <span class="bank-label">bank:</span>
+      <div class="bank-bar-track"><div id="bank-fill"></div></div>
+      <span class="bank-count"><span id="bank-count">25</span>/25</span>
+    </div>
+    <div class="ghost-label">other users are painting too</div>
+  </div>
+
+  <div id="scroll-hint">
+    scroll to explore
+    <span class="arrow">&#9663;</span>
+  </div>
+  <div id="runway"></div>
+  <div id="runway-buffer"></div>
+
+  <!-- ── Tech content (appears after scroll animation) ──────────── -->
+  <div id="tech-content">
+    <div class="rows">
+
+      <div class="row">
+        <div class="row-visual">
+          <svg class="arch-svg" viewBox="0 0 500 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="arch-line" d="M 215 52 C 185 60, 155 68, 130 78" fill="none"/>
+            <path class="arch-line" d="M 290 52 C 320 60, 370 65, 395 78" fill="none"/>
+            <path class="arch-line" d="M 105 130 C 105 142, 185 150, 210 158" fill="none"/>
+            <path class="arch-line" d="M 400 130 C 400 142, 330 150, 305 158" fill="none"/>
+            <path class="arch-line" d="M 250 215 C 250 228, 250 234, 250 242" fill="none"/>
+            <rect class="arch-node" x="190" y="12" width="120" height="40" rx="10"/>
+            <text class="arch-label" x="250" y="32">Browser</text>
+            <rect class="arch-node" x="25" y="78" width="160" height="52" rx="10"/>
+            <text class="arch-label" x="105" y="98">REST Controller</text>
+            <text class="arch-label-sm" x="105" y="118">@RestController</text>
+            <rect class="arch-node" x="315" y="78" width="160" height="52" rx="10"/>
+            <text class="arch-label" x="395" y="98">WebSocket</text>
+            <text class="arch-label-sm" x="395" y="118">STOMP broker</text>
+            <defs>
+              <filter id="svc-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <rect class="arch-hub-glow" x="147" y="158" width="206" height="57" rx="10"
+                  fill="rgba(0,204,204,0.25)" filter="url(#svc-blur)"/>
+            <rect class="arch-node" x="147" y="158" width="206" height="57" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="250" y="180">Services</text>
+            <text class="arch-label-sm" x="250" y="200">Pixel &middot; Banking</text>
+            <rect class="arch-node" x="175" y="242" width="150" height="36" rx="10"/>
+            <text class="arch-label" x="250" y="260">Repository &middot; H2</text>
+          </svg>
+        </div>
+        <h2 class="row-title">architecture</h2>
+        <div class="row-text">
+          <ul>
+            <li>Spring Boot 3.5 with Controller &rarr; Service &rarr; Repository layering</li>
+            <li>REST endpoints for pixel placement, canvas state, and PNG export</li>
+            <li>Built-in STOMP broker broadcasts every pixel to all connected clients</li>
+            <li>H2 embedded database &mdash; zero setup, persists via Docker volume</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row row--reverse">
+        <div class="row-visual">
+          <div class="ws-flow">
+            <div class="flow-card flow-client">
+              <div class="flow-label">Client A</div>
+              <div class="flow-detail">POST /api/pixels</div>
+              <div class="flow-detail">{x, y, color}</div>
+              <div class="flow-detail">Paint locally</div>
+            </div>
+            <div class="flow-match">&rarr;</div>
+            <div class="flow-card flow-server">
+              <div class="flow-label">Server</div>
+              <div class="flow-detail">Validate &amp; persist</div>
+              <div class="flow-detail">Broadcast via STOMP</div>
+              <div class="flow-detail">/topic/pixels</div>
+            </div>
+            <div class="flow-match">&rarr;</div>
+            <div class="flow-card flow-client">
+              <div class="flow-label">Client B</div>
+              <div class="flow-detail">Receive via WS</div>
+              <div class="flow-detail">Paint pixel</div>
+              <div class="flow-detail">Instant update</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">real-time collaboration</h2>
+        <div class="row-text">
+          <ul>
+            <li>Pixels painted locally on click for instant feedback, then POSTed</li>
+            <li>Server validates, persists, and broadcasts via SimpMessagingTemplate</li>
+            <li>All clients subscribe to /topic/pixels &mdash; placements appear instantly</li>
+            <li>@SubscribeMapping delivers initial state on connect (no race conditions)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-visual">
+          <div class="bank-compare">
+            <div class="bank-card bank-earn">
+              <div class="bank-icon">+1</div>
+              <div class="bank-name">Earn</div>
+              <div class="bank-stat">Every 3 seconds</div>
+              <div class="bank-stat">Max 25 banked</div>
+              <div class="bank-stat">Connected only</div>
+              <div class="bank-footer">@Scheduled task</div>
+            </div>
+            <div class="bank-vs">&harr;</div>
+            <div class="bank-card bank-spend">
+              <div class="bank-icon">&minus;1</div>
+              <div class="bank-name">Spend</div>
+              <div class="bank-stat">Per pixel placed</div>
+              <div class="bank-stat">Atomic deduction</div>
+              <div class="bank-stat">Partial batch OK</div>
+              <div class="bank-footer">compute() &mdash; no races</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">thread-safe banking</h2>
+        <div class="row-text">
+          <ul>
+            <li>ConcurrentHashMap.compute() for atomic check-and-deduct</li>
+            <li>Immutable BankState record prevents partial mutations</li>
+            <li>Drag painting: if balance runs out mid-batch, only first N pixels placed</li>
+            <li>Per-user WebSocket push updates the bank display in real time</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="tech-footer">
+      Sole developer <span>&middot;</span> Java 21 <span>&middot;</span> Spring Boot 3.5 <span>&middot;</span>
+      H2 <span>&middot;</span> WebSocket/STOMP <span>&middot;</span> Vanilla JS <span>&middot;</span>
+      Canvas API <span>&middot;</span> Docker <span>&middot;</span> Gradle
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="../../utils/math.js"></script>
+  <script src="../../utils/prng.js"></script>
+  <script src="bitbrush.js"></script>
+  <script src="../../marquee.js"></script>
+</body>
+
+</html>
