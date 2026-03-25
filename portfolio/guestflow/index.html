@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mark Dingwall - Guestflow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/portfolio.css">
+  <style>
+    /* ── Page-specific overrides ─────────────────────────────────────── */
+    #runway { height: 300vh; }
+    #header-panel { padding: 24px 48px 16px; }
+
+    #title-overlay {
+      display: block;
+      margin: 0 auto;
+      font-family: 'Major Mono Display', monospace;
+      font-size: clamp(28px, 5vw, 52px);
+      color: #0cc;
+      letter-spacing: 0.12em;
+      line-height: 1.2;
+    }
+    #subtitle {
+      font-size: clamp(16px, 2vw, 22px);
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 4px;
+      letter-spacing: 0.12em;
+    }
+    #narrative-panel {
+      position: fixed;
+      left: 30%;
+      top: 42%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      width: min(500px, 50vw);
+      transition: opacity 0.4s ease;
+    }
+    .narrative-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: clamp(18px, 2.5vw, 28px);
+      pointer-events: none;
+      opacity: 0;
+      line-height: 1.4;
+      will-change: transform, opacity;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+    }
+    .narrative-line:nth-child(1) { color: rgba(255, 180, 100, 0.85); }
+    .narrative-line:nth-child(2) { color: rgba(255, 200, 140, 0.85); }
+    .narrative-line:nth-child(3) { color: rgba(200, 220, 200, 0.85); }
+    .narrative-line:nth-child(4) { color: rgba(100, 220, 220, 0.85); }
+    .narrative-line:nth-child(5) { color: rgba(50, 230, 160, 0.85); }
+
+    #pipeline {
+      position: fixed;
+      right: 5%;
+      top: 30%;
+      width: 36vw;
+      max-width: 550px;
+      z-index: 10;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.4s ease;
+    }
+    #pipeline-bars {
+      position: relative;
+    }
+    .pipeline-header {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(13px, 1.2vw, 17px);
+      margin-bottom: 10px;
+    }
+    .pipeline-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: clamp(28px, 4.5vh, 42px);
+      transition: top 0.4s ease;
+      cursor: default;
+    }
+    .pipeline-bar:focus {
+      outline: 2px solid #0cc;
+      outline-offset: 2px;
+    }
+    .pipeline-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bar-color);
+      opacity: 0.12;
+      border-radius: 2px;
+    }
+    .pipeline-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0;
+      background: var(--bar-color);
+      opacity: 0.65;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .pipeline-label {
+      position: absolute;
+      top: 0; left: 6px; bottom: 0;
+      display: flex;
+      align-items: center;
+      color: #000;
+      font-size: clamp(14px, 1.5vw, 20px);
+      font-weight: bold;
+    }
+    .flow-selector {
+      margin-top: 16px;
+      pointer-events: auto;
+    }
+    .flow-title {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(13px, 1.2vw, 17px);
+      margin-bottom: 8px;
+    }
+    .flow-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    .row-title-hero {
+      font-family: 'Major Mono Display', monospace;
+      font-size: clamp(22px, 3vw, 36px);
+      color: #0cc;
+      margin-bottom: 12px;
+      letter-spacing: 0.1em;
+    }
+    .arch-label-sm {
+      fill: #0cc;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+    .cache-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 320px;
+    }
+    .cache-layer {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .cache-layer.cache-fast {
+      border-color: rgba(0, 234, 170, 0.4);
+      box-shadow: 0 0 15px rgba(0, 234, 170, 0.08);
+    }
+    .cache-layer.cache-persist {
+      border-color: rgba(0, 170, 255, 0.4);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.08);
+    }
+    .cache-layer.cache-mint {
+      border-color: rgba(255, 150, 50, 0.4);
+      box-shadow: 0 0 15px rgba(255, 150, 50, 0.08);
+    }
+    .cache-label {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .cache-fast .cache-label { color: rgba(0, 234, 170, 0.7); }
+    .cache-persist .cache-label { color: rgba(0, 170, 255, 0.7); }
+    .cache-mint .cache-label { color: rgba(255, 150, 50, 0.7); }
+    .cache-detail {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+    }
+    .cache-arrow {
+      color: rgba(0, 204, 204, 0.3);
+      font-size: 20px;
+      padding: 4px 0;
+      animation: pulse-arrow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .widget-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .widget-card {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .widget-card.wc-calendar { border-color: rgba(0, 234, 170, 0.3); }
+    .widget-card.wc-map { border-color: rgba(0, 170, 255, 0.3); }
+    .widget-card.wc-payment { border-color: rgba(204, 120, 255, 0.3); }
+    .widget-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      width: 36px;
+      text-align: center;
+    }
+    .widget-info { flex: 1; }
+    .widget-name {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2px;
+    }
+    .wc-calendar .widget-name { color: rgba(0, 234, 170, 0.9); }
+    .wc-map .widget-name { color: rgba(0, 170, 255, 0.9); }
+    .wc-payment .widget-name { color: rgba(204, 120, 255, 0.9); }
+    .widget-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.4;
+    }
+
+    /* ── Scroll animation responsive ────────────────────────────────── */
+    @media (max-width: 1200px) {
+      #header-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.4s ease;
+      }
+      #narrative-panel {
+        left: 50%;
+        top: 55%;
+        width: min(500px, 90vw);
+      }
+      #pipeline {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(500px, 90vw);
+        max-width: none;
+      }
+      .flow-selector {
+        margin-top: 2em;
+      }
+    }
+    @media (max-width: 600px) {
+      #header-panel {
+        padding: 16px 20px 12px;
+        max-width: 94vw;
+        top: 2%;
+      }
+      #title-overlay {
+        font-size: clamp(22px, 8vw, 36px);
+      }
+      #narrative-panel {
+        top: 50%;
+        width: 88vw;
+      }
+      .narrative-line {
+        font-size: clamp(18px, 4.5vw, 24px);
+      }
+      #pipeline {
+        left: 5%;
+        right: 5%;
+        transform: none;
+        top: auto;
+        bottom: 8%;
+        width: auto;
+        max-width: none;
+      }
+      .pipeline-bar {
+        height: 20px;
+      }
+      .pipeline-track {
+        opacity: 0.06;
+      }
+      .pipeline-header {
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      .pipeline-label {
+        font-size: 13px;
+      }
+      .flow-options {
+        flex-direction: column;
+        gap: 6px;
+      }
+      .flow-btn {
+        font-size: 13px;
+        padding: 4px 10px;
+      }
+      #tooltip {
+        font-size: 13px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cache-arrow { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="back-link" href="/">&larr; back</a>
+  <div id="progress-bar"></div>
+  <div id="canvas-container"></div>
+  <div id="header-panel">
+    <h1 id="title-overlay">Guestflow</h1>
+    <div id="subtitle">property sync system</div>
+  </div>
+  <div id="narrative-panel">
+    <div class="narrative-line">Every listing site makes your property look the same as the rest.</div>
+    <div class="narrative-line">A custom front-end changes the game — but only if it stays in sync.</div>
+    <div class="narrative-line">Guestflow keeps it live. Real pricing, live calendars, direct bookings.</div>
+  </div>
+  <div id="pipeline" style="display:none">
+    <div class="pipeline-header">System components</div>
+    <div id="pipeline-bars" role="list" aria-label="System component activity"></div>
+    <div id="tooltip"></div>
+    <div class="flow-selector">
+      <div class="flow-title">Active flow:</div>
+      <div class="flow-options">
+        <button class="flow-btn active" data-flow="0">Listing Sync</button>
+        <button class="flow-btn" data-flow="1">Availability</button>
+        <button class="flow-btn" data-flow="2">Book & Pay</button>
+      </div>
+    </div>
+  </div>
+  <div id="scroll-hint">
+    scroll to explore
+    <span class="arrow">&#9663;</span>
+  </div>
+  <div id="runway"></div>
+  <div id="runway-buffer"></div>
+
+  <!-- ── Tech content (appears after scroll animation) ──────────── -->
+  <div id="tech-content">
+    <div class="rows">
+
+      <!-- Row 1: Architecture — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <svg class="arch-svg" viewBox="0 0 500 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="arch-line" d="M 250 64 C 250 80, 250 90, 250 106" fill="none"/>
+            <path class="arch-line" d="M 200 154 C 170 180, 120 210, 90 236" fill="none"/>
+            <path class="arch-line" d="M 250 154 C 250 180, 250 200, 250 236" fill="none"/>
+            <path class="arch-line" d="M 300 154 C 330 180, 380 210, 410 236" fill="none"/>
+            <rect class="arch-node" x="185" y="16"  width="130" height="48" rx="10"/>
+            <text class="arch-label" x="250" y="40">Guesty</text>
+            <defs>
+              <filter id="worker-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <rect class="arch-hub-glow" x="155" y="106" width="190" height="48" rx="10"
+                  fill="rgba(0,204,204,0.25)" filter="url(#worker-blur)"/>
+            <rect class="arch-node" x="155" y="106" width="190" height="48" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="250" y="130">CF Worker</text>
+            <rect class="arch-node" x="25"  y="236" width="130" height="44" rx="10"/>
+            <text class="arch-label" x="90"  y="258">Webflow</text>
+            <rect class="arch-node" x="185" y="236" width="130" height="44" rx="10"/>
+            <text class="arch-label" x="250" y="258">Cache</text>
+            <rect class="arch-node" x="345" y="236" width="130" height="44" rx="10"/>
+            <text class="arch-label" x="410" y="258">Booking</text>
+          </svg>
+        </div>
+        <h2 class="row-title row-title-hero">under the hood</h2>
+        <div class="row-text">
+          <ul>
+            <li>TypeScript on Cloudflare Workers — edge-deployed, sub-50ms responses</li>
+            <li>Webhook-driven sync pipeline with Zod validation at every boundary</li>
+            <li>7 REST endpoints serving the Webflow CMS and 3 embeddable widget bundles</li>
+            <li>Full test coverage with Vitest; esbuild for widget bundling</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 2: Token caching — text left, visual right -->
+      <div class="row row--reverse">
+        <div class="row-visual">
+          <div class="cache-stack">
+            <div class="cache-layer cache-fast">
+              <div class="cache-label">In-Memory</div>
+              <div class="cache-detail">Per-worker, fastest lookup</div>
+              <div class="cache-detail">Lost on cold start</div>
+            </div>
+            <div class="cache-arrow">&darr; miss</div>
+            <div class="cache-layer cache-persist">
+              <div class="cache-label">CF Cache API</div>
+              <div class="cache-detail">Persistent, shared across workers</div>
+              <div class="cache-detail">Survives restarts</div>
+            </div>
+            <div class="cache-arrow">&darr; miss</div>
+            <div class="cache-layer cache-mint">
+              <div class="cache-label">OAuth Mint</div>
+              <div class="cache-detail">Guesty API call</div>
+              <div class="cache-detail">5 per 24 hours</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">token caching</h2>
+        <div class="row-text">
+          <ul>
+            <li>Two-tier caching strategy: in-memory + CF Cache API</li>
+            <li>Solved stateless Worker cold-start problem for OAuth tokens</li>
+            <li>Proactive refresh with safety buffers to avoid rate limits</li>
+            <li>Zero-downtime under Guesty's strict 5-token-per-day constraint</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 3: Embeddable widgets — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <div class="widget-cards">
+            <div class="widget-card wc-calendar">
+              <div class="widget-icon">&#128197;</div>
+              <div class="widget-info">
+                <div class="widget-name">Calendar Widget</div>
+                <div class="widget-desc">Date picker with live availability and per-night pricing</div>
+              </div>
+            </div>
+            <div class="widget-card wc-map">
+              <div class="widget-icon">&#128205;</div>
+              <div class="widget-info">
+                <div class="widget-name">Map Widget</div>
+                <div class="widget-desc">Mapbox pins with pricing, Finsweet filter integration</div>
+              </div>
+            </div>
+            <div class="widget-card wc-payment">
+              <div class="widget-icon">&#128179;</div>
+              <div class="widget-info">
+                <div class="widget-name">Payment Widget</div>
+                <div class="widget-desc">Guesty Tokenization SDK — card data never touches our server</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">embeddable widgets</h2>
+        <div class="row-text">
+          <ul>
+            <li>Three standalone JS bundles built with esbuild, served from the API</li>
+            <li>PCI-compliant payments via Guesty Tokenization SDK</li>
+            <li>Mapbox integration with live event-driven filtering</li>
+            <li>Webhook-triggered cache invalidation per listing, per month</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="tech-footer">
+      Sole developer <span>&middot;</span> Next.js 15 <span>&middot;</span> TypeScript <span>&middot;</span>
+      Cloudflare Workers <span>&middot;</span> Zod <span>&middot;</span> Vitest <span>&middot;</span>
+      esbuild <span>&middot;</span> Webflow API <span>&middot;</span> Guesty API
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="../../utils/math.js"></script>
+  <script src="../../utils/prng.js"></script>
+  <script src="guestflow.js"></script>
+  <script src="../../marquee.js"></script>
+</body>
+
+</html>
