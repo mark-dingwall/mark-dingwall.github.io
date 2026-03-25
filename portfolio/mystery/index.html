@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mark Dingwall - Mystery Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/portfolio.css">
+  <style>
+    /* ── Page-specific overrides ────────────────────────────────────── */
+    #runway { height: 500vh; }
+    #header-panel {
+      padding: 24px 32px 16px;
+      width: min(700px, 50vw);
+      transition: left 0.6s ease, opacity 0.4s ease;
+    }
+    #header-panel.shifted {
+      left: 30%;
+    }
+    #title-overlay {
+      display: block;
+      margin: 0 auto;
+      font-family: 'Major Mono Display', monospace;
+      font-size: clamp(20px, 3.5vw, 42px);
+      color: #0cc;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    #subtitle {
+      font-size: clamp(12px, 1.3vw, 16px);
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 4px;
+      letter-spacing: 0.12em;
+    }
+    #narrative {
+      position: fixed;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(700px, 80vw);
+      min-height: 3.2em;
+      z-index: 10;
+      pointer-events: none;
+      text-align: center;
+      font-size: clamp(18px, 2.5vw, 28px);
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 204, 204, 0.15);
+      border-radius: 8px;
+      padding: 12px 24px;
+      overflow: hidden;
+    }
+    .narrative-line {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: calc(100% - 48px);
+      text-align: center;
+      font-size: clamp(18px, 2.5vw, 28px);
+      pointer-events: none;
+      opacity: 0;
+      line-height: 1.4;
+      will-change: transform, opacity;
+    }
+    .narrative-line:nth-child(1) { color: rgba(140, 200, 100, 0.85); }
+    .narrative-line:nth-child(2) { color: rgba(230, 160, 80, 0.85); }
+    .narrative-line:nth-child(3) { color: rgba(180, 220, 200, 0.85); }
+    .narrative-line:nth-child(4) { color: rgba(100, 220, 220, 0.85); }
+    .narrative-line:nth-child(5) { color: rgba(50, 230, 160, 0.85); }
+
+    #ranking {
+      position: fixed;
+      right: 5%;
+      top: 28%;
+      width: 36vw;
+      max-width: 550px;
+      z-index: 10;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.4s ease;
+    }
+    #ranking-bars {
+      position: relative;
+    }
+    .ranking-header {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(14px, 1.2vw, 17px);
+      margin-bottom: 8px;
+    }
+    .ranking-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: clamp(22px, 3.5vh, 34px);
+      transition: top 0.4s ease;
+      cursor: default;
+    }
+    .ranking-bar:focus {
+      outline: 2px solid #0cc;
+      outline-offset: 2px;
+    }
+    .ranking-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bar-color);
+      opacity: 0.12;
+      border-radius: 2px;
+    }
+    .ranking-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0;
+      background: var(--bar-color);
+      opacity: 0.65;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .ranking-label {
+      position: absolute;
+      top: 0; left: 6px; bottom: 0;
+      display: flex;
+      align-items: center;
+      color: #000;
+      font-size: clamp(14px, 1.3vw, 17px);
+      font-weight: bold;
+    }
+    .preference-selector {
+      margin-top: 14px;
+      pointer-events: auto;
+    }
+    .pref-title {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(14px, 1.2vw, 17px);
+      margin-bottom: 8px;
+    }
+    .pref-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    /* ── Scoring comparison ──────────────────────────────────────────── */
+    .score-compare {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .score-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .score-card.score-winner {
+      border-color: rgba(0, 204, 204, 0.4);
+      box-shadow: 0 0 20px rgba(0, 204, 204, 0.1);
+    }
+    .score-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .score-card.score-winner .score-label {
+      color: rgba(0, 204, 204, 0.6);
+    }
+    .score-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .score-winner .score-value { color: #0cc; }
+    .score-stat {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 3px;
+    }
+    .score-pos { color: #4f8; }
+    .score-neg { color: #f96; }
+    .score-vs {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── Before/after flow ───────────────────────────────────────────── */
+    .flow-compare {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .flow-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+    }
+    .flow-card.flow-before {
+      border-color: rgba(230, 130, 60, 0.3);
+    }
+    .flow-card.flow-after {
+      border-color: rgba(0, 204, 170, 0.3);
+    }
+    .flow-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .flow-before .flow-label { color: rgba(230, 130, 60, 0.6); }
+    .flow-after .flow-label { color: rgba(0, 204, 170, 0.6); }
+    .flow-detail {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3px;
+      line-height: 1.5;
+    }
+    .flow-arrow {
+      color: rgba(0, 204, 204, 0.5);
+      font-size: 22px;
+      flex-shrink: 0;
+      animation: pulse-arrow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Scroll animation responsive ────────────────────────────────── */
+    @media (max-width: 1200px) {
+      #header-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(600px, 90vw);
+        transition: opacity 0.4s ease;
+      }
+      #ranking {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(500px, 90vw);
+        max-width: none;
+      }
+      .preference-selector {
+        margin-top: 2em;
+      }
+    }
+    @media (max-width: 600px) {
+      #title-overlay {
+        font-size: clamp(18px, 6vw, 28px);
+      }
+      .narrative-line {
+        font-size: clamp(16px, 4.5vw, 22px);
+      }
+      #narrative {
+        width: min(500px, 90vw);
+        bottom: 32px;
+        padding: 10px 16px;
+      }
+      #ranking {
+        left: 5%;
+        right: 5%;
+        transform: none;
+        top: auto;
+        bottom: 6%;
+        width: auto;
+        max-width: none;
+      }
+      .ranking-bar {
+        height: 18px;
+      }
+      .ranking-track {
+        opacity: 0.06;
+      }
+      .ranking-header {
+        font-size: 11px;
+        margin-bottom: 5px;
+      }
+      .ranking-label {
+        font-size: 11px;
+      }
+      .pref-options {
+        flex-direction: column;
+        gap: 5px;
+      }
+      .pref-btn {
+        font-size: 12px;
+        padding: 3px 8px;
+      }
+      #tooltip {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .score-compare {
+        flex-direction: column;
+        max-width: 240px;
+      }
+      .score-vs { display: none; }
+      .flow-compare {
+        flex-direction: column;
+        max-width: 240px;
+      }
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    @media (hover: none) {
+      #narrative {
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flow-arrow { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="back-link" href="/">&larr; back</a>
+  <div id="progress-bar"></div>
+  <div id="canvas-container"></div>
+  <div id="header-panel">
+    <div id="title-overlay">Mystery Box Manager</div>
+    <div id="subtitle">produce allocation engine</div>
+    <p id="tech-subtitle">Architecture</p>
+  </div>
+  <div id="narrative">
+    <div class="narrative-line">Every week, surplus produce needs distributing into mystery boxes.</div>
+    <div class="narrative-line">By hand, it's slow and uneven. Some boxes get shortchanged.</div>
+    <div class="narrative-line">An ILP solver balances value, variety, and fairness at once.</div>
+    <div class="narrative-line">Seven strategies compete. Every one outperforms manual packing.</div>
+    <div class="narrative-line">Tweak the priorities. The algorithm adapts instantly.</div>
+  </div>
+  <div id="ranking">
+    <div class="ranking-header">Strategy leaderboard</div>
+    <div id="ranking-bars" role="list" aria-label="Strategy rankings"></div>
+    <div id="tooltip"></div>
+    <div class="preference-selector">
+      <div class="pref-title">Optimise for:</div>
+      <div class="pref-options">
+        <button class="pref-btn active" data-pref="0">Balanced</button>
+        <button class="pref-btn" data-pref="1">Value accuracy first</button>
+        <button class="pref-btn" data-pref="2">Maximum diversity</button>
+      </div>
+    </div>
+  </div>
+  <div id="scroll-hint">
+    scroll to explore
+    <span class="arrow">&#9663;</span>
+  </div>
+  <div id="runway"></div>
+  <div id="runway-buffer"></div>
+
+  <!-- ── Tech content (appears after scroll animation) ──────────── -->
+  <div id="tech-content">
+    <div class="rows">
+
+      <!-- Row 1: Pipeline architecture — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <svg class="arch-svg" viewBox="0 0 460 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- curved connections -->
+            <path class="arch-line" d="M 120 52 C 155 52, 160 90, 185 100" fill="none"/>
+            <path class="arch-line" d="M 120 200 C 155 200, 165 145, 185 130" fill="none"/>
+            <path class="arch-line" d="M 310 115 C 330 115, 345 60, 365 52" fill="none"/>
+            <path class="arch-line" d="M 250 155 C 250 185, 250 200, 250 220" fill="none"/>
+            <!-- nodes -->
+            <rect class="arch-node" x="15" y="28" width="105" height="48" rx="10"/>
+            <text class="arch-label" x="68" y="52">XLSX</text>
+            <rect class="arch-node" x="15" y="176" width="105" height="48" rx="10"/>
+            <text class="arch-label" x="68" y="200">MySQL</text>
+            <!-- Strategy hub with glow -->
+            <defs>
+              <filter id="strat-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <rect class="arch-hub-glow" x="185" y="80" width="150" height="60" rx="10"
+                  fill="rgba(0,204,204,0.25)" filter="url(#strat-blur)"/>
+            <rect class="arch-node" x="185" y="80" width="150" height="60" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="260" y="110">Strategy</text>
+            <rect class="arch-node" x="365" y="28" width="85" height="48" rx="10"/>
+            <text class="arch-label" x="407" y="52" font-size="15">Output</text>
+            <rect class="arch-node" x="200" y="220" width="120" height="48" rx="10"/>
+            <text class="arch-label" x="260" y="244" font-size="15">Scorer</text>
+          </svg>
+        </div>
+        <h2 class="row-title">pipeline</h2>
+        <div class="row-text">
+          <ul>
+            <li>Weekly XLSX shopping lists define available produce overage</li>
+            <li>SSH-tunnelled MySQL queries fetch prices, customers, and box tiers</li>
+            <li>Pluggable strategy architecture: swap algorithms without changing plumbing</li>
+            <li>Tab-delimited output imports directly back into the Laravel app</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 2: Multi-objective scoring — text left, visual right -->
+      <div class="row row--reverse">
+        <div class="row-visual">
+          <div class="score-compare">
+            <div class="score-card">
+              <div class="score-label">Manual</div>
+              <div class="score-value" style="color: #f96">71</div>
+              <div class="score-stat">Value: 72% <span class="score-neg">-28%</span></div>
+              <div class="score-stat">Same item: 4x <span class="score-neg">excess</span></div>
+              <div class="score-stat">Categories: 3/8</div>
+            </div>
+            <div class="score-vs">vs</div>
+            <div class="score-card score-winner">
+              <div class="score-label">ILP-optimal</div>
+              <div class="score-value">94</div>
+              <div class="score-stat">Value: 98% <span class="score-pos">+26%</span></div>
+              <div class="score-stat">Same item: 2x <span class="score-pos">max</span></div>
+              <div class="score-stat">Categories: 7/8</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">six-dimensional scoring</h2>
+        <div class="row-text">
+          <ul>
+            <li>Value accuracy, same-item concentration, group balance, diversity, max share, size floor</li>
+            <li>A box with perfect value but no variety still gets penalised</li>
+            <li>Two-layer concentration model prevents both item and category flooding</li>
+            <li>Optuna-tuned weights, cross-validated against 42 historical offers</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 3: Strategy competition — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <div class="flow-compare">
+            <div class="flow-card flow-before">
+              <div class="flow-label">Before</div>
+              <div class="flow-detail">~45 min per week</div>
+              <div class="flow-detail">Inconsistent quality</div>
+              <div class="flow-detail">No objective metrics</div>
+              <div class="flow-detail">Human bias in packing</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-card flow-after">
+              <div class="flow-label">After</div>
+              <div class="flow-detail">&lt; 1 second</div>
+              <div class="flow-detail">Deterministic output</div>
+              <div class="flow-detail">Six-dimensional scoring</div>
+              <div class="flow-detail">339 tests, no DB needed</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">seven strategies</h2>
+        <div class="row-text">
+          <ul>
+            <li>From simple round-robin to ILP multi-objective solver (PuLP/CBC)</li>
+            <li>All seven automated strategies outperform manual packing</li>
+            <li>Local search bootstraps from simpler strategies, then iteratively improves</li>
+            <li>Validated against 45 historical offers across four data quality tiers</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="tech-footer">
+      Sole developer <span>&middot;</span> Python <span>&middot;</span> PuLP/CBC <span>&middot;</span>
+      MySQL <span>&middot;</span> Paramiko <span>&middot;</span> Textual TUI <span>&middot;</span>
+      Optuna <span>&middot;</span> openpyxl
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="../../utils/math.js"></script>
+  <script src="../../utils/prng.js"></script>
+  <script src="../../utils/easing.js"></script>
+  <script src="mystery.js?v=4"></script>
+  <script src="../../marquee.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mark Dingwall - Mystery Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/portfolio.css">
+  <style>
+    /* ── Back link: plain variant (no frosted glass) ────────────────── */
+    .back-link {
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      padding: 0;
+      border-radius: 0;
+      border: none;
+    }
+
+    /* ── Background ─────────────────────────────────────────────────── */
+    #tech-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle, rgba(0, 180, 120, 0.15) 1px, transparent 1px),
+        radial-gradient(ellipse at 25% 50%, rgba(0, 180, 140, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 30%, rgba(0, 204, 204, 0.1) 0%, transparent 50%),
+        #000;
+      background-size: 40px 40px, 100% 100%, 100% 100%, 100% 100%;
+    }
+
+    /* ── Page wrapper ───────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────────── */
+    .tech-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 0 8px;
+    }
+    .tech-logo-text {
+      font-family: 'Major Mono Display', monospace;
+      font-size: clamp(18px, 2.5vw, 30px);
+      color: #0cc;
+      letter-spacing: 0.05em;
+    }
+    .tech-subtitle {
+      font-family: 'Major Mono Display', monospace;
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.15em;
+    }
+
+    /* ── Row overrides ──────────────────────────────────────────────── */
+    .rows { flex: 1; justify-content: center; }
+    .arch-label { font-size: 14px; }
+    .arch-line { stroke: rgba(var(--accent-rgb), 0.2); stroke-width: 1.5; }
+    .arch-arrow { fill: rgba(var(--accent-rgb), 0.3); }
+    .tech-footer { padding: 20px 0; }
+
+    /* ── Scoring comparison ──────────────────────────────────────────── */
+    .score-compare {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .score-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .score-card.score-winner {
+      border-color: rgba(0, 204, 204, 0.4);
+      box-shadow: 0 0 20px rgba(0, 204, 204, 0.1);
+    }
+    .score-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .score-card.score-winner .score-label {
+      color: rgba(0, 204, 204, 0.6);
+    }
+    .score-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .score-winner .score-value { color: #0cc; }
+    .score-stat {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 3px;
+    }
+    .score-pos { color: #4f8; }
+    .score-neg { color: #f96; }
+    .score-vs {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── Before/after flow ───────────────────────────────────────────── */
+    .flow-compare {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .flow-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+    }
+    .flow-card.flow-before {
+      border-color: rgba(230, 130, 60, 0.3);
+    }
+    .flow-card.flow-after {
+      border-color: rgba(0, 204, 170, 0.3);
+    }
+    .flow-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .flow-before .flow-label { color: rgba(230, 130, 60, 0.6); }
+    .flow-after .flow-label { color: rgba(0, 204, 170, 0.6); }
+    .flow-detail {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3px;
+      line-height: 1.5;
+    }
+    .flow-arrow {
+      color: rgba(0, 204, 204, 0.5);
+      font-size: 22px;
+      flex-shrink: 0;
+      animation: pulse-arrow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .tech-footer {
+      padding: 20px 0;
+      text-align: center;
+      font-size: clamp(14px, 1.3vw, 16px);
+      color: rgba(255, 255, 255, 0.35);
+    }
+    .tech-footer span {
+      color: rgba(0, 204, 204, 0.5);
+    }
+
+    /* ── Entrance animations ─────────────────────────────────────────── */
+    .row {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fade-up 0.6s ease-out forwards;
+    }
+    .row:nth-child(1) { animation-delay: 0.2s; }
+    .row:nth-child(2) { animation-delay: 0.5s; }
+    .row:nth-child(3) { animation-delay: 0.8s; }
+    .tech-footer {
+      opacity: 0;
+      animation: fade-up 0.6s ease-out 1.1s forwards;
+    }
+    @keyframes fade-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 800px) {
+      .page { padding: 0 20px; }
+      .row, .row--reverse {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .row-title { order: 1; }
+      .row-visual {
+        order: 2;
+        width: 100%;
+        max-width: 320px;
+      }
+      .row-text { order: 3; }
+      .rows { gap: 40px; padding: 24px 0; }
+    }
+
+    @media (max-width: 600px) {
+      .score-compare {
+        flex-direction: column;
+        max-width: 240px;
+      }
+      .score-vs { display: none; }
+      .flow-compare {
+        flex-direction: column;
+        max-width: 240px;
+      }
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .row, .tech-footer {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+      .arch-line { animation: none; }
+      .flow-arrow { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="back-link" href="/">&larr; back</a>
+  <div id="tech-bg"></div>
+
+  <div class="page">
+    <header class="tech-header">
+      <div class="tech-logo-text">mystery manager</div>
+      <p class="tech-subtitle">under the hood</p>
+    </header>
+
+    <div class="rows">
+
+      <!-- Row 1: Pipeline architecture — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <svg class="arch-svg" viewBox="0 0 400 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- connections -->
+            <line class="arch-line" x1="80"  y1="60"  x2="200" y2="118"/>
+            <line class="arch-line" x1="80"  y1="200" x2="200" y2="148"/>
+            <line class="arch-line" x1="295" y1="133" x2="340" y2="133"/>
+            <line class="arch-line" x1="200" y1="170" x2="200" y2="238"/>
+            <line class="arch-line" x1="200" y1="286" x2="200" y2="310"/>
+            <!-- arrow hints -->
+            <polygon class="arch-arrow" points="196,118 204,118 200,108"/>
+            <polygon class="arch-arrow" points="196,148 204,148 200,158"/>
+            <polygon class="arch-arrow" points="340,129 340,137 350,133"/>
+            <!-- nodes -->
+            <rect class="arch-node" x="20"  y="30"  width="120" height="44" rx="10"/>
+            <text class="arch-label" x="80"  y="52">XLSX Input</text>
+            <rect class="arch-node" x="20"  y="178" width="120" height="44" rx="10"/>
+            <text class="arch-label" x="80"  y="200">MySQL DB</text>
+            <rect class="arch-node" x="150" y="108" width="145" height="52" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="222" y="134" font-size="15">Strategy</text>
+            <rect class="arch-node" x="155" y="238" width="90"  height="48" rx="10"/>
+            <text class="arch-label" x="200" y="262" font-size="13">Scorer</text>
+            <rect class="arch-node" x="340" y="108" width="55"  height="48" rx="10"/>
+            <text class="arch-label" x="367" y="132" font-size="12">Output</text>
+            <rect class="arch-node" x="155" y="310" width="90"  height="30" rx="8"/>
+            <text class="arch-label" x="200" y="325" font-size="11">Charity</text>
+          </svg>
+        </div>
+        <h2 class="row-title">pipeline</h2>
+        <div class="row-text">
+          <ul>
+            <li>Weekly XLSX shopping lists define available produce overage</li>
+            <li>SSH-tunnelled MySQL queries fetch prices, customers, and box tiers</li>
+            <li>Pluggable strategy architecture: swap algorithms without changing plumbing</li>
+            <li>Tab-delimited output imports directly back into the Laravel app</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 2: Multi-objective scoring — text left, visual right -->
+      <div class="row row--reverse">
+        <div class="row-visual">
+          <div class="score-compare">
+            <div class="score-card">
+              <div class="score-label">Manual</div>
+              <div class="score-value" style="color: #f96">71</div>
+              <div class="score-stat">Value: 72% <span class="score-neg">-28%</span></div>
+              <div class="score-stat">Same item: 4x <span class="score-neg">excess</span></div>
+              <div class="score-stat">Categories: 3/8</div>
+            </div>
+            <div class="score-vs">vs</div>
+            <div class="score-card score-winner">
+              <div class="score-label">ILP-optimal</div>
+              <div class="score-value">94</div>
+              <div class="score-stat">Value: 98% <span class="score-pos">+26%</span></div>
+              <div class="score-stat">Same item: 2x <span class="score-pos">max</span></div>
+              <div class="score-stat">Categories: 7/8</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">six-dimensional scoring</h2>
+        <div class="row-text">
+          <ul>
+            <li>Value accuracy, same-item concentration, group balance, diversity, max share, size floor</li>
+            <li>A box with perfect value but no variety still gets penalised</li>
+            <li>Two-layer concentration model prevents both item and category flooding</li>
+            <li>Optuna-tuned weights, cross-validated against 42 historical offers</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 3: Strategy competition — visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <div class="flow-compare">
+            <div class="flow-card flow-before">
+              <div class="flow-label">Before</div>
+              <div class="flow-detail">~45 min per week</div>
+              <div class="flow-detail">Inconsistent quality</div>
+              <div class="flow-detail">No objective metrics</div>
+              <div class="flow-detail">Human bias in packing</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-card flow-after">
+              <div class="flow-label">After</div>
+              <div class="flow-detail">&lt; 1 second</div>
+              <div class="flow-detail">Deterministic output</div>
+              <div class="flow-detail">Six-dimensional scoring</div>
+              <div class="flow-detail">339 tests, no DB needed</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">seven strategies</h2>
+        <div class="row-text">
+          <ul>
+            <li>From simple round-robin to ILP multi-objective solver (PuLP/CBC)</li>
+            <li>All seven automated strategies outperform manual packing</li>
+            <li>Local search bootstraps from simpler strategies, then iteratively improves</li>
+            <li>Validated against 45 historical offers across four data quality tiers</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="tech-footer">
+      Sole developer <span>&middot;</span> Python <span>&middot;</span> PuLP/CBC <span>&middot;</span>
+      MySQL <span>&middot;</span> Paramiko <span>&middot;</span> Textual TUI <span>&middot;</span>
+      Optuna <span>&middot;</span> openpyxl
+    </footer>
+  </div>
+
+  <script src="../../marquee.js"></script>
+</body>
+
+</html>
