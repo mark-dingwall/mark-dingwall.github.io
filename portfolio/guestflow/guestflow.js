@@ -19,7 +19,7 @@ const GUESTFLOW_LABEL = 'Your website';
 
 // Booking triangles
 const TRIANGLE_BASE_SIZE = 16;
-const TRIANGLE_SPEED = 0.0022;
+const TRIANGLE_SPEED = 0.0044;
 const SPAWN_INTERVAL = 1.8;
 const MAX_TRIANGLES = 8;
 const TRIANGLE_COLORS = [
