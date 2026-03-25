@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mark Dingwall - Magnetites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/sketch.css">
+  <style>
+    html, body { background: #000; }
+    #drawHere { height: auto; }
+    canvas { display: block; }
+    #instructions { font-family: 'Overpass', sans-serif; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "simplex-noise": "https://cdn.jsdelivr.net/npm/simplex-noise@4.0.3/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="back-link" href="../">&larr; back</a>
+  <div id="instructions">Drag to rotate. Scroll to zoom. Keys 1-4: switch modes. S: symmetry view.</div>
+  <div id="hud" style="
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    color: white;
+    font-family: sans-serif;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 10;
+  "></div>
+  <script type="module" src="main.js"></script>
+  <script src="../../marquee.js"></script>
+</body>
+</html>
