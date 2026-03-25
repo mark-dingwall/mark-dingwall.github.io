@@ -4,26 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mark Dingwall - Bioluminescence</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Overpass&display=swap');
-    body {
-      font-family: 'Overpass', sans-serif;
-    }
-    html,
-    body,
-    #drawHere {
-      height: 100%;
-      margin: 0px;
-      overflow: hidden;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/sketch.css">
 </head>
 <body>
+  <a class="back-link" href="../">&larr; back</a>
   <div id="drawHere"></div>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js" integrity="sha256-TPc5vYhFkzX1pMi6htr5ApCovAnkNO/E4YEVgFzQwOs=" crossorigin="anonymous"></script>
+  <script src="../utils/simplex.js"></script>
   <script src="bioluminescence.js"></script>
-  <script>
-    var m='Mark Dingwall - Bioluminescence ',w=0;setInterval(()=>{document.title=`${m.substring(w)}${m.substring(0,w)}`;w=(w+(m[w]==' '?2:1))%m.length;},500);
-  </script>
+  <script src="../../marquee.js"></script>
 </body>
 </html>
