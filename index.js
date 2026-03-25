@@ -1,108 +1,328 @@
 "use strict";
 
-/*
- * A fast javascript implementation of simplex noise by Jonas Wagner
+// Quad layout (ring, scroll-down first then left):
+//   TL(3) | TR(0)  ← default view
+//   ------+------
+//   BL(2) | BR(1)
+/** @type {{ tx: number, ty: number }[]} */
+const QUADS = [
+  { tx: -1, ty:  0 },  // 0: TR — default view
+  { tx: -1, ty: -1 },  // 1: BR
+  { tx:  0, ty: -1 },  // 2: BL
+  { tx:  0, ty:  0 },  // 3: TL
+];
 
-Based on a speed-improved simplex noise algorithm for 2D, 3D and 4D in Java.
-Which is based on example code by Stefan Gustavson (stegu@itn.liu.se).
-With Optimisations by Peter Eastman (peastman@drizzle.stanford.edu).
-Better rank ordering method by Stefan Gustavson in 2012.
+// [quad][arrowKey] → target quad index | null (boundary)
+/** @type {Record<string, number|null>[]} */
+const NAV_MAP = [
+  { ArrowDown: 1, ArrowLeft:  3, ArrowUp:   null, ArrowRight: null }, // TR(0)
+  { ArrowLeft: 2, ArrowUp:    0, ArrowRight: null, ArrowDown:  null }, // BR(1)
+  { ArrowUp:   3, ArrowRight: 1, ArrowDown:  null, ArrowLeft:  null }, // BL(2)
+  { ArrowRight: 0, ArrowDown: 2, ArrowUp:    null, ArrowLeft:  null }, // TL(3)
+];
 
- Copyright (c) 2021 Jonas Wagner
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
-var F2 = .5 * (Math.sqrt(3) - 1), G2 = (3 - Math.sqrt(3)) / 6, F3 = 1 / 3, G3 = 1 / 6, F4 = (Math.sqrt(5) - 1) / 4, G4 = (5 - Math.sqrt(5)) / 20, grad3 = new Float32Array([1, 1, 0, -1, 1, 0, 1, -1, 0, -1, -1, 0, 1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, -1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0, -1, -1]), grad4 = new Float32Array([0, 1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1, 0, -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, 0, 1, -1, 1, 0, -1, 1, 1, 0, -1, -1, -1, 0, 1, 1, -1, 0, 1, -1, -1, 0, -1, 1, -1, 0, -1, -1, 1, 1, 0, 1, 1, 1, 0, -1, 1, -1, 0, 1, 1, -1, 0, -1, -1, 1, 0, 1, -1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, -1, 1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1,
-  -1, 0, -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1, 0]), SimplexNoise = function (a) { a = void 0 === a ? Math.random : a; a = "function" == typeof a ? a : alea(a); this.p = buildPermutationTable(a); this.perm = new Uint8Array(512); this.permMod12 = new Uint8Array(512); for (a = 0; 512 > a; a++)this.perm[a] = this.p[a & 255], this.permMod12[a] = this.perm[a] % 12 };
-SimplexNoise.prototype.noise2D = function (a, e) {
-  var b = this.permMod12, d = this.perm, c = 0, f = 0, r = 0, m = (a + e) * F2, q = Math.floor(a + m), l = Math.floor(e + m); m = (q + l) * G2; var g = a - (q - m), h = e - (l - m); if (g > h) { var k = 1; var n = 0 } else k = 0, n = 1; var p = g - k + G2, w = h - n + G2; m = g - 1 + 2 * G2; var x = h - 1 + 2 * G2; q &= 255; l &= 255; var v = .5 - g * g - h * h; 0 <= v && (c = 3 * b[q + d[l]], v *= v, c = v * v * (grad3[c] * g + grad3[c + 1] * h)); g = .5 - p * p - w * w; 0 <= g && (f = 3 * b[q + k + d[l + n]], g *= g, f = g * g * (grad3[f] * p + grad3[f + 1] * w)); p = .5 - m * m - x * x; 0 <= p && (b = 3 * b[q + 1 + d[l + 1]], p *= p, r = p * p * (grad3[b] * m + grad3[b + 1] * x)); return 70 *
-    (c + f + r)
+// Bounce offset: page nudges this direction to simulate hitting a wall
+/** @type {Record<string, [number, number]>} */
+const BOUNCE_OFFSET = {
+  ArrowUp:    [0,   30],
+  ArrowDown:  [0,  -30],
+  ArrowLeft:  [30,   0],
+  ArrowRight: [-30,  0],
 };
-SimplexNoise.prototype.noise3D = function (a, e, b) {
-  var d = this.permMod12, c = this.perm, f = (a + e + b) * F3, r = Math.floor(a + f), m = Math.floor(e + f), q = Math.floor(b + f); f = (r + m + q) * G3; var l = a - (r - f); var g = e - (m - f), h = b - (q - f), k, n; if (l >= g) if (g >= h) { var p = 1; var w = k = 0; var x = n = 1; var v = 0 } else l >= h ? (p = 1, w = k = 0) : (k = p = 0, w = 1), n = 1, x = 0, v = 1; else g < h ? (k = p = 0, w = 1, n = 0, v = x = 1) : l < h ? (p = 0, k = 1, n = w = 0, v = x = 1) : (p = 0, k = 1, w = 0, x = n = 1, v = 0); var u = l - p + G3; var t = g - k + G3, B = h - w + G3; a = l - n + 2 * G3; var y = g - x + 2 * G3, z = h - v + 2 * G3; b = l - 1 + 3 * G3; e = g - 1 + 3 * G3; f = h - 1 + 3 * G3; r &= 255; m &= 255;
-  q &= 255; var A = .6 - l * l - g * g - h * h; if (0 > A) l = 0; else { var C = 3 * d[r + c[m + c[q]]]; A *= A; l = A * A * (grad3[C] * l + grad3[C + 1] * g + grad3[C + 2] * h) } g = .6 - u * u - t * t - B * B; 0 > g ? u = 0 : (p = 3 * d[r + p + c[m + k + c[q + w]]], g *= g, u = g * g * (grad3[p] * u + grad3[p + 1] * t + grad3[p + 2] * B)); t = .6 - a * a - y * y - z * z; 0 > t ? a = 0 : (n = 3 * d[r + n + c[m + x + c[q + v]]], t *= t, a = t * t * (grad3[n] * a + grad3[n + 1] * y + grad3[n + 2] * z)); y = .6 - b * b - e * e - f * f; 0 > y ? d = 0 : (d = 3 * d[r + 1 + c[m + 1 + c[q + 1]]], y *= y, d = y * y * (grad3[d] * b + grad3[d + 1] * e + grad3[d + 2] * f)); return 32 * (l + u + a + d)
-};
-SimplexNoise.prototype.noise4D = function (a, e, b, d) {
-  var c = this.perm, f = (a + e + b + d) * F4, r = Math.floor(a + f), m = Math.floor(e + f), q = Math.floor(b + f), l = Math.floor(d + f); f = (r + m + q + l) * G4; var g = a - (r - f); var h = e - (m - f); var k = b - (q - f), n = d - (l - f); d = b = f = e = 0; g > h ? e++ : f++; g > k ? e++ : b++; g > n ? e++ : d++; h > k ? f++ : b++; h > n ? f++ : d++; k > n ? b++ : d++; var p = 3 <= e ? 1 : 0, w = 3 <= f ? 1 : 0, x = 3 <= b ? 1 : 0, v = 3 <= d ? 1 : 0; var u = 2 <= e ? 1 : 0; var t = 2 <= f ? 1 : 0, B = 2 <= b ? 1 : 0, y = 2 <= d ? 1 : 0; a = 1 <= e ? 1 : 0; var z = 1 <= f ? 1 : 0, A = 1 <= b ? 1 : 0, C = 1 <= d ? 1 : 0, F = g - p + G4, G = h - w + G4, H = k - x + G4, I = n - v + G4, J = g - u + 2 * G4, K = h - t +
-    2 * G4, L = k - B + 2 * G4, M = n - y + 2 * G4, N = g - a + 3 * G4, O = h - z + 3 * G4, P = k - A + 3 * G4, Q = n - C + 3 * G4; d = g - 1 + 4 * G4; b = h - 1 + 4 * G4; f = k - 1 + 4 * G4; e = n - 1 + 4 * G4; r &= 255; m &= 255; q &= 255; l &= 255; var D = .6 - g * g - h * h - k * k - n * n; if (0 > D) g = 0; else { var E = c[r + c[m + c[q + c[l]]]] % 32 * 4; D *= D; g = D * D * (grad4[E] * g + grad4[E + 1] * h + grad4[E + 2] * k + grad4[E + 3] * n) } h = .6 - F * F - G * G - H * H - I * I; 0 > h ? h = 0 : (k = c[r + p + c[m + w + c[q + x + c[l + v]]]] % 32 * 4, h *= h, h = h * h * (grad4[k] * F + grad4[k + 1] * G + grad4[k + 2] * H + grad4[k + 3] * I)); k = .6 - J * J - K * K - L * L - M * M; 0 > k ? u = 0 : (u = c[r + u + c[m + t + c[q + B + c[l + y]]]] % 32 * 4, k *= k, u = k * k * (grad4[u] * J + grad4[u +
-      1] * K + grad4[u + 2] * L + grad4[u + 3] * M)); t = .6 - N * N - O * O - P * P - Q * Q; 0 > t ? a = 0 : (a = c[r + a + c[m + z + c[q + A + c[l + C]]]] % 32 * 4, t *= t, a = t * t * (grad4[a] * N + grad4[a + 1] * O + grad4[a + 2] * P + grad4[a + 3] * Q)); z = .6 - d * d - b * b - f * f - e * e; 0 > z ? c = 0 : (c = c[r + 1 + c[m + 1 + c[q + 1 + c[l + 1]]]] % 32 * 4, z *= z, c = z * z * (grad4[c] * d + grad4[c + 1] * b + grad4[c + 2] * f + grad4[c + 3] * e)); return 27 * (g + h + u + a + c)
-}; function buildPermutationTable(a) { for (var e = new Uint8Array(256), b = 0; 256 > b; b++)e[b] = b; for (b = 0; 255 > b; b++) { var d = b + ~~(a() * (256 - b)), c = e[b]; e[b] = e[d]; e[d] = c } return e }
-function alea(a) { var e = 0, b = 0, d = 0, c = 1, f = masher(); e = f(" "); b = f(" "); d = f(" "); e -= f(a); 0 > e && (e += 1); b -= f(a); 0 > b && (b += 1); d -= f(a); 0 > d && (d += 1); return function () { var r = 2091639 * e + 2.3283064365386963E-10 * c; e = b; b = d; return d = r - (c = r | 0) } } function masher() { var a = 4022871197; return function (e) { e = e.toString(); for (var b = 0; b < e.length; b++) { a += e.charCodeAt(b); var d = .02519603282416938 * a; a = d >>> 0; d -= a; d *= a; a = d >>> 0; d -= a; a += 4294967296 * d } return 2.3283064365386963E-10 * (a >>> 0) } };
 
+// Corner markers: corner position → quad index that direction points to
+/** @type {{ quad: number, label: string, corner: string }[]} */
+const MARKERS = [
+  { quad: 3, label: '\u2196', corner: 'nav-tl' },   // ↖ → TL(3)
+  { quad: 0, label: '\u2197', corner: 'nav-tr' },   // ↗ → TR(0)
+  { quad: 2, label: '\u2199', corner: 'nav-bl' },   // ↙ → BL(2)
+  { quad: 1, label: '\u2198', corner: 'nav-br' },   // ↘ → BR(1)
+];
 
-// init on load
-const NOISE = new SimplexNoise();
-const TIME_INC = 0.01;
-const TRANSFORM_INC = 1;
-const INTENSITY_INC = 0.02;
-const NOISE_TRANSFORM_OFFSET = 10000;
+/** @type {number} */
+const SCROLL_PER_QUAD = 1600;  // px of wheel deltaY per full quad
+/** @type {number} */
+const LERP_FACTOR = 0.12;     // per-frame exponential decay (scroll only)
+/** @type {number} */
+const MS_PER_QUAD = 2000;      // arrow/marker animation speed
 
-let frameCount = 0;
-let intensity = 0;
+/** @type {HTMLElement} */
+const page = document.getElementById('page');
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".grid-cell").forEach(g => {
-    initGridItemText(g);
-    g.addEventListener('mouseenter', () => intensity = 0);
-  });
-  requestAnimationFrame(floatTextOfHoveredCell);
-});
+// --- State ---
+
+/** @type {number} */
+let position = 0;        // float, unbounded (normalized only for rendering)
+/** @type {number} */
+let targetPosition = 0;  // lerp target (scroll wheel)
+/** @type {{ startPos: number, endPos: number, startTime: number, duration: number } | null} */
+let arrowAnim = null;    // active timed animation, or null
+/** @type {boolean} */
+let isBouncing = false;  // CSS-transition bounce in progress
+
+// --- Helpers ---
 
 /**
- * @param {HTMLElement} gridItem 
+ * Map a ring position to a CSS translate pair (px).
+ * Interpolates between adjacent quad corners.
+ * @param {number} t
+ * @returns {[number, number]}
  */
-function initGridItemText(gridItem) {
-  gridItem.querySelectorAll('h2').forEach(h2 => splitToLetters(h2));
-  gridItem.querySelectorAll('p').forEach(p => splitToLetters(p));
+function getRawTranslate(t) {
+  t = ((t % 4) + 4) % 4;
+  const seg = Math.floor(t), f = t - seg;
+  const a = QUADS[seg], b = QUADS[(seg + 1) % 4];
+  const tx = (a.tx + (b.tx - a.tx) * f) * window.innerWidth;
+  const ty = (a.ty + (b.ty - a.ty) * f) * window.innerHeight;
+  return [tx, ty];
 }
 
 /**
- * Split text to individual letters and wrap in span elements
- * @param {HTMLElement} textEl 
+ * Return the quad index closest to the current position.
+ * @returns {number}
  */
-function splitToLetters(textEl) {
-  const text = textEl.innerText;
-  textEl.innerHTML = "";
-  for (let i = 0; i < text.length; i++) {
-    const span = document.createElement("span");
-    span.innerText = text[i];
+function nearestQuad() {
+  return ((Math.round(position) % 4) + 4) % 4;
+}
 
-    if (text[i] != " ") {
-      span.classList.add('floaty');
+/**
+ * Find the nearest ring position that maps to targetQuad.
+ * Searches ±3 integer offsets from the current position.
+ * @param {number} targetQuad
+ * @returns {number|null}
+ */
+function findTargetPosition(targetQuad) {
+  const base = Math.round(position);
+  let best = null, bestDist = Infinity;
+  for (let offset = -3; offset <= 3; offset++) {
+    const candidate = base + offset;
+    if (((candidate % 4) + 4) % 4 === targetQuad) {
+      const dist = Math.abs(candidate - position);
+      if (dist < bestDist) { bestDist = dist; best = candidate; }
     }
-    textEl.appendChild(span);
+  }
+  return best;
+}
+
+/**
+ * Cancel any active CSS-transition bounce and restore instant transforms.
+ * @returns {void}
+ */
+function cancelBounce() {
+  if (isBouncing) {
+    isBouncing = false;
+    page.style.transition = 'none';
   }
 }
 
-function floatTextOfHoveredCell() {
-  frameCount++;
-  intensity = Math.min(intensity + INTENSITY_INC, 1);
-  setTimeout(() => requestAnimationFrame(floatTextOfHoveredCell), 100);
+// --- Timed navigation (arrow keys + markers) ---
 
-  const hoveredCell = document.querySelector('.grid-cell:hover');
-  if (!hoveredCell)
-    return;
-
-  hoveredCell.querySelectorAll('.floaty').forEach((textEl, index) => {
-    const tx = NOISE.noise2D(frameCount * TIME_INC, index * TRANSFORM_INC) * 40 * intensity;
-    const ty = NOISE.noise2D(frameCount * TIME_INC, index * TRANSFORM_INC + NOISE_TRANSFORM_OFFSET) * 40 * intensity;
-    const rot = NOISE.noise2D(frameCount * TIME_INC, index * TRANSFORM_INC + NOISE_TRANSFORM_OFFSET * 2) * 90 * intensity;
-    textEl.style.transform = `rotate(${rot}deg) translate(${tx}px, ${ty}px)`;
-  });
+/**
+ * Start a timed ease-in-out animation to the given quad.
+ * @param {number} targetQuad
+ * @returns {void}
+ */
+function navigateToQuad(targetQuad) {
+  cancelBounce();
+  const endPos = findTargetPosition(targetQuad);
+  if (endPos === null) return;
+  const distance = Math.abs(endPos - position);
+  if (distance < 0.001) return;
+  arrowAnim = {
+    startPos: position,
+    endPos,
+    startTime: performance.now(),
+    duration: distance * MS_PER_QUAD,
+  };
+  targetPosition = endPos;
 }
+
+// --- CSS-transition bounce (matches original feel) ---
+
+/**
+ * Nudge the page in the direction of the blocked key, then spring back.
+ * @param {string} key
+ * @returns {void}
+ */
+function bounce(key) {
+  if (isBouncing) return;
+  isBouncing = true;
+  arrowAnim = null;
+  targetPosition = position;  // kill scroll momentum
+
+  const [bx, by] = BOUNCE_OFFSET[key];
+  const [baseTx, baseTy] = getRawTranslate(position);
+
+  page.style.transition = 'transform 0.12s ease-out';
+  page.style.transform = `translate(${baseTx + bx}px, ${baseTy + by}px)`;
+
+  setTimeout(() => {
+    if (!isBouncing) return;  // cancelled by scroll/key
+    page.style.transition = 'transform 0.25s cubic-bezier(0.2, 0, 0, 1)';
+    page.style.transform = `translate(${baseTx}px, ${baseTy}px)`;
+    setTimeout(() => {
+      if (!isBouncing) return;
+      isBouncing = false;
+      page.style.transition = 'none';
+    }, 280);
+  }, 130);
+}
+
+// --- Corner markers ---
+
+const markerEls = MARKERS.map(m => {
+  const el = document.createElement('div');
+  el.className = `nav-marker ${m.corner}`;
+  const span = document.createElement('span');
+  span.textContent = m.label;
+  el.appendChild(span);
+  el.addEventListener('click', () => navigateToQuad(m.quad));
+  document.body.appendChild(el);
+  return { el, quad: m.quad };
+});
+
+/**
+ * Hide the marker pointing to the quad we're currently on (no self-navigation).
+ * @returns {void}
+ */
+function updateMarkers() {
+  const nq = nearestQuad();
+  for (const m of markerEls) {
+    m.el.classList.toggle('hidden', m.quad === nq);
+  }
+}
+
+// --- Scroll wheel ---
+
+window.addEventListener('wheel', e => {
+  e.preventDefault();
+  cancelBounce();
+  arrowAnim = null;
+  let delta = e.deltaY;
+  if (e.deltaMode === 1) delta *= 40;       // Firefox line mode
+  else if (e.deltaMode === 2) delta *= 800;  // page mode
+  targetPosition += delta / SCROLL_PER_QUAD;
+}, { passive: false });
+
+// --- Direction-based navigation (shared by keys + touch) ---
+
+/**
+ * Navigate in the given arrow-key direction from the current position.
+ * @param {string} key  ArrowUp | ArrowDown | ArrowLeft | ArrowRight
+ */
+function handleNavKey(key) {
+  const norm = ((position % 4) + 4) % 4;
+  const seg = Math.floor(norm);
+  const f = norm - seg;
+  const quadA = seg;
+  const quadB = (seg + 1) % 4;
+
+  if (f < 0.001 || f > 0.999) {
+    const currentQuad = f < 0.001 ? quadA : quadB;
+    const target = NAV_MAP[currentQuad][key];
+    if (target !== null) navigateToQuad(target);
+    else bounce(key);
+    return;
+  }
+
+  const targetA = NAV_MAP[quadA][key];
+  const targetB = NAV_MAP[quadB][key];
+
+  if (targetA === null && targetB === null) {
+    bounce(key);
+  } else if (targetA !== null && targetB !== null) {
+    navigateToQuad(f < 0.5 ? targetA : targetB);
+  } else {
+    navigateToQuad(targetA !== null ? targetA : targetB);
+  }
+}
+
+// --- Arrow keys ---
+
+window.addEventListener('keydown', e => {
+  if (!(e.key in NAV_MAP[0])) return;
+  handleNavKey(e.key);
+});
+
+// --- Touch swipe ---
+
+/** @type {number} */
+let touchStartX = 0;
+/** @type {number} */
+let touchStartY = 0;
+/** @type {number} Minimum px distance for a swipe to register. */
+const SWIPE_THRESHOLD = 50;
+
+window.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener('touchmove', e => {
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = e.touches[0].clientY - touchStartY;
+  if (Math.abs(dx) > 10 || Math.abs(dy) > 10) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  if (Math.max(absDx, absDy) < SWIPE_THRESHOLD) return;
+
+  const key = absDx > absDy
+    ? (dx > 0 ? 'ArrowLeft' : 'ArrowRight')
+    : (dy > 0 ? 'ArrowUp'   : 'ArrowDown');
+  handleNavKey(key);
+});
+
+// --- rAF loop ---
+
+/**
+ * Per-frame update: advance animation, lerp scroll, write transform, sync markers.
+ * @returns {void}
+ */
+function tick() {
+  requestAnimationFrame(tick);
+
+  if (arrowAnim) {
+    // Timed ease-in-out animation (arrow keys / marker clicks)
+    const elapsed = performance.now() - arrowAnim.startTime;
+    const t = Math.min(elapsed / arrowAnim.duration, 1);
+    position = arrowAnim.startPos + (arrowAnim.endPos - arrowAnim.startPos) * easeInOutCubic(t);
+    if (t >= 1) {
+      position = arrowAnim.endPos;
+      targetPosition = position;
+      arrowAnim = null;
+      // Normalize: strip full rotations so position stays near [0, 4)
+      const fullRot = Math.floor(position / 4);
+      if (fullRot !== 0) { position -= fullRot * 4; targetPosition -= fullRot * 4; }
+    }
+  } else if (!isBouncing) {
+    // Lerp toward target (scroll wheel)
+    const dt = targetPosition - position;
+    if (Math.abs(dt) > 0.0001) {
+      position += dt * LERP_FACTOR;
+    } else {
+      position = targetPosition;
+      // Normalize: strip full rotations so position stays near [0, 4)
+      const fullRot = Math.floor(position / 4);
+      if (fullRot !== 0) { position -= fullRot * 4; targetPosition -= fullRot * 4; }
+    }
+  }
+
+  // Write transform (unless CSS-transition bounce owns it)
+  if (!isBouncing) {
+    const [tx, ty] = getRawTranslate(position);
+    page.style.transform = `translate(${tx}px, ${ty}px)`;
+  }
+
+  updateMarkers();
+  if (typeof updateShaderPosition === 'function') updateShaderPosition(position);
+}
+
+// Initialise: set transform immediately to prevent flash, then start loop
+const [initX, initY] = getRawTranslate(0);
+page.style.transform = `translate(${initX}px, ${initY}px)`;
+requestAnimationFrame(tick);

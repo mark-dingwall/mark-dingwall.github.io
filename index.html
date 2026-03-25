@@ -8,161 +8,56 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="reset.css">
+  <link rel="stylesheet" href="css/home.css">
   <title>Mark Dingwall</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: "VT323", monospace;
-      font-weight: 400;
-      font-style: normal;
-      font-size: 32px;
-      text-align: center;
-    }
-
-    h1,
-    h2 {
-      font-family: "Major Mono Display", monospace;
-    }
-
-    h1 {
-      font-size: min(15vw, 80px);
-    }
-
-    a {
-      color: #fff;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    a:hover {
-      color: #0cc;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: 1fr;
-      row-gap: 64px;
-      column-gap: 32px;
-      max-width: 1200px;
-      padding: 32px;
-      margin: 32px auto;
-    }
-
-    .grid-cell {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      min-width: 300px;
-      container-type: inline-size;
-    }
-
-    .grid-cell h2, .grid-cell p {
-      font-size: min(9cqw, 32px);
-    }
-
-    .floaty {
-      display: inline-block;
-      transition: transform 0.5s;
-    }
-
-    .grid-cell:not(:hover) .floaty {
-      transform: none !important;
-    }
-
-    @media screen and (max-width: 671px) {
-      .grid {
-        grid-template-columns: 1fr;
-        padding: 32px 16px;
-      }
-    }
-
-    @media screen and (min-width: 672px) and (max-width: 1027px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 32px 24px;
-      }
-    }
-  </style>
 </head>
 
 <body>
-  <h1>Mark's Sketches</h1>
-  <p>Some things I've made for fun</p>
-  <div class="grid">
-    <div class="grid-cell">
-      <a href="forest/">
-        <img src="forest/forest.png" alt="Forest">
-        <h2>Forest</h2>
-        <p>Patience is rewarded</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="microbes/">
-        <img src="microbes/microbes.png" alt="Microbes">
-        <h2>Microbes</h2>
-        <p>Excited little dots</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="drift2/">
-        <img src="drift2/drift2.png" alt="Drift V2">
-        <h2>Drift V2</h2>
-        <p>Drift Arts Festival</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="bioluminescence/">
-        <img src="bioluminescence/bioluminescence.jpg" alt="Bioluminescence">
-        <h2>Bioluminescence</h2>
-        <p>Tiny swimming things</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="cubeworms/">
-        <img src="cubeworms/cubeworms.jpg" alt="Cubeworms">
-        <h2>Cubeworms</h2>
-        <p>Wanderers in the void</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="drift1/">
-        <img src="drift1/drift1.png" alt="Drift V1">
-        <h2>Drift V1</h2>
-        <p>Drift Arts Festival</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="waterfall/">
-        <img src="waterfall/waterfall.jpg" alt="Waterfall">
-        <h2>Waterfall</h2>
-        <p>Drip, drip, drop</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="flowsphere/">
-        <img src="flowsphere/flowsphere.png" alt="Flowsphere">
-        <h2>Flowsphere</h2>
-        <p>Mystic marble</p>
-      </a>
-    </div>
-    <div class="grid-cell">
-      <a href="constellations/">
-        <img src="constellations/constellations.jpg" alt="Constellations">
-        <h2>Constellations</h2>
-        <p>Linked lights</p>
-      </a>
-    </div>
+  <canvas id="shaderBg"></canvas>
+  <canvas id="fireflies"></canvas>
+  <div class="page" id="page">
+    <section class="quadrant q-top-left">
+      <div class="quadrant-content">
+        <h2>BitBrush</h2>
+        <p>Collaborative pixel canvas</p>
+        <p style="font-size:20px;opacity:0.5;margin-top:16px">TypeScript + WebSocket + Canvas API</p>
+        <p><a href="https://github.com/Axionatic/bitbrush" target="_blank">GitHub</a></p>
+      </div>
+    </section>
+    <section class="quadrant q-top-right">
+      <div class="quadrant-content">
+        <h1>Mark Dingwall</h1>
+        <p>Swipe, scroll or arrows to explore</p>
+        <p>
+          <small>
+            <a href="https://github.com/Axionatic/axionatic.github.io" target="_blank">Get this site's code</a>
+          </small>
+        </p>
+      </div>
+    </section>
+    <section class="quadrant q-bottom-left">
+      <div class="quadrant-content">
+        <h2>Sketches</h2>
+        <p>Creative coding experiments</p>
+        <p><a href="sketches/">Browse the gallery</a></p>
+      </div>
+    </section>
+    <section class="quadrant q-bottom-right">
+      <div class="quadrant-content">
+        <h2>Portfolio</h2>
+        <p>Interactive presentation experiments</p>
+        <p><a href="portfolio/">Explore the demos</a></p>
+      </div>
+    </section>
   </div>
-  <footer>
-    <a href="https://github.com/Axionatic/axionatic.github.io" target="_blank">Get code</a>
-  </footer>
+  <script src="utils/math.js"></script>
+  <script src="utils/color.js"></script>
+  <script src="utils/easing.js"></script>
+  <script src="utils/device.js"></script>
+  <script src="background.js"></script>
   <script src="index.js"></script>
-  <script>
-    var m = 'Mark Dingwall ', w = 0; setInterval(() => { document.title = `${m.substring(w)}${m.substring(0, w)}`; w = (w + (m[w] == ' ' ? 2 : 1)) % m.length; }, 500);
-  </script>
+  <script src="fireflies.js"></script>
+  <script src="marquee.js"></script>
 </body>
 
 </html>
