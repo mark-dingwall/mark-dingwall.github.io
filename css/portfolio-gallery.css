@@ -1,0 +1,190 @@
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+}
+
+h1, h2 {
+  font-family: 'Major Mono Display', monospace;
+}
+
+.back-link {
+  display: inline-block;
+  margin: 16px 24px;
+  color: #0cc;
+  text-decoration: none;
+  font-size: 22px;
+  transition: color 0.3s;
+}
+
+.back-link:hover { color: #fff; }
+
+.gallery-header {
+  text-align: center;
+  padding: 24px 24px 16px;
+}
+
+.gallery-header h1 {
+  font-size: clamp(32px, 8vw, 64px);
+  letter-spacing: 0.08em;
+}
+
+.gallery-header .subtitle {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: clamp(14px, 2vw, 18px);
+  margin-top: 8px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 1100px;
+  padding: 24px 32px 48px;
+  margin: 0 auto;
+}
+
+.gallery .card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 538px;
+  justify-self: center;
+}
+
+.card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  color: #fff;
+  transition: border-color 0.4s, box-shadow 0.4s, transform 0.4s;
+  outline-offset: 4px;
+}
+
+.card:focus-visible {
+  outline: 2px solid #0cc;
+}
+
+.card canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48px 24px 20px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85) 50%);
+  z-index: 1;
+}
+
+.card-info h2 {
+  font-size: clamp(16px, 2vw, 22px);
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.card-info .tagline {
+  font-size: clamp(13px, 1.3vw, 16px);
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 10px;
+}
+
+.card-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card-tech span {
+  font-size: clamp(10px, 1vw, 12px);
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    transform: scale(1.02);
+    border-color: rgba(0, 204, 204, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 204, 204, 0.08);
+  }
+}
+
+.card.active {
+  border-color: rgba(0, 204, 204, 0.25);
+  box-shadow: 0 0 20px rgba(0, 204, 204, 0.06);
+}
+
+footer {
+  text-align: center;
+  padding: 0 24px 48px;
+}
+
+footer a {
+  color: #0cc;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+footer a:hover { color: #fff; }
+
+@media (max-width: 768px) {
+  .gallery {
+    grid-template-columns: 1fr;
+    padding: 16px 16px 32px;
+    gap: 16px;
+  }
+
+  .gallery .card:last-child:nth-child(odd) {
+    max-width: none;
+  }
+}
+
+@media (hover: none) {
+  .card {
+    aspect-ratio: auto;
+    min-height: 55vh;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.back-link,
+.gallery-header,
+.gallery,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card canvas, #bg-canvas { display: none; }
+}

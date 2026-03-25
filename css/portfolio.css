@@ -1,0 +1,374 @@
+:root {
+  --accent: #0cc;
+  --accent-rgb: 0, 204, 204;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #000;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+}
+
+h1, h2 {
+  font-family: 'Major Mono Display', monospace;
+}
+
+/* -- Canvas container -------------------------------------------------- */
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#canvas-container canvas { display: block; }
+
+/* -- Runway (scroll spacer) -------------------------------------------- */
+#runway {
+  position: relative;
+  pointer-events: none;
+}
+
+#runway-buffer {
+  position: relative;
+  height: 80vh;
+  pointer-events: none;
+}
+
+/* -- Back link (frosted glass) ----------------------------------------- */
+.back-link {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 24px;
+  font-family: 'Share Tech Mono', monospace;
+  transition: color 0.3s;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.back-link:hover { color: #fff; }
+
+/* -- Progress bar ------------------------------------------------------ */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  z-index: 200;
+  width: 0;
+}
+
+/* -- Scroll hint ------------------------------------------------------- */
+#scroll-hint {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  text-align: center;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: opacity 0.6s;
+}
+
+#scroll-hint .arrow {
+  display: block;
+  margin-top: 4px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* -- Header panel ------------------------------------------------------ */
+#header-panel {
+  position: fixed;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-align: center;
+  transition: opacity 0.4s ease;
+}
+
+/* -- Tech subtitle ----------------------------------------------------- */
+#tech-subtitle {
+  font-family: 'Major Mono Display', monospace;
+  font-size: clamp(20px, 3vw, 32px);
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.15em;
+  font-weight: bold;
+  margin-top: 8px;
+  opacity: 0;
+}
+
+/* -- Tech content container -------------------------------------------- */
+#tech-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px 24px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  margin-bottom: 4vh;
+}
+
+/* -- Row grid system --------------------------------------------------- */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 16px 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  gap: 0 40px;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.row-title {
+  grid-column: 2;
+  grid-row: 1;
+  font-family: 'Major Mono Display', monospace;
+  font-size: clamp(18px, 2.2vw, 26px);
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.row-visual {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row-text {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.row--reverse {
+  grid-template-columns: 1fr 42%;
+}
+
+.row--reverse .row-title  { grid-column: 1; }
+.row--reverse .row-visual { grid-column: 2; }
+.row--reverse .row-text   { grid-column: 1; }
+
+/* -- Row text list ----------------------------------------------------- */
+.row-text ul {
+  list-style: none;
+  padding: 0;
+}
+
+.row-text li {
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.row-text li::before {
+  content: '\25B8';
+  position: absolute;
+  left: 0;
+  color: rgba(var(--accent-rgb), 0.5);
+}
+
+/* -- Architecture SVG -------------------------------------------------- */
+.arch-svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+}
+
+.arch-node {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: rgba(var(--accent-rgb), 0.4);
+  stroke-width: 1.5;
+}
+
+.arch-label {
+  fill: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 20px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.arch-line {
+  stroke: rgba(var(--accent-rgb), 0.45);
+  stroke-width: 2;
+  stroke-dasharray: 10 7;
+  animation: dash-flow 2s linear infinite;
+}
+
+.arch-hub-glow {
+  animation: hub-glow 2s ease-in-out infinite;
+}
+
+@keyframes dash-flow {
+  to { stroke-dashoffset: -14; }
+}
+
+@keyframes hub-glow {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* -- Tooltip ----------------------------------------------------------- */
+#tooltip {
+  position: absolute;
+  left: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  transform: translateY(-100%) translateY(-8px);
+}
+
+#tooltip.visible { opacity: 1; }
+
+.tooltip-name {
+  color: var(--accent);
+  font-style: italic;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.tooltip-pos { color: #4f8; }
+.tooltip-neg { color: #f64; }
+
+/* -- Toggle buttons ---------------------------------------------------- */
+.pref-btn,
+.flow-btn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(14px, 1.3vw, 17px);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.pref-btn:hover,
+.flow-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.pref-btn.active,
+.flow-btn.active {
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.3);
+}
+
+.pref-btn:focus-visible,
+.flow-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* -- Tech footer ------------------------------------------------------- */
+.tech-footer {
+  padding: 20px 0 24px;
+  text-align: center;
+  font-size: clamp(14px, 1.3vw, 16px);
+  color: rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.tech-footer span {
+  color: rgba(var(--accent-rgb), 0.5);
+}
+
+/* -- Responsive: tech content collapse --------------------------------- */
+@media (max-width: 800px) {
+  #tech-content { padding: 0 20px 16px; }
+  .row, .row--reverse {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .row-title { order: 1; }
+  .row-visual {
+    order: 2;
+    width: 100%;
+    max-width: 320px;
+  }
+  .row-text { order: 3; }
+  .rows { gap: 40px; padding: 24px 0; }
+}
+
+/* -- Responsive: touch device ------------------------------------------ */
+@media (hover: none) {
+  .back-link,
+  #header-panel,
+  #tooltip,
+  #tech-content {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* -- Responsive: small header ------------------------------------------ */
+@media (max-width: 600px) {
+  #header-panel {
+    padding: 16px 20px 12px;
+    max-width: 94vw;
+    top: 2%;
+  }
+}
+
+/* -- Reduced motion ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .arch-line { animation: none; }
+  .arch-hub-glow { animation: none; opacity: 0.6; }
+  #scroll-hint .arrow { animation: none; }
+}

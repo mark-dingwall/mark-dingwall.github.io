@@ -1,0 +1,178 @@
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 32px;
+  text-align: center;
+}
+
+h1,
+h2 {
+  font-family: "Major Mono Display", monospace;
+}
+
+h1 {
+  font-size: min(15vw, 80px);
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: #0cc;
+}
+
+.back-link {
+  display: block;
+  margin: 16px 32px;
+  text-align: left;
+  color: #0cc;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  row-gap: 64px;
+  column-gap: 32px;
+  max-width: 1200px;
+  padding: 32px;
+  margin: 32px auto;
+}
+
+.grid-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 300px;
+  container-type: inline-size;
+}
+
+.grid-cell h2,
+.grid-cell p {
+  font-size: min(9cqw, 32px);
+}
+
+.floaty {
+  display: inline-block;
+  transition: transform 0.5s;
+}
+
+.grid-cell:not(:hover):not(:focus-within) .floaty {
+  transform: none !important;
+}
+
+@media screen and (max-width: 671px) {
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 32px 16px;
+  }
+}
+
+@media screen and (min-width: 672px) and (max-width: 1027px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 32px 24px;
+  }
+}
+
+.back-link,
+.header-content,
+.grid,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+.frosted {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 48px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@media (hover: none) {
+  .frosted {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.header-content {
+  display: inline-block;
+}
+
+.grid-cell.frosted {
+  padding: 16px;
+}
+
+.grid-cell a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid-cell img {
+  border-radius: 16px;
+}
+
+footer .frosted {
+  display: inline-block;
+  padding: 16px 32px;
+  margin-bottom: 32px;
+}
+
+#grove-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#ui-layer {
+  transition: opacity 0.5s;
+}
+
+#ui-layer.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#grove-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #0cc;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.3s, border-color 0.3s;
+  letter-spacing: 0.05em;
+}
+
+#grove-toggle:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}

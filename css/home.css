@@ -1,0 +1,190 @@
+html, body {
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  color: #fff;
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 32px;
+}
+
+h1, h2 {
+  font-family: "Major Mono Display", monospace;
+}
+
+h1 {
+  font-size: clamp(28px, 12vw, 80px);
+}
+
+h2 {
+  font-size: clamp(22px, 8vw, 48px);
+}
+
+a {
+  color: #0cc;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:visited {
+  color: #c0c;
+}
+
+a:hover {
+  color: #fff;
+}
+
+#shaderBg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#fireflies {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.page {
+  position: fixed;
+  width: 200vw;
+  height: 200vh;
+  transform: translate(-100vw, 0);
+  z-index: 1;
+}
+
+.quadrant {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.quadrant-content {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  padding: 72px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: calc(100vw - 64px);
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.q-top-left     { top: 0;     left: 0;     }
+.q-top-right    { top: 0;     left: 100vw; }
+.q-bottom-left  { top: 100vh; left: 0;     }
+.q-bottom-right { top: 100vh; left: 100vw; }
+
+.placeholder {
+  opacity: 0.3;
+  font-size: 24px;
+}
+
+.nav-marker {
+  position: fixed;
+  width: 120px;
+  height: 120px;
+  z-index: 10;
+  user-select: none;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.nav-marker::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.3s;
+}
+
+.nav-marker:hover::before {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.nav-marker.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-marker span {
+  position: absolute;
+  font-size: 40px;
+  color: #fff;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.nav-marker:hover span { opacity: 1; }
+
+.nav-tl { top: 0; left: 0; }
+.nav-tl::before { clip-path: polygon(0 0, 100% 0, 0 100%); }
+.nav-tl span { top: 10px; left: 10px; animation: point-tl 1.5s ease-in-out infinite; }
+
+.nav-tr { top: 0; right: 0; }
+.nav-tr::before { clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.nav-tr span { top: 10px; right: 10px; animation: point-tr 1.5s ease-in-out infinite; }
+
+.nav-bl { bottom: 0; left: 0; }
+.nav-bl::before { clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.nav-bl span { bottom: 10px; left: 10px; animation: point-bl 1.5s ease-in-out infinite; }
+
+.nav-br { bottom: 0; right: 0; }
+.nav-br::before { clip-path: polygon(100% 0, 0 100%, 100% 100%); }
+.nav-br span { bottom: 10px; right: 10px; animation: point-br 1.5s ease-in-out infinite; }
+
+@keyframes point-tl { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-3px, -3px); } }
+@keyframes point-tr { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3px, -3px); } }
+@keyframes point-bl { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-3px, 3px); } }
+@keyframes point-br { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3px, 3px); } }
+
+@media (max-width: 600px) {
+  .quadrant-content {
+    padding: 24px;
+    max-width: calc(100vw - 48px);
+    max-height: calc(100vh - 48px);
+  }
+  .nav-marker {
+    width: 64px;
+    height: 64px;
+  }
+  .nav-marker span {
+    font-size: 22px;
+  }
+  .nav-tl span { top: 6px; left: 6px; }
+  .nav-tr span { top: 6px; right: 6px; }
+  .nav-bl span { bottom: 6px; left: 6px; }
+  .nav-br span { bottom: 6px; right: 6px; }
+}
+
+@media (hover: none) {
+  .quadrant-content {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .nav-marker::before {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
