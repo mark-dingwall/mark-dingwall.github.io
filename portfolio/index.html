@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../reset.css">
+  <link rel="stylesheet" href="../css/portfolio-gallery.css">
+  <title>Mark Dingwall - Portfolio</title>
+</head>
+
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <a class="back-link" href="/">&larr; back</a>
+
+  <header class="gallery-header">
+    <h1 id="title-text">Portfolio</h1>
+    <p class="subtitle">Some of my work</p>
+  </header>
+
+  <div class="gallery">
+    <a href="jointly/" class="card" data-project="jointly">
+      <canvas></canvas>
+      <div class="card-info">
+        <h2>jointly</h2>
+        <p class="tagline">Algorithmic group-buying marketplace</p>
+        <div class="card-tech">
+          <span>Laravel</span><span>Livewire</span><span>Puppeteer</span><span>Nova</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="oasis/" class="card" data-project="oasis">
+      <canvas></canvas>
+      <div class="card-info">
+        <h2>oasis</h2>
+        <p class="tagline">Production-line tracking system</p>
+        <div class="card-tech">
+          <span>Express</span><span>Embedded Devices</span><span>React</span><span>SSE</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="guestflow/" class="card" data-project="guestflow">
+      <canvas></canvas>
+      <div class="card-info">
+        <h2>guestflow</h2>
+        <p class="tagline">Automated listing pipeline</p>
+        <div class="card-tech">
+          <span>Next.js</span><span>Workers</span><span>Guesty API</span><span>Webflow</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="mystery/" class="card" data-project="mystery">
+      <canvas></canvas>
+      <div class="card-info">
+        <h2>mystery manager</h2>
+        <p class="tagline">Multi-strategy allocation engine</p>
+        <div class="card-tech">
+          <span>Python</span><span>PuLP</span><span>Optuna</span><span>Textual</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="bitbrush/" class="card" data-project="bitbrush">
+      <canvas></canvas>
+      <div class="card-info">
+        <h2>bitbrush</h2>
+        <p class="tagline">Real-time collaborative pixel canvas</p>
+        <div class="card-tech">
+          <span>Java</span><span>Spring Boot</span><span>WebSocket</span><span>STOMP</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <script src="../utils/math.js"></script>
+  <script src="../utils/color.js"></script>
+  <script src="../utils/prng.js"></script>
+  <script src="gallery.js"></script>
+  <script src="../marquee.js"></script>
+</body>
+
+</html>

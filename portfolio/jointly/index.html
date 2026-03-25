@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mark Dingwall - Jointly.Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/portfolio.css">
+  <style>
+    /* ── Page-specific overrides ─────────────────────────────────────── */
+    #runway { height: 500vh; }
+    #header-panel {
+      padding: 24px 32px 16px;
+      width: min(700px, 50vw);
+      transition: left 0.6s ease, opacity 0.4s ease;
+    }
+    #header-panel.shifted {
+      left: 30%;
+    }
+    #title-overlay {
+      display: block;
+      margin: 0 auto;
+      width: clamp(180px, 30vw, 400px);
+      height: auto;
+    }
+    #narrative {
+      position: relative;
+      font-size: clamp(18px, 2.5vw, 28px);
+      height: 7em;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .narrative-line {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      width: max-content;
+      max-width: 100%;
+      text-align: center;
+      font-size: clamp(18px, 2.5vw, 28px);
+      pointer-events: none;
+      opacity: 0;
+      line-height: 1.4;
+      will-change: transform, opacity;
+    }
+    .narrative-line:nth-child(1) { color: rgba(255, 180, 100, 0.85); }
+    .narrative-line:nth-child(2) { color: rgba(255, 200, 140, 0.85); }
+    .narrative-line:nth-child(3) { color: rgba(200, 220, 200, 0.85); }
+    .narrative-line:nth-child(4) { color: rgba(100, 220, 220, 0.85); }
+    .narrative-line:nth-child(5) { color: rgba(50, 230, 160, 0.85); }
+
+    #ranking {
+      position: fixed;
+      right: 5%;
+      top: 30%;
+      width: 36vw;
+      max-width: 550px;
+      z-index: 10;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.4s ease;
+    }
+    #ranking-bars {
+      position: relative;
+    }
+    .ranking-header {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(14px, 1.3vw, 17px);
+      margin-bottom: 10px;
+    }
+    .ranking-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: clamp(28px, 4.5vh, 42px);
+      transition: top 0.4s ease;
+      cursor: default;
+    }
+    .ranking-bar:focus {
+      outline: 2px solid #0cc;
+      outline-offset: 2px;
+    }
+    .ranking-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bar-color);
+      opacity: 0.12;
+      border-radius: 2px;
+    }
+    .ranking-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0;
+      background: var(--bar-color);
+      opacity: 0.65;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .ranking-label {
+      position: absolute;
+      top: 0; left: 6px; bottom: 0;
+      display: flex;
+      align-items: center;
+      color: #000;
+      font-size: clamp(14px, 1.5vw, 20px);
+      font-weight: bold;
+    }
+    .preference-selector {
+      margin-top: 16px;
+      pointer-events: auto;
+    }
+    .pref-title {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(13px, 1.2vw, 17px);
+      margin-bottom: 8px;
+    }
+    .pref-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+    .ahp-compare {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .ahp-offer {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .ahp-offer.ahp-winner {
+      border-color: rgba(0, 204, 204, 0.4);
+      box-shadow: 0 0 20px rgba(0, 204, 204, 0.1);
+    }
+    .ahp-rank {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .ahp-winner .ahp-rank { color: #0cc; }
+    .ahp-name {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 10px;
+    }
+    .ahp-stat {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+    }
+    .ahp-delta {
+      font-size: 13px;
+      margin-left: 3px;
+    }
+    .ahp-pos { color: #4f8; }
+    .ahp-neg { color: #f96; }
+    .ahp-total {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 16px;
+    }
+    .ahp-winner .ahp-total { color: #0cc; }
+    .market-flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .flow-card {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+    }
+    .flow-card.flow-buyer {
+      border-color: rgba(0, 234, 170, 0.3);
+    }
+    .flow-card.flow-seller {
+      border-color: rgba(0, 170, 255, 0.3);
+    }
+    .flow-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .flow-buyer .flow-label { color: rgba(0, 234, 170, 0.6); }
+    .flow-seller .flow-label { color: rgba(0, 170, 255, 0.6); }
+    .flow-detail {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3px;
+      line-height: 1.5;
+    }
+    .flow-match {
+      color: rgba(0, 204, 204, 0.5);
+      font-size: 22px;
+      flex-shrink: 0;
+      animation: pulse-match 2s ease-in-out infinite;
+    }
+    @keyframes pulse-match {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Scroll animation responsive ────────────────────────────────── */
+    @media (max-width: 1200px) {
+      #header-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(600px, 90vw);
+        transition: opacity 0.4s ease;
+      }
+      #ranking {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(500px, 90vw);
+        max-width: none;
+      }
+      .preference-selector {
+        margin-top: 2em;
+      }
+    }
+    @media (max-width: 600px) {
+      #header-panel {
+        padding: 16px 20px 12px;
+        max-width: 94vw;
+        top: 2%;
+      }
+      #title-overlay {
+        width: clamp(120px, 50vw, 220px);
+      }
+      .narrative-line {
+        font-size: clamp(18px, 4.5vw, 24px);
+      }
+      #narrative {
+        font-size: clamp(18px, 4.5vw, 24px);
+        height: 6em;
+      }
+      #ranking {
+        left: 5%;
+        right: 5%;
+        transform: none;
+        top: auto;
+        bottom: 8%;
+        width: auto;
+        max-width: none;
+      }
+      .ranking-bar {
+        height: 20px;
+      }
+      .ranking-track {
+        opacity: 0.06;
+      }
+      .ranking-header {
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      .ranking-label {
+        font-size: 13px;
+      }
+      .pref-options {
+        flex-direction: column;
+        gap: 6px;
+      }
+      .pref-btn {
+        font-size: 13px;
+        padding: 4px 10px;
+      }
+      #tooltip {
+        font-size: 13px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flow-match { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="back-link" href="/">&larr; back</a>
+  <div id="progress-bar"></div>
+  <div id="canvas-container"></div>
+  <div id="header-panel">
+    <img id="title-overlay" src="jointly-logo.png" alt="Jointly.shop">
+    <div id="narrative">
+      <div class="narrative-line">Buyers want bulk discounts, but can't find each other.</div>
+      <div class="narrative-line">What if like-minded buyers could team up anonymously?</div>
+      <div class="narrative-line">Groups form. Buying power multiplies.</div>
+      <div class="narrative-line">Sellers compete. An AHP algorithm ranks every offer.</div>
+      <div class="narrative-line">Set your preferences. Autobuy finds the best deal while you sleep.</div>
+    </div>
+    <p id="tech-subtitle">under the hood</p>
+  </div>
+  <div id="ranking">
+    <div class="ranking-header">AHP-Ranked offers</div>
+    <div id="ranking-bars" role="list" aria-label="Seller rankings"></div>
+    <div id="tooltip"></div>
+    <div class="preference-selector">
+      <div class="pref-title">Your preference:</div>
+      <div class="pref-options">
+        <button class="pref-btn active" data-pref="0">Low price, quick delivery</button>
+        <button class="pref-btn" data-pref="1">Trusted seller, great addons</button>
+        <button class="pref-btn" data-pref="2">Get it ASAP!</button>
+      </div>
+    </div>
+  </div>
+  <div id="scroll-hint">
+    scroll to explore
+    <span class="arrow">&#9663;</span>
+  </div>
+  <div id="runway"></div>
+  <div id="runway-buffer"></div>
+
+  <!-- ── Tech content (appears after scroll animation) ──────────── -->
+  <div id="tech-content">
+    <div class="rows">
+
+      <!-- Row 1: visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <svg class="arch-svg" viewBox="0 0 500 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="arch-line" d="M 145 65 C 170 65, 180 45, 205 45" fill="none"/>
+            <path class="arch-line" d="M 372 80 C 350 80, 345 45, 325 45" fill="none"/>
+            <path class="arch-line" d="M 85 89 C 85 105, 95 109, 95 125" fill="none"/>
+            <path class="arch-line" d="M 25 65 C 5 100, 35 210, 61 231" fill="none"/>
+            <path class="arch-line" d="M 121 207 C 121 190, 95 190, 95 173" fill="none"/>
+            <path class="arch-line" d="M 155 149 C 167 149, 170 137, 182 137" fill="none"/>
+            <path class="arch-line" d="M 361 209 C 310 215, 280 185, 271 169" fill="none"/>
+            <path class="arch-line" d="M 430 104 C 430 140, 423 150, 423 185" fill="none"/>
+            <rect class="arch-node" x="25"  y="41"  width="120" height="48" rx="10"/>
+            <text class="arch-label" x="85"  y="65">Buyers</text>
+            <rect class="arch-node" x="205" y="21"  width="120" height="48" rx="10"/>
+            <text class="arch-label" x="265" y="45">Scraper</text>
+            <rect class="arch-node" x="372" y="56"  width="115" height="48" rx="10"/>
+            <text class="arch-label" x="430" y="80">Sellers</text>
+            <rect class="arch-node" x="35"  y="125" width="120" height="48" rx="10"/>
+            <text class="arch-label" x="95"  y="149">Autobuy</text>
+            <defs>
+              <filter id="ahp-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <rect class="arch-hub-glow" x="182" y="106" width="177" height="63" rx="10"
+                  fill="rgba(0,204,204,0.25)" filter="url(#ahp-blur)"/>
+            <rect class="arch-node" x="182" y="106" width="177" height="63" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="271" y="137">AHP Engine</text>
+            <rect class="arch-node" x="361" y="185" width="125" height="48" rx="10"/>
+            <text class="arch-label" x="424" y="209">Auto-offer</text>
+            <rect class="arch-node" x="61"  y="207" width="120" height="48" rx="10"/>
+            <text class="arch-label" x="121" y="231">Groups</text>
+          </svg>
+        </div>
+        <h2 class="row-title">architecture</h2>
+        <div class="row-text">
+          <ul>
+            <li>Both Buyers & Sellers could add products via smart scraper</li>
+            <li>Buyers grouped to aggregate demand and unlock bulk pricing</li>
+            <li>Buyer-added products signalled interest to Sellers</li>
+            <li>AHP ranked seller offers; autobuy optimised autonomously</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 2: text left, visual right -->
+      <div class="row row--reverse">
+        <div class="row-visual">
+          <div class="ahp-compare">
+            <div class="ahp-offer ahp-winner">
+              <div class="ahp-rank">#1</div>
+              <div class="ahp-name">QuickShip</div>
+              <div class="ahp-stat">$45.45 <span class="ahp-delta ahp-neg">+1%</span></div>
+              <div class="ahp-stat">3 days <span class="ahp-delta ahp-pos">&minus;10 days</span></div>
+              <div class="ahp-stat">4.6&starf;</div>
+              <div class="ahp-total">Score: 8.7</div>
+            </div>
+            <div class="flow-match">vs</div>
+            <div class="ahp-offer">
+              <div class="ahp-rank">#2</div>
+              <div class="ahp-name">ValueVault</div>
+              <div class="ahp-stat">$44.99 <span class="ahp-delta" style="color:rgba(255,255,255,0.3)">cheapest</span></div>
+              <div class="ahp-stat">13 days</div>
+              <div class="ahp-stat">4.2&starf;</div>
+              <div class="ahp-total">Score: 7.2</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">ahp scoring</h2>
+        <div class="row-text">
+          <ul>
+            <li>Scored offers across price, speed, and rating simultaneously</li>
+            <li>Used the Analytic Hierarchy Process instead of simple sorting</li>
+            <li>An offer 1% pricier but 10 days faster still ranked #1</li>
+            <li>Sellers competed on multiple dimensions, not just price</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Row 3: visual left, text right -->
+      <div class="row">
+        <div class="row-visual">
+          <div class="market-flow">
+            <div class="flow-card flow-buyer">
+              <div class="flow-label">Buyer</div>
+              <div class="flow-detail">Max price: $45</div>
+              <div class="flow-detail">Delivery: 7 days</div>
+              <div class="flow-detail">Min rating: 4&starf;</div>
+            </div>
+            <div class="flow-match">&harr;</div>
+            <div class="flow-card flow-seller">
+              <div class="flow-label">Seller</div>
+              <div class="flow-detail">Current: $48</div>
+              <div class="flow-detail">Floor: $40</div>
+              <div class="flow-detail">Ships in: 5 days</div>
+            </div>
+          </div>
+        </div>
+        <h2 class="row-title">the invisible hand, automated</h2>
+        <div class="row-text">
+          <ul>
+            <li>Buyers set preferences: price, delivery time, seller rating</li>
+            <li>Sellers got detailed metrics on how to attract buyers</li>
+            <li>System matched automatically, deals executed when terms aligned</li>
+            <li>Sellers set current price, floor price and minimum order quantity</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="tech-footer">
+      Sole developer <span>&middot;</span> PHP <span>&middot;</span> Laravel <span>&middot;</span>
+      MySQL <span>&middot;</span> Livewire <span>&middot;</span> REST API <span>&middot;</span>
+      Puppeteer <span>&middot;</span> Nova <span>&middot;</span> Forge
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="../../utils/math.js"></script>
+  <script src="../../utils/color.js"></script>
+  <script src="../../utils/prng.js"></script>
+  <script src="jointly.js"></script>
+  <script src="../../marquee.js"></script>
+</body>
+
+</html>
