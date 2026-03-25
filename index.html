@@ -17,11 +17,22 @@
   <canvas id="fireflies"></canvas>
   <div class="page" id="page">
     <section class="quadrant q-top-left">
-      <div class="quadrant-content">
+      <div class="quadrant-content bitbrush-demo-content">
         <h2>BitBrush</h2>
-        <p>Collaborative pixel canvas</p>
-        <p style="font-size:20px;opacity:0.5;margin-top:16px">TypeScript + WebSocket + Canvas API</p>
-        <p><a href="https://github.com/Axionatic/bitbrush" target="_blank">GitHub</a></p>
+        <div id="demo-panel">
+          <div class="demo-header">try it &mdash; paint some pixels</div>
+          <div class="mini-canvas-wrap">
+            <canvas id="mini-canvas"></canvas>
+          </div>
+          <div class="mini-palette" id="mini-palette"></div>
+          <div class="mini-bank">
+            <span class="bank-label">bank:</span>
+            <div class="bank-bar-track"><div id="bank-fill"></div></div>
+            <span class="bank-count"><span id="bank-count">25</span>/25</span>
+          </div>
+          <div class="ghost-label">other users are painting too</div>
+        </div>
+        <p style="margin-top:12px"><a href="https://github.com/Axionatic/bitbrush" target="_blank">GitHub</a></p>
       </div>
     </section>
     <section class="quadrant q-top-right">
@@ -57,6 +68,7 @@
   <script src="background.js"></script>
   <script src="index.js"></script>
   <script src="fireflies.js"></script>
+  <script src="bitbrush-mini.js"></script>
   <script src="marquee.js"></script>
 </body>
 
