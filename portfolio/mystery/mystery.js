@@ -53,16 +53,16 @@ const MATRIX_ITEMS = ['🍎', '🍌', '🥕', '🥬', '🥔', '🍊', '🍇', '�
 const MATRIX_BOXES = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
 const MATRIX_MORPH_START = 0.50;
 const MATRIX_FADE_RANGE = 0.15;
-const SOLVE_STEP_DUR = 0.175;
-const SOLVE_TRY_DUR = 0.09;
-const SOLVE_PAUSE_DUR = 1.25;
-const SOLVE_CONSTRAINT_DELAY = 0.2;
+const SOLVE_STEP_DUR = 0.0875;
+const SOLVE_TRY_DUR = 0.045;
+const SOLVE_PAUSE_DUR = 0.625;
+const SOLVE_CONSTRAINT_DELAY = 0.1;
 const SOLVE_BOX_MIN = 5;
 const SOLVE_BOX_MAX = 7;
 const SOLVE_BOX_SUM_CAP = 30;
 const SOLVE_QTY_MIN = 15;
 const SOLVE_QTY_MAX = 25;
-const COUNT_UP_DUR = 0.6;
+const COUNT_UP_DUR = 0.3;
 
 const SOLVE_CONSTRAINT_LABELS = ['value', 'diversity', 'balance'];
 
@@ -617,60 +617,6 @@ function drawBoxAnimation(dt, fade) {
 }
 
 // ---------------------------------------------------------------------------
-// Good-state: calculating screen
-// ---------------------------------------------------------------------------
-function drawCalculatingScreen(enterProgress, fade) {
-  if (fade <= 0) return;
-
-  const dim = Math.min(W, H);
-  const panelW = dim * 0.32;
-  const panelH = dim * 0.09;
-  const panelX = W * 0.40 - panelW / 2;
-  const panelY = H * BOX_CY_FRAC - dim * BOX_H_FRAC / 2 - panelH - dim * 0.06;
-
-  // Panel background
-  roundRect(ctx, panelX, panelY, panelW, panelH, 8);
-  ctx.globalAlpha = fade * 0.7;
-  ctx.fillStyle = 'rgba(0, 20, 30, 0.85)';
-  ctx.fill();
-  ctx.globalAlpha = fade * 0.3;
-  ctx.strokeStyle = '#0cc';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  // Text
-  ctx.globalAlpha = fade * 0.8;
-  ctx.fillStyle = '#0cc';
-  ctx.font = Math.round(dim * 0.02) + 'px "Share Tech Mono", monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('calculating optimal box', panelX + panelW / 2, panelY + panelH * 0.35);
-
-  // Loading bar track
-  const barMargin = panelW * 0.1;
-  const barX = panelX + barMargin;
-  const barY = panelY + panelH * 0.65;
-  const barW = panelW - barMargin * 2;
-  const barH = dim * 0.009;
-
-  ctx.globalAlpha = fade * 0.15;
-  ctx.fillStyle = '#0cc';
-  roundRect(ctx, barX, barY, barW, barH, barH / 2);
-  ctx.fill();
-
-  // Loading bar fill
-  const fillW = barW * clamp01(enterProgress);
-  if (fillW > barH) {
-    ctx.globalAlpha = fade * 0.8;
-    ctx.fillStyle = '#0cc';
-    roundRect(ctx, barX, barY, fillW, barH, barH / 2);
-    ctx.fill();
-  }
-
-  ctx.globalAlpha = 1;
-}
-
-// ---------------------------------------------------------------------------
 // Good-state box animation
 // ---------------------------------------------------------------------------
 function drawGoodBoxAnimation(dt, fade) {
@@ -700,17 +646,13 @@ function drawGoodBoxAnimation(dt, fade) {
   const exitEnd = pauseEnd + EXIT_DUR;
 
   let boxCX, exitT = 0;
-  let enterProgress = 0;
 
   if (elapsed < enterEnd) {
     const t = clamp01(elapsed / ENTER_DUR);
-    enterProgress = t;
     boxCX = lerp(-bw, centerX, easeOutCubic(t));
   } else if (elapsed < pauseEnd) {
-    enterProgress = 1;
     boxCX = centerX;
   } else if (elapsed < exitEnd) {
-    enterProgress = 1;
     exitT = clamp01((elapsed - pauseEnd) / EXIT_DUR);
     boxCX = lerp(centerX, W + bw, easeInCubic(exitT));
   } else {
@@ -718,15 +660,6 @@ function drawGoodBoxAnimation(dt, fade) {
   }
 
   const boxOpacity = fade * (1 - exitT * exitT);
-
-  // Calculating screen: visible during enter, fades during early fill
-  let screenFade = 0;
-  if (elapsed < enterEnd) {
-    screenFade = 1;
-  } else if (elapsed < enterEnd + FILL_DUR * 0.3) {
-    screenFade = 1 - (elapsed - enterEnd) / (FILL_DUR * 0.3);
-  }
-  drawCalculatingScreen(enterProgress, screenFade * fade);
 
   const bLeft = boxCX - bw / 2;
   const bRight = boxCX + bw / 2;
@@ -998,7 +931,7 @@ function drawMatrix(dt, fade) {
   // Title
   ctx.globalAlpha = fade * 0.6;
   ctx.fillStyle = '#0cc';
-  ctx.font = Math.round(cellSz * 0.38) + 'px VT323, monospace';
+  ctx.font = Math.round(cellSz * 0.76) + 'px VT323, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('ILP SOLVER', mx + totalW / 2, my + titleH / 2);
@@ -1133,7 +1066,7 @@ function drawMatrix(dt, fade) {
     const shown = Math.min(SOLVE_CONSTRAINT_LABELS.length,
                          Math.floor(conElapsed / SOLVE_CONSTRAINT_DELAY) + 1);
 
-    const conFont = Math.round(cellSz * 0.32) + 'px VT323, monospace';
+    const conFont = Math.round(cellSz * 0.64) + 'px VT323, monospace';
     ctx.font = conFont;
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
@@ -1184,7 +1117,7 @@ function drawMatrix(dt, fade) {
     const optAlpha = clamp01(glowAge / 0.3);
     ctx.globalAlpha = fade * optAlpha * 0.8;
     ctx.fillStyle = '#0cc';
-    ctx.font = Math.round(cellSz * 0.35) + 'px VT323, monospace';
+    ctx.font = Math.round(cellSz * 0.70) + 'px VT323, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('OPTIMAL', mx + totalW / 2, constraintY + constraintH * 0.45);
@@ -1258,7 +1191,6 @@ function positionRanking() {
 
     rankingEl.style.top = Math.round(top) + 'px';
     rankingEl.style.bottom = 'auto';
-    headerPanelEl.classList.remove('shifted');
   } else {
     rankingEl.style.top = '';
     rankingEl.style.bottom = '';
@@ -1317,11 +1249,6 @@ function render(timestamp) {
   const matrixAlpha = clamp01((t - MATRIX_MORPH_START) / MATRIX_FADE_RANGE) * techFade;
   if (matrixAlpha > 0) drawMatrix(dt, matrixAlpha);
 
-  // Header panel shift (make room for matrix on desktop)
-  if (W > TABLET_BREAKPOINT) {
-    if (matrixAlpha > 0 && techProgress <= 0) headerPanelEl.classList.add('shifted');
-    else headerPanelEl.classList.remove('shifted');
-  }
 
   // Narrative lines (horizontal slide, vertically centred)
   for (let i = 0; i < narrativeLines.length; i++) {

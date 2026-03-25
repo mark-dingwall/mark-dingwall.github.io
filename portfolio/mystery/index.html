@@ -15,10 +15,7 @@
     #header-panel {
       padding: 24px 32px 16px;
       width: min(700px, 50vw);
-      transition: left 0.6s ease, opacity 0.4s ease;
-    }
-    #header-panel.shifted {
-      left: 30%;
+      transition: opacity 0.4s ease;
     }
     #title-overlay {
       display: block;
@@ -209,7 +206,7 @@
       padding: 14px 12px;
     }
     .flow-card.flow-before {
-      border-color: rgba(230, 130, 60, 0.3);
+      border-color: rgba(180, 120, 255, 0.3);
     }
     .flow-card.flow-after {
       border-color: rgba(0, 204, 170, 0.3);
@@ -221,7 +218,7 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
-    .flow-before .flow-label { color: rgba(230, 130, 60, 0.6); }
+    .flow-before .flow-label { color: rgba(180, 120, 255, 0.6); }
     .flow-after .flow-label { color: rgba(0, 204, 170, 0.6); }
     .flow-detail {
       font-size: 14px;
@@ -448,34 +445,34 @@
         </div>
       </div>
 
-      <!-- Row 3: Strategy competition — visual left, text right -->
+      <!-- Row 3: Optimisation pipeline — visual left, text right -->
       <div class="row">
         <div class="row-visual">
           <div class="flow-compare">
             <div class="flow-card flow-before">
-              <div class="flow-label">Before</div>
-              <div class="flow-detail">~45 min per week</div>
-              <div class="flow-detail">Inconsistent quality</div>
-              <div class="flow-detail">No objective metrics</div>
-              <div class="flow-detail">Human bias in packing</div>
+              <div class="flow-label">Optuna</div>
+              <div class="flow-detail">800 trials &times; 5-fold CV</div>
+              <div class="flow-detail">14 scoring parameters</div>
+              <div class="flow-detail">Bayesian TPE sampling</div>
+              <div class="flow-detail">Manual boxes &ge; 85</div>
             </div>
             <div class="flow-arrow">&rarr;</div>
             <div class="flow-card flow-after">
-              <div class="flow-label">After</div>
-              <div class="flow-detail">&lt; 1 second</div>
-              <div class="flow-detail">Deterministic output</div>
-              <div class="flow-detail">Six-dimensional scoring</div>
-              <div class="flow-detail">339 tests, no DB needed</div>
+              <div class="flow-label">ILP solver</div>
+              <div class="flow-detail">PuLP/CBC mixed-integer</div>
+              <div class="flow-detail">17-line tangent approx</div>
+              <div class="flow-detail">Linearised penalty epigraph</div>
+              <div class="flow-detail">Provably optimal allocation</div>
             </div>
           </div>
         </div>
-        <h2 class="row-title">seven strategies</h2>
+        <h2 class="row-title">optimisation pipeline</h2>
         <div class="row-text">
           <ul>
-            <li>From simple round-robin to ILP multi-objective solver (PuLP/CBC)</li>
-            <li>All seven automated strategies outperform manual packing</li>
-            <li>Local search bootstraps from simpler strategies, then iteratively improves</li>
-            <li>Validated against 45 historical offers across four data quality tiers</li>
+            <li>Optuna tunes 14 penalty weights across 364 historical boxes and synthetic negatives, cross-validated per tier</li>
+            <li>ILP embeds the tuned scoring function via tangent-line linearisation of the convex power penalties</li>
+            <li>EBM glass-box models diagnose structural gaps the hand-crafted function misses, distilling gains back in</li>
+            <li>Packer survey (130 scenarios, 7-point Likert) adds rank-correlation signal to sharpen penalty interactions</li>
           </ul>
         </div>
       </div>
