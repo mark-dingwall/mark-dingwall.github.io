@@ -22,10 +22,10 @@ const FRAG_PRECISION = IS_MOBILE ? 'mediump' : 'highp';
 
 /** @type {{ path: string, mirror: boolean }[]} One noise texture per screen quadrant. */
 const QUAD_TEXTURES = [
-  { path: '.textures/SuperPerlin_01-256x256.png', mirror: false },  // TR(0)
-  { path: '.textures/Spokes_07-256x256.png',      mirror: true  },  // BR(1)
-  { path: '.textures/Voronoi_01-256x256.png',      mirror: false },  // BL(2)
-  { path: '.textures/Cracks_01-256x256.png',       mirror: false },  // TL(3)
+  { path: 'textures/SuperPerlin_01-256x256.png', mirror: false },  // TR(0)
+  { path: 'textures/Spokes_07-256x256.png',      mirror: true  },  // BR(1)
+  { path: 'textures/Voronoi_01-256x256.png',      mirror: false },  // BL(2)
+  { path: 'textures/Cracks_01-256x256.png',       mirror: false },  // TL(3)
 ];
 
 /** @type {[number, number, number][][]} Five-colour palettes, one per quadrant. */
