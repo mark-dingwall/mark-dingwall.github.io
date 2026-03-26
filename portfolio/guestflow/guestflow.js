@@ -753,6 +753,12 @@ function buildBars() {
       barEl.addEventListener('mouseleave', hideTooltip);
       barEl.addEventListener('focus', showTooltip);
       barEl.addEventListener('blur', hideTooltip);
+      barEl.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        showTooltip();
+        var hide = function() { hideTooltip(); document.removeEventListener('touchstart', hide); };
+        setTimeout(function() { document.addEventListener('touchstart', hide); }, 0);
+      }, { passive: false });
     })(i, bar);
   }
 

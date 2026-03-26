@@ -611,6 +611,12 @@ function buildBars() {
     bar.addEventListener('mouseleave', hideTooltip);
     bar.addEventListener('focus', showTooltip);
     bar.addEventListener('blur', hideTooltip);
+    bar.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      showTooltip();
+      const hide = () => { hideTooltip(); document.removeEventListener('touchstart', hide); };
+      setTimeout(() => document.addEventListener('touchstart', hide), 0);
+    }, { passive: false });
   }
 
   recalcRowHeight();
