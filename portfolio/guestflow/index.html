@@ -80,15 +80,15 @@
         <h2 class="row-title row-title-hero">under the hood</h2>
         <div class="row-text">
           <ul>
-            <li>TypeScript on Cloudflare Workers — edge-deployed, sub-50ms responses</li>
-            <li>Webhook-driven sync pipeline with Zod validation at every boundary</li>
-            <li>7 REST endpoints serving the Webflow CMS and 3 embeddable widget bundles</li>
-            <li>Full test coverage with Vitest; esbuild for widget bundling</li>
+            <li>Server exists only for what needs auth — everything else stays in Webflow's CDN and edge cache</li>
+            <li>5 embeddable widget bundles communicate via custom DOM events — no shared runtime, no coupling</li>
+            <li>Hand-written Zod schemas at every boundary — Guesty's actual API payloads diverge from their docs</li>
+            <li>Sole developer: ~4,600 lines of TypeScript, 27 test suites, end-to-end</li>
           </ul>
         </div>
       </div>
 
-      <!-- Row 2: Token caching — text left, visual right -->
+      <!-- Row 2: Caching under constraints — text left, visual right -->
       <div class="row row--reverse">
         <div class="row-visual">
           <div class="cache-stack">
@@ -111,51 +111,56 @@
             </div>
           </div>
         </div>
-        <h2 class="row-title">token caching</h2>
+        <h2 class="row-title">caching under constraints</h2>
         <div class="row-text">
           <ul>
-            <li>Two-tier caching strategy: in-memory + CF Cache API</li>
-            <li>Solved stateless Worker cold-start problem for OAuth tokens</li>
-            <li>Proactive refresh with safety buffers to avoid rate limits</li>
-            <li>Zero-downtime under Guesty's strict 5-token-per-day constraint</li>
+            <li>Guesty allows 5 OAuth tokens per day; Workers cold-start and don't share memory — a distributed coordination problem</li>
+            <li>Two-tier cache with refresh lock via Cache API; accepted trade-off: 1 extra token/day worst case, not a thundering herd</li>
+            <li>Calendar availability cached per-listing, per-month; in-flight request dedup prevents duplicate API calls during cold starts</li>
+            <li>Different invalidation per event type: reservations wipe affected dates only, calendar updates wipe 6 future months</li>
           </ul>
         </div>
       </div>
 
-      <!-- Row 3: Embeddable widgets — visual left, text right -->
+      <!-- Row 3: Security & resilience — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <div class="widget-cards">
-            <div class="widget-card wc-calendar">
-              <div class="widget-icon">&#128197;</div>
-              <div class="widget-info">
-                <div class="widget-name">Calendar Widget</div>
-                <div class="widget-desc">Date picker with live availability and per-night pricing</div>
-              </div>
-            </div>
-            <div class="widget-card wc-map">
-              <div class="widget-icon">&#128205;</div>
-              <div class="widget-info">
-                <div class="widget-name">Map Widget</div>
-                <div class="widget-desc">Mapbox pins with pricing, Finsweet filter integration</div>
-              </div>
-            </div>
-            <div class="widget-card wc-payment">
-              <div class="widget-icon">&#128179;</div>
-              <div class="widget-info">
-                <div class="widget-name">Payment Widget</div>
-                <div class="widget-desc">Guesty Tokenization SDK — card data never touches our server</div>
-              </div>
-            </div>
-          </div>
+          <svg class="flow-svg" viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="fork-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6"/>
+              </filter>
+            </defs>
+            <!-- Paths -->
+            <path class="flow-path" d="M 96 90 L 176 90"/>
+            <path class="flow-path" d="M 264 90 L 344 90"/>
+            <path class="flow-path flow-branch-ok"    d="M 432 90 C 450 90, 460 60, 480 60"/>
+            <path class="flow-path flow-branch-retry" d="M 432 90 C 450 90, 460 120, 480 120"/>
+            <!-- Nodes -->
+            <rect class="flow-node" x="8"   y="66" width="88" height="48" rx="24"/>
+            <text class="flow-label" x="52"  y="86">Auth</text>
+            <text class="flow-sublabel" x="52" y="104">HMAC / Bearer</text>
+            <rect class="flow-node" x="176" y="66" width="88" height="48" rx="24"/>
+            <text class="flow-label" x="220" y="86">Validate</text>
+            <text class="flow-sublabel" x="220" y="104">Zod schema</text>
+            <!-- Fork node with glow -->
+            <rect class="flow-fork-glow" x="344" y="66" width="88" height="48" rx="24"
+                  fill="rgba(0,204,204,0.2)" filter="url(#fork-glow)"/>
+            <rect class="flow-node flow-fork-node" x="344" y="66" width="88" height="48" rx="24"/>
+            <text class="flow-label" x="388" y="86">Route</text>
+            <text class="flow-sublabel" x="388" y="104">classify error</text>
+            <!-- Branch labels -->
+            <text class="flow-branch-label flow-branch-label-ok"    x="500" y="64">200 stop</text>
+            <text class="flow-branch-label flow-branch-label-retry" x="500" y="124">5xx retry</text>
+          </svg>
         </div>
-        <h2 class="row-title">embeddable widgets</h2>
+        <h2 class="row-title">security &amp; resilience</h2>
         <div class="row-text">
           <ul>
-            <li>Three standalone JS bundles built with esbuild, served from the API</li>
-            <li>PCI-compliant payments via Guesty Tokenization SDK</li>
-            <li>Mapbox integration with live event-driven filtering</li>
-            <li>Webhook-triggered cache invalidation per listing, per month</li>
+            <li>Svix HMAC-SHA256 verification with timing-safe comparison; Bearer token fallback for zero-downtime migration</li>
+            <li>Returns 200 for permanent errors to prevent retry storms; real status codes for transient failures enable recovery</li>
+            <li>CORS fail-closed: empty origin allowlist blocks everything — no wildcards, HTTPS enforced</li>
+            <li>PCI-compliant payments via SDK delegation — card data never touches the server</li>
           </ul>
         </div>
       </div>
@@ -163,7 +168,8 @@
     </div>
 
     <footer class="tech-footer">
-      Sole developer <span>&middot;</span> Next.js 15 <span>&middot;</span> TypeScript <span>&middot;</span>
+      Sole developer <span>&middot;</span> ~4,600 lines <span>&middot;</span> 27 test suites <span>&middot;</span>
+      Next.js 15 <span>&middot;</span> TypeScript <span>&middot;</span>
       Cloudflare Workers <span>&middot;</span> Zod <span>&middot;</span> Vitest <span>&middot;</span>
       esbuild <span>&middot;</span> Webflow API <span>&middot;</span> Guesty API
     </footer>

@@ -179,44 +179,67 @@
   padding: 4px 0;
   animation: pulse-arrow 2s ease-in-out infinite;
 }
-.widget-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* -- Security & resilience flow SVG ------------------------------------ */
+.flow-svg {
   width: 100%;
-  max-width: 320px;
+  max-width: 440px;
+  height: auto;
 }
-.widget-card {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.flow-node {
+  fill: rgba(0, 204, 204, 0.08);
+  stroke: rgba(0, 204, 204, 0.4);
+  stroke-width: 1.5;
 }
-.widget-card.wc-calendar { border-color: rgba(0, 234, 170, 0.3); }
-.widget-card.wc-map { border-color: rgba(0, 170, 255, 0.3); }
-.widget-card.wc-payment { border-color: rgba(204, 120, 255, 0.3); }
-.widget-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-  width: 36px;
-  text-align: center;
+.flow-fork-node {
+  stroke: rgba(0, 204, 204, 0.6);
 }
-.widget-info { flex: 1; }
-.widget-name {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2px;
+.flow-fork-glow {
+  animation: fork-glow 2s ease-in-out infinite;
 }
-.wc-calendar .widget-name { color: rgba(0, 234, 170, 0.9); }
-.wc-map .widget-name { color: rgba(0, 170, 255, 0.9); }
-.wc-payment .widget-name { color: rgba(204, 120, 255, 0.9); }
-.widget-desc {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.4;
+.flow-label {
+  fill: #0cc;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.flow-sublabel {
+  fill: rgba(255, 255, 255, 0.4);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.flow-path {
+  stroke: rgba(0, 204, 204, 0.45);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+  animation: flow-dash 1.5s linear infinite;
+  fill: none;
+}
+.flow-branch-ok {
+  stroke: rgba(255, 180, 50, 0.6);
+}
+.flow-branch-retry {
+  stroke: rgba(0, 204, 204, 0.6);
+}
+.flow-branch-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  dominant-baseline: central;
+}
+.flow-branch-label-ok {
+  fill: rgba(255, 180, 50, 0.7);
+}
+.flow-branch-label-retry {
+  fill: rgba(0, 204, 204, 0.7);
+}
+@keyframes flow-dash {
+  to { stroke-dashoffset: -11; }
+}
+@keyframes fork-glow {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
 }
 
 /* ── Responsive ──────────────────────────────────────────────────── */
@@ -292,7 +315,8 @@
   }
   .flow-btn {
     font-size: 13px;
-    padding: 4px 10px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
   #tooltip {
     font-size: 13px;
@@ -301,4 +325,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cache-arrow { animation: none; opacity: 0.6; }
+  .flow-path { animation: none; }
+  .flow-fork-glow { animation: none; opacity: 0.5; }
 }
