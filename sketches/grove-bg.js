@@ -342,7 +342,7 @@ class GroveBg {
 
     // Trees
     this._trees = [];
-    const treeCount = Math.min(TREE_COUNT, Math.max(1, Math.floor(w / 6)));
+    const treeCount = Math.min(TREE_COUNT, Math.max(1, Math.floor(w / 9)));
     const band = Math.max(1, Math.floor(w / (treeCount + 1)));
     for (let i = 0; i < treeCount; i++) {
       let tx = band * (i + 1) + this._rng.randint(-Math.floor(band / 3), Math.floor(band / 3));
