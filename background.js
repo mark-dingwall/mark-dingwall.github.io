@@ -10,6 +10,8 @@ const DRIFT_SPEED = 0.25;
 const BASE_DRIFT = [0.05, 0.03];
 /** @type {number} Scale applied to the smoothed mouse position before uploading as shader offset. */
 const MOUSE_WARP_SCALE = 0.4;
+/** @type {number} Per-frame lerp factor for the black-hole position (higher = snappier). */
+const BLACK_HOLE_LERP = 0.175;
 
 const QUALITY = IS_MOBILE
   ? { scale: 0.5, fps: 30 }
@@ -319,6 +321,7 @@ function setup() {
   let driftX = 0, driftY = 0;
   let mouseX = 0.5, mouseY = 0.5;
   let smoothX = 0.5, smoothY = 0.5;
+  let bhX = 0.5, bhY = 0.5;
   let startTime = 0;
   let pausedAt = 0;
   let pausedTotal = 0;
@@ -486,6 +489,8 @@ function setup() {
     // Smooth mouse lerp
     smoothX += (mouseX - smoothX) * MOUSE_LERP;
     smoothY += (mouseY - smoothY) * MOUSE_LERP;
+    bhX += (mouseX - bhX) * BLACK_HOLE_LERP;
+    bhY += (mouseY - bhY) * BLACK_HOLE_LERP;
 
     // Drift accumulation (guard against large dt spikes on tab restore)
     if (dt > 0 && dt < 0.5) {
@@ -499,7 +504,7 @@ function setup() {
     gl.uniform2f(uResolution, canvas.width, canvas.height);
     // On mobile the BLACK_HOLE define is absent, so these uniforms don't exist
     // in the shader — gl.uniform2f(null, …) is a silent no-op per the WebGL spec.
-    gl.uniform2f(uBlackHolePos, mouseX * canvas.width / canvas.height, mouseY);
+    gl.uniform2f(uBlackHolePos, bhX * canvas.width / canvas.height, bhY);
     gl.uniform2f(uMouseOffset, (smoothX - 0.5) * MOUSE_WARP_SCALE, (smoothY - 0.5) * MOUSE_WARP_SCALE);
     gl.uniform2f(uDrift, driftX, driftY);
 
