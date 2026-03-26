@@ -245,26 +245,20 @@ function generateSites() {
   const count = W <= MOBILE_BREAKPOINT ? 4 : SITE_COUNT;
 
   if (W <= MOBILE_BREAKPOINT) {
-    // Mobile: 2×2 centered grid
-    const gridGap = size * 0.3;
-    const gridW = size * 2 + gridGap;
-    const gridH = size * 2 + gridGap;
-    const ox = (W - gridW) / 2;
-    const oy = H * 0.15;
-    const positions = [
-      [ox, oy],
-      [ox + size + gridGap, oy],
-      [ox, oy + size + gridGap],
-      [ox + size + gridGap, oy + size + gridGap],
-    ];
-    const midIdx = 3; // Guestflow at bottom-right
+    // Mobile: centered vertical column with larger cards
+    const mobileSize = W * 0.19;
+    const colGap = mobileSize * 0.45;
+    const totalH = count * mobileSize + (count - 1) * colGap;
+    const ox = (W - mobileSize) / 2;
+    const oy = (H - totalH) / 2;
+    const midIdx = Math.floor(count / 2);
     let otaIdx = 0;
     for (let i = 0; i < count; i++) {
       sites.push({
-        x: positions[i][0],
-        y: positions[i][1],
-        w: size,
-        h: size,
+        x: ox,
+        y: oy + i * (mobileSize + colGap),
+        w: mobileSize,
+        h: mobileSize,
         label: i === midIdx ? GUESTFLOW_LABEL : OTA_LABELS[otaIdx++],
       });
     }
@@ -306,7 +300,7 @@ function computeCurrentSites(t) {
       const gfW = base.w * grow;
       const gfH = base.h * grow;
       result.push({
-        x: lerp(base.x, base.x - W * GUESTFLOW_SHIFT_LEFT, t),
+        x: W <= MOBILE_BREAKPOINT ? (W - gfW) / 2 : lerp(base.x, base.x - W * GUESTFLOW_SHIFT_LEFT, t),
         y: base.y - (gfH - base.h) / 2,
         w: gfW,
         h: gfH,
@@ -317,11 +311,13 @@ function computeCurrentSites(t) {
     } else {
       const shrink = 1 - t * (1 - OTHER_SHRINK_FACTOR);
       const siteCenterY = base.y + base.h / 2;
-      const push = Math.sign(siteCenterY - gfCenterY) * gfGrowH * 0.5;
+      const pushMult = W <= MOBILE_BREAKPOINT ? 0.8 : 0.5;
+      const push = Math.sign(siteCenterY - gfCenterY) * gfGrowH * pushMult;
+      const shrunkW = base.w * shrink;
       result.push({
-        x: base.x,
+        x: W <= MOBILE_BREAKPOINT ? (W - shrunkW) / 2 : base.x,
         y: base.y + push,
-        w: base.w * shrink,
+        w: shrunkW,
         h: base.h * shrink,
         isGuestflow: false,
         morph: t,
