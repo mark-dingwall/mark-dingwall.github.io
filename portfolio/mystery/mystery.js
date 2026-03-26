@@ -164,8 +164,9 @@ let techProgress = 0;
 let progressBar, scrollHint;
 let narrativeLines = [];
 let rankingEl, rankingBarsEl, tooltipEl, headerPanelEl;
-let titleOverlayEl, narrativeEl, techSubtitleEl;
+let titleOverlayEl, narrativeEl;
 let techFade = 1;
+let boxYOffset = 0;
 let barEls = [];
 let currentPref = 0;
 let rowHeight = BAR_ROW_HEIGHT_INIT;
@@ -436,7 +437,7 @@ function drawBoxAnimation(dt, fade) {
   const bw = dim * BOX_W_FRAC;
   const bh = dim * BOX_H_FRAC;
   const sr = dim * SHAPE_R_FRAC;
-  const boxCY = H * BOX_CY_FRAC;
+  const boxCY = H * BOX_CY_FRAC - boxYOffset;
   const centerX = W * 0.5;
 
   // Phase boundaries
@@ -637,7 +638,7 @@ function drawGoodBoxAnimation(dt, fade) {
   const dim = Math.min(W, H);
   const bw = dim * BOX_W_FRAC;
   const bh = dim * BOX_H_FRAC;
-  const boxCY = H * BOX_CY_FRAC;
+  const boxCY = H * BOX_CY_FRAC - boxYOffset;
   const centerX = W * 0.5;
 
   const enterEnd = ENTER_DUR;
@@ -922,7 +923,7 @@ function drawMatrix(dt, fade) {
     my = (H - totalH) * 0.4;
   } else {
     mx = (W - totalW) / 2;
-    my = H * 0.52;
+    my = H * 0.56;
   }
 
   const gridLeft = mx + labelSz;
@@ -1237,6 +1238,12 @@ function render(timestamp) {
   ctx.fillStyle = 'rgb(' + bgR + ',' + bgG + ',' + bgB + ')';
   ctx.fillRect(0, 0, W, H);
 
+  // ILP Matrix alpha (used for box offset on mobile)
+  const matrixAlpha = clamp01((t - MATRIX_MORPH_START) / MATRIX_FADE_RANGE) * techFade;
+
+  // On mobile, shift box animation up when matrix appears
+  boxYOffset = W <= MOBILE_BREAKPOINT ? matrixAlpha * H * 0.18 : 0;
+
   // Box animations
   if (badFade > 0) drawBoxAnimation(dt, badFade * techFade);
   if (goodFade > 0) drawGoodBoxAnimation(dt, goodFade * techFade);
@@ -1246,14 +1253,14 @@ function render(timestamp) {
   rankingEl.style.pointerEvents = 'none';
 
   // ILP Matrix (canvas-drawn)
-  const matrixAlpha = clamp01((t - MATRIX_MORPH_START) / MATRIX_FADE_RANGE) * techFade;
   if (matrixAlpha > 0) drawMatrix(dt, matrixAlpha);
 
-
   // Narrative lines (horizontal slide, vertically centred)
+  // On mobile, fade narrative when matrix appears
+  const narrativeMatrixFade = W <= MOBILE_BREAKPOINT ? 1 - matrixAlpha : 1;
   for (let i = 0; i < narrativeLines.length; i++) {
     const kf = interpolateKeyframes(LINE_KEYFRAMES[i], t);
-    narrativeLines[i].style.opacity = kf.op;
+    narrativeLines[i].style.opacity = kf.op * narrativeMatrixFade;
     narrativeLines[i].style.transform = 'translate(-50%, -50%) translateX(' + (kf.y * NARRATIVE_SLIDE_PX) + 'px)';
   }
 
@@ -1278,8 +1285,6 @@ function init() {
   tooltipEl = document.getElementById('tooltip');
   titleOverlayEl = document.getElementById('title-overlay');
   narrativeEl = document.getElementById('narrative');
-  techSubtitleEl = document.getElementById('tech-subtitle');
-
   function resize() {
     dpr = window.devicePixelRatio || 1;
     W = window.innerWidth;
@@ -1340,7 +1345,11 @@ function init() {
         narrativeEl.style.opacity = 1 - p;
 
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
-        techSubtitleEl.style.opacity = p;
+
+        // Hide fixed panels once fully in tech section
+        const vis = p >= 1 ? 'hidden' : 'visible';
+        rankingEl.style.visibility = vis;
+        narrativeEl.style.visibility = vis;
 
         if (p >= 1) {
           if (headerPanelEl.style.position !== 'absolute') {

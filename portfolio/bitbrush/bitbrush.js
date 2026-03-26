@@ -51,6 +51,13 @@ const TEXT_WORDS = [
   { text: 'PIXEL',       color: '#00cccc', glow: '#00aaff' },
   { text: 'CANVAS',      color: '#66ff99', glow: '#00eeaa' },
 ];
+// Mobile: smaller pixel text rendered directly on canvas (not grid-aligned)
+const MOBILE_TEXT_PX = 3;        // pixels per font pixel
+const MOBILE_TEXT_WORDS = [
+  { lines: ['MULTI', 'PLAYER'], color: '#ff9966', glow: '#ff6633' },
+  { lines: ['PIXEL'],           color: '#00cccc', glow: '#00aaff' },
+  { lines: ['CANVAS'],          color: '#66ff99', glow: '#00eeaa' },
+];
 const WORD_BUILD = 1.5;     // seconds — pixels appear in random order
 const WORD_HOLD = 1.5;      // seconds — all visible
 const WORD_UNDRAW = 0.7;    // seconds — pixels vanish in random order (faster)
@@ -74,7 +81,7 @@ const MINI_COLORS = [
   '#000000', '#666666', '#ffffff',
   '#ff0000', '#ff6600', '#ffff00',
   '#00ff00', '#00cccc', '#0066ff',
-  '#9900ff', '#ff0099', '#ff6633',
+  '#9900ff', '#ff0099', '#006600',
 ];
 const BANK_MAX = 25;
 const BANK_EARN_MS = 600;
@@ -143,6 +150,7 @@ let techFade = 1;
 
 // Pixel text
 let textWords = [];
+let mobileTextWords = [];  // mobile: canvas-pixel text (not grid-aligned)
 let textExclusion = null;  // {minCol, maxCol, minRow, maxRow}
 let zoneFillOrder = [];    // fills the text zone when demo panel appears
 
@@ -326,6 +334,117 @@ function computeTextPixels() {
 }
 
 // ---------------------------------------------------------------------------
+// Mobile pixel text — layout computation (canvas-pixel, multi-line)
+// ---------------------------------------------------------------------------
+function computeMobileTextPixels() {
+  mobileTextWords = [];
+  if (gridCols >= TEXT_MIN_COLS) return; // desktop mode handles text
+
+  const rng = alea('bitbrush-mobile-text');
+  const px = MOBILE_TEXT_PX;
+  const fontH = FONT_HEIGHT * px;
+  const lineGap = px * 2;
+
+  for (let wi = 0; wi < MOBILE_TEXT_WORDS.length; wi++) {
+    const wordDef = MOBILE_TEXT_WORDS[wi];
+    const pixels = [];
+
+    // Measure total block height
+    const totalH = wordDef.lines.length * fontH + (wordDef.lines.length - 1) * lineGap;
+    const startY = Math.floor((H - totalH) / 2);
+
+    for (let li = 0; li < wordDef.lines.length; li++) {
+      const text = wordDef.lines[li];
+      // Measure line width
+      let lineW = 0;
+      for (let ci = 0; ci < text.length; ci++) {
+        const glyph = FONT[text[ci]];
+        if (!glyph) continue;
+        if (ci > 0) lineW += px;
+        lineW += glyph[0].length * px;
+      }
+
+      const lineX = Math.floor((W - lineW) / 2);
+      const lineY = startY + li * (fontH + lineGap);
+      let curX = lineX;
+
+      for (let ci = 0; ci < text.length; ci++) {
+        const glyph = FONT[text[ci]];
+        if (!glyph) continue;
+        const charW = glyph[0].length;
+        if (ci > 0) curX += px;
+
+        for (let row = 0; row < glyph.length; row++) {
+          for (let col = 0; col < charW; col++) {
+            if (glyph[row][col] === '#') {
+              pixels.push({
+                x: curX + col * px,
+                y: lineY + row * px,
+                drawRank: 0,
+                undrawRank: 0,
+              });
+            }
+          }
+        }
+        curX += charW * px;
+      }
+    }
+
+    const drawOrder = shuffleIndices(pixels.length, rng);
+    const undrawOrder = shuffleIndices(pixels.length, rng);
+    for (let i = 0; i < drawOrder.length; i++) pixels[drawOrder[i]].drawRank = i;
+    for (let i = 0; i < undrawOrder.length; i++) pixels[undrawOrder[i]].undrawRank = i;
+
+    mobileTextWords.push({ pixels: pixels, color: wordDef.color, glow: wordDef.glow });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile pixel text — rendering
+// ---------------------------------------------------------------------------
+function renderMobileText(masterAlpha) {
+  if (!mobileTextWords.length || masterAlpha <= 0) return;
+
+  const cycleTime = time % TEXT_FULL_CYCLE;
+  const wordIdx = Math.min(Math.floor(cycleTime / WORD_DURATION), mobileTextWords.length - 1);
+  const wt = cycleTime - wordIdx * WORD_DURATION;
+  const word = mobileTextWords[wordIdx];
+  const total = word.pixels.length;
+  const px = MOBILE_TEXT_PX;
+
+  for (let i = 0; i < total; i++) {
+    const p = word.pixels[i];
+    let alpha = 0;
+
+    if (wt < WORD_BUILD) {
+      const buildProgress = (wt / WORD_BUILD) * total;
+      if (p.drawRank < buildProgress) {
+        alpha = Math.min(1, (buildProgress - p.drawRank) / PIXEL_FADE_SLOTS);
+      }
+    } else if (wt < WORD_BUILD + WORD_HOLD) {
+      alpha = 1;
+    } else if (wt < WORD_BUILD + WORD_HOLD + WORD_UNDRAW) {
+      const undrawProgress = ((wt - WORD_BUILD - WORD_HOLD) / WORD_UNDRAW) * total;
+      if (p.undrawRank >= undrawProgress) {
+        alpha = Math.min(1, (p.undrawRank - undrawProgress) / PIXEL_FADE_SLOTS);
+      }
+    }
+
+    alpha *= masterAlpha;
+    if (alpha <= 0) continue;
+
+    ctx.globalAlpha = alpha * 0.2;
+    ctx.fillStyle = word.glow;
+    ctx.fillRect(p.x - 1, p.y - 1, px + 2, px + 2);
+
+    ctx.globalAlpha = alpha * 0.95;
+    ctx.fillStyle = word.color;
+    ctx.fillRect(p.x, p.y, px, px);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ---------------------------------------------------------------------------
 // Background rendering
 // ---------------------------------------------------------------------------
 function renderBackground(t) {
@@ -399,6 +518,7 @@ function renderBackground(t) {
   // Pixel text overlay — fades out as demo appears and during tech transition
   const textAlpha = Math.min(techFade, 1 - demoFrac);
   renderText(textAlpha);
+  renderMobileText(textAlpha);
 }
 
 // ---------------------------------------------------------------------------
@@ -505,15 +625,14 @@ function getMiniPos(e) {
 
 function onMiniDown(e) {
   if (bankBalance <= 0) return;
+  const pos = getMiniPos(e);
+  if (!pos) return; // outside grid — let scroll through
   e.preventDefault();
   miniCanvas.setPointerCapture(e.pointerId);
   isDragging = true;
-  const pos = getMiniPos(e);
-  if (pos) {
-    placeMiniPixel(pos.col, pos.row);
-    lastDragCol = pos.col;
-    lastDragRow = pos.row;
-  }
+  placeMiniPixel(pos.col, pos.row);
+  lastDragCol = pos.col;
+  lastDragRow = pos.row;
 }
 
 function onMiniMove(e) {
@@ -690,6 +809,7 @@ function init() {
     generateFillOrder();
     generateZoneFill();
     computeTextPixels();
+    computeMobileTextPixels();
   }
 
   initMiniCanvas();
@@ -727,6 +847,9 @@ function init() {
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
         techSubtitleEl.style.opacity = p;
         if (mobileTaglineEl) mobileTaglineEl.style.opacity = 1 - p;
+
+        // Hide fixed panels once fully in tech section
+        demoPanelEl.style.visibility = p >= 1 ? 'hidden' : 'visible';
 
         if (p >= 1) {
           if (headerPanelEl.style.position !== 'absolute') {

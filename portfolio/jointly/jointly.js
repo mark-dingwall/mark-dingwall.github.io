@@ -187,7 +187,7 @@ let techProgress = 0;
 let progressBar, scrollHint;
 let narrativeLines = [];
 let rankingEl, rankingBarsEl, tooltipEl, headerPanelEl;
-let titleOverlayEl, narrativeEl, techSubtitleEl;
+let titleOverlayEl, narrativeEl;
 let narrativeOrigH = 0;
 let techFade = 1;
 let barEls = [];
@@ -632,15 +632,18 @@ function positionRanking() {
     const rankH = rankingEl.offsetHeight;
 
     // Center ranking vertically in available space below header
-    const availH = H - hpBottom;
+    const pad = 48; // breathing room above scroll-hint
+    const availH = H - hpBottom - pad;
     const top = hpBottom + Math.max(12, (availH - rankH) / 2);
 
     rankingEl.style.top = Math.round(top) + 'px';
     rankingEl.style.bottom = 'auto';
+    rankingEl.style.maxHeight = Math.round(availH) + 'px';
     headerPanelEl.classList.remove('shifted');
   } else {
     rankingEl.style.top = '';
     rankingEl.style.bottom = '';
+    rankingEl.style.maxHeight = '';
   }
 }
 
@@ -674,8 +677,6 @@ function init() {
   tooltipEl = document.getElementById('tooltip');
   titleOverlayEl = document.getElementById('title-overlay');
   narrativeEl = document.getElementById('narrative');
-  techSubtitleEl = document.getElementById('tech-subtitle');
-
   function resize() {
     dpr = window.devicePixelRatio || 1;
     W = window.innerWidth;
@@ -742,8 +743,8 @@ function init() {
         // Shrink logo
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
 
-        // Show "under the hood" subtitle
-        techSubtitleEl.style.opacity = p;
+        // Hide fixed panels once fully in tech section
+        rankingEl.style.visibility = p >= 1 ? 'hidden' : 'visible';
 
         // Move panel up, then switch to absolute so it scrolls with content
         if (p >= 1) {

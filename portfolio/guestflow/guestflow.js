@@ -243,22 +243,50 @@ function generateSites() {
   const size = Math.min(W, H) * SITE_SIZE_FRAC;
   const gap = H * SITE_GAP_Y_FRAC;
   const count = W <= MOBILE_BREAKPOINT ? 4 : SITE_COUNT;
-  const startX = W * SITE_AREA_RIGHT - size / 2;
-  const totalH = count * size + (count - 1) * gap;
-  const startY = H * SITE_AREA_TOP + (H * (1 - SITE_AREA_TOP * 2) - totalH) / 2;
-  const midIdx = Math.floor(count / 2);
-  let otaIdx = 0;
 
-  for (let i = 0; i < count; i++) {
-    sites.push({
-      x: startX,
-      y: startY + i * (size + gap),
-      w: size,
-      h: size,
-      label: i === midIdx ? GUESTFLOW_LABEL : OTA_LABELS[otaIdx++],
-    });
+  if (W <= MOBILE_BREAKPOINT) {
+    // Mobile: 2×2 centered grid
+    const gridGap = size * 0.3;
+    const gridW = size * 2 + gridGap;
+    const gridH = size * 2 + gridGap;
+    const ox = (W - gridW) / 2;
+    const oy = H * 0.15;
+    const positions = [
+      [ox, oy],
+      [ox + size + gridGap, oy],
+      [ox, oy + size + gridGap],
+      [ox + size + gridGap, oy + size + gridGap],
+    ];
+    const midIdx = 3; // Guestflow at bottom-right
+    let otaIdx = 0;
+    for (let i = 0; i < count; i++) {
+      sites.push({
+        x: positions[i][0],
+        y: positions[i][1],
+        w: size,
+        h: size,
+        label: i === midIdx ? GUESTFLOW_LABEL : OTA_LABELS[otaIdx++],
+      });
+    }
+    guestflowIdx = midIdx;
+  } else {
+    // Desktop/tablet: vertical stack on right
+    const startX = W * SITE_AREA_RIGHT - size / 2;
+    const totalH = count * size + (count - 1) * gap;
+    const startY = H * SITE_AREA_TOP + (H * (1 - SITE_AREA_TOP * 2) - totalH) / 2;
+    const midIdx = Math.floor(count / 2);
+    let otaIdx = 0;
+    for (let i = 0; i < count; i++) {
+      sites.push({
+        x: startX,
+        y: startY + i * (size + gap),
+        w: size,
+        h: size,
+        label: i === midIdx ? GUESTFLOW_LABEL : OTA_LABELS[otaIdx++],
+      });
+    }
+    guestflowIdx = midIdx;
   }
-  guestflowIdx = midIdx;
 }
 
 // ---------------------------------------------------------------------------
@@ -380,12 +408,18 @@ function drawSite(site) {
       ctx.fill();
     }
 
-    // Label — right of card
+    // Label
     ctx.font = fontSize + 'px "Share Tech Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(' + acR + ',' + acG + ',' + acB + ',' + lerp(0.4, 0.7, t) + ')';
-    ctx.fillText(site.label, x + w + 12, y + h / 2);
+    if (W <= MOBILE_BREAKPOINT) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(site.label, x + w / 2, y + h + 4);
+    } else {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(site.label, x + w + 12, y + h / 2);
+    }
   } else {
     // OTA cards — orange style, fading with morph
     const fadeAlpha = 1 - t * 0.4;
@@ -408,12 +442,18 @@ function drawSite(site) {
     ctx.fillStyle = 'rgba(255, 150, 50, 0.30)';
     ctx.fillRect(x + w * 0.10, y + h * 0.85, w * 0.35, h * 0.08);
 
-    // Label — right of card
+    // Label
     ctx.font = fontSize + 'px "Share Tech Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255, 150, 50, ' + (0.5 * fadeAlpha) + ')';
-    ctx.fillText(site.label, x + w + 12, y + h / 2);
+    if (W <= MOBILE_BREAKPOINT) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(site.label, x + w / 2, y + h + 4);
+    } else {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(site.label, x + w + 12, y + h / 2);
+    }
 
     ctx.globalAlpha = 1;
   }
@@ -836,6 +876,11 @@ function init() {
 
         // Shrink title
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
+
+        // Hide fixed panels once fully in tech section
+        const vis = p >= 1 ? 'hidden' : 'visible';
+        pipelineEl.style.visibility = vis;
+        narrativePanelEl.style.visibility = vis;
 
         // Move panel up, then switch to absolute so it scrolls with content
         if (p >= 1) {

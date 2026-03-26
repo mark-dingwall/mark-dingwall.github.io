@@ -352,8 +352,8 @@ function drawMachine() {
   const slotY = (BELT_WIDTH - slotD) / 2;
   drawIsoBlock(-0.12, slotY, BELT_Z + BELT_THICKNESS, 0.12, slotD, slotH, 12, 12, 15, 1);
 
-  // Warning light (blinks)
-  const lp = toScreen(-MACHINE_LENGTH * 0.3, my, MACHINE_HEIGHT + 0.2);
+  // Warning light (blinks) — positioned past the counter gantry for visibility
+  const lp = toScreen(COUNTER_X + 2.5, BELT_WIDTH / 2, BELT_Z + GANTRY_TOTAL_H + 0.5);
   const blink = Math.sin(time * 3.5) * 0.4 + 0.6;
   ctx.fillStyle = 'rgba(255, 50, 30, ' + (blink * 0.15) + ')';
   ctx.beginPath();
@@ -859,7 +859,8 @@ function advanceIPadCount() {
 }
 
 function updateDashboard() {
-  const dashAlpha = clamp((morphProgress - DASH_MORPH_START) / (DASH_MORPH_END - DASH_MORPH_START), 0, 1) * techFade;
+  const dashStart = W < 600 ? 0.70 : DASH_MORPH_START;
+  const dashAlpha = clamp((morphProgress - dashStart) / (DASH_MORPH_END - dashStart), 0, 1) * techFade;
   dashboardEl.style.opacity = dashAlpha;
   dashboardEl.style.pointerEvents = dashAlpha > 0.5 ? 'auto' : 'none';
   if (dashAlpha <= 0) return;
@@ -1030,6 +1031,13 @@ function init() {
         techProgress = p;
 
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
+
+        // Hide fixed panels once fully in tech section
+        const vis = p >= 1 ? 'hidden' : 'visible';
+        dashboardEl.style.visibility = vis;
+        for (let ni = 0; ni < narrativeLines.length; ni++) {
+          narrativeLines[ni].style.visibility = vis;
+        }
 
         if (p >= 1) {
           if (headerPanelEl.style.position !== 'absolute') {
