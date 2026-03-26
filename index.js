@@ -253,18 +253,26 @@ let touchStartY = 0;
 /** @type {number} Minimum px distance for a swipe to register. */
 const SWIPE_THRESHOLD = 50;
 
+/** @param {Event} e */
+function isBitbrushTouch(e) {
+  return e.target.closest && !!e.target.closest('.bitbrush-widget');
+}
+
 window.addEventListener('touchstart', e => {
+  if (isBitbrushTouch(e)) return;
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
 }, { passive: true });
 
 window.addEventListener('touchmove', e => {
+  if (isBitbrushTouch(e)) return;
   const dx = e.touches[0].clientX - touchStartX;
   const dy = e.touches[0].clientY - touchStartY;
   if (Math.abs(dx) > 10 || Math.abs(dy) > 10) e.preventDefault();
 }, { passive: false });
 
 window.addEventListener('touchend', e => {
+  if (isBitbrushTouch(e)) return;
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
   const absDx = Math.abs(dx);
