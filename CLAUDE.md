@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Mark Dingwall's personal creative coding website ([axionatic.github.io](https://axionatic.github.io)). A static site — no build step, no package manager, no bundler. Open any `index.html` directly in a browser or use a local server (e.g. `python3 -m http.server`). Deploy by pushing to `main` (GitHub Pages).
+Mark Dingwall's personal website ([axionatic.github.io](https://axionatic.github.io)), with portfolio pieces, creative coding sketches, and [BitBrush](https://github.com/Axionatic/BitBrush) - a multiplayer pixel canvas powered by Spring Boot. A static site — no build step, no package manager, no bundler. Open any `index.html` directly in a browser or use a local server (e.g. `python3 -m http.server`). Deploy by pushing to `main` (GitHub Pages). Live at [mark.dingwall.com.au](https://mark.dingwall.com.au)
 
 ## Architecture
 
@@ -30,18 +30,20 @@ Mark Dingwall's personal creative coding website ([axionatic.github.io](https://
 Shared CSS lives in `css/`. Each file is linked via `<link rel="stylesheet">` from HTML pages:
 
 ```
-reset.css                  — global reset (box-sizing, margin, media)
+reset.css                     — global reset (box-sizing, margin, media)
 css/
-  home.css               — homepage quad nav, canvases, nav markers
-  sketch.css             — shared by all sketch sub-pages (back-link, instructions banner, fullscreen canvas)
-  sketch-gallery.css     — sketch gallery grid, frosted glass, grove toggle
-  portfolio.css          — shared by all portfolio project pages (scroll scaffolding, row grid, arch SVG, tooltips, theming)
-  portfolio-gallery.css  — portfolio gallery card grid, hover states
+  home.css                    — homepage quad nav, canvases, nav markers
+  sketch.css                  — shared by all sketch sub-pages (back-link, instructions banner, fullscreen canvas)
+  sketch-gallery.css          — sketch gallery grid, frosted glass, grove toggle
+  portfolio.css               — shared by all portfolio project pages (scroll scaffolding, row grid, arch SVG, tooltips, theming)
+  portfolio-components.css    — shared flow-card, score-compare, flow-arrow/match, pulse keyframes, 600px collapse
+  portfolio-gallery.css       — portfolio gallery card grid, hover states
 ```
 
-- `portfolio.css` uses CSS custom properties (`--accent`, `--accent-rgb`) for accent colour theming. Default is cyan (`#0cc`); Oasis overrides to green (`#0c6`) via inline `:root` override.
+- `portfolio.css` uses CSS custom properties (`--accent`, `--accent-rgb`) for accent colour theming. Default is cyan (`#0cc`); Oasis overrides to green (`#0c6`) via its page CSS `:root` override.
+- `portfolio-components.css` extracts genuine cross-page duplicates: `.flow-card`/`.flow-label`/`.flow-detail` base, `.flow-compare`, `.flow-arrow`/`.flow-match` connectors, `.score-compare` family, `pulse-arrow`/`pulse-match` keyframes, 600px responsive collapse, and `prefers-reduced-motion`. Pages override font sizes or colours as needed.
+- Portfolio project pages co-locate page-specific CSS alongside their HTML (e.g. `portfolio/jointly/jointly.css`). Load order: `portfolio.css` → `portfolio-components.css` → page-specific CSS.
 - Sketch sub-pages: p5.js sketches need zero inline CSS. Three.js sketches (cubeworms, magnetites) add small inline overrides for `canvas { display: block }` and `#instructions` font. Flowsphere overrides `#instructions` font/colour.
-- Portfolio project pages keep page-specific styles inline (ranking bars, narrative lines, dashboard UIs, comparison cards, page-specific responsive breakpoints).
 
 ### Sketch pages
 

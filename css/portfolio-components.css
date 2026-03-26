@@ -1,0 +1,127 @@
+/* ── Shared portfolio components ────────────────────────────────── */
+
+/* Flow card layout (Jointly, Mystery, Mystery-tech, BitBrush) */
+.flow-card {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px 12px;
+}
+.flow-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.flow-detail {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+
+/* Flow compare container (Mystery, Mystery-tech) */
+.flow-compare {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Flow connectors */
+.flow-arrow {
+  color: rgba(0, 204, 204, 0.5);
+  font-size: 22px;
+  flex-shrink: 0;
+  animation: pulse-arrow 2s ease-in-out infinite;
+}
+.flow-match {
+  color: rgba(0, 204, 204, 0.5);
+  font-size: 22px;
+  flex-shrink: 0;
+  animation: pulse-match 2s ease-in-out infinite;
+}
+
+/* Score compare family (Mystery, Mystery-tech) */
+.score-compare {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 380px;
+}
+.score-card {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.score-card.score-winner {
+  border-color: rgba(0, 204, 204, 0.4);
+  box-shadow: 0 0 20px rgba(0, 204, 204, 0.1);
+}
+.score-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.score-card.score-winner .score-label {
+  color: rgba(0, 204, 204, 0.6);
+}
+.score-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.score-winner .score-value { color: #0cc; }
+.score-stat {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 3px;
+}
+.score-pos { color: #4f8; }
+.score-neg { color: #f96; }
+.score-vs {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Shared keyframes */
+@keyframes pulse-arrow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+@keyframes pulse-match {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Responsive: stack flow/score cards on small screens */
+@media (max-width: 600px) {
+  .score-compare {
+    flex-direction: column;
+    max-width: 240px;
+  }
+  .score-vs { display: none; }
+  .flow-compare {
+    flex-direction: column;
+    max-width: 240px;
+  }
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .flow-arrow { animation: none; opacity: 0.6; }
+  .flow-match { animation: none; opacity: 0.6; }
+}

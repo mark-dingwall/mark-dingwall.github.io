@@ -349,9 +349,13 @@ h1, h2 {
 @media (hover: none) {
   .back-link,
   #header-panel,
-  #tooltip,
-  #tech-content {
+  #tooltip {
     background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  #tech-content {
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -362,7 +366,7 @@ h1, h2 {
   #header-panel {
     padding: 16px 20px 12px;
     max-width: 94vw;
-    top: 2%;
+    top: 56px;
   }
 }
 
