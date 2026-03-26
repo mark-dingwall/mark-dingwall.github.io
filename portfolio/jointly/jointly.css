@@ -236,7 +236,8 @@
   }
   .pref-btn {
     font-size: 13px;
-    padding: 4px 10px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
   #tooltip {
     font-size: 13px;

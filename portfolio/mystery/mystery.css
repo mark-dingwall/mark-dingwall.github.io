@@ -165,9 +165,10 @@
     font-size: clamp(16px, 4.5vw, 22px);
   }
   #narrative {
-    width: min(500px, 90vw);
+    width: min(500px, 92vw);
     bottom: 80px;
-    padding: 10px 16px;
+    padding: 10px 12px;
+    overflow: hidden;
   }
   #ranking {
     left: 5%;
@@ -197,7 +198,8 @@
   }
   .pref-btn {
     font-size: 12px;
-    padding: 3px 8px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
   #tooltip {
     font-size: 12px;

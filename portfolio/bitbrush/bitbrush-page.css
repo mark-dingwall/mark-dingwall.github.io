@@ -225,6 +225,8 @@
     bottom: 3%;
     transform: translateX(-50%);
     width: min(310px, 92vw);
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
   }
   .demo-header {
     font-size: 15px;

@@ -41,7 +41,7 @@ h1, h2 {
 /* -- Back link (frosted glass) ----------------------------------------- */
 .back-link {
   position: fixed;
-  top: 16px;
+  top: max(16px, env(safe-area-inset-top, 0px));
   left: 16px;
   z-index: 100;
   color: var(--accent);
@@ -52,7 +52,9 @@ h1, h2 {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  padding: 6px 12px;
+  padding: 10px 14px;
+  min-height: 44px;
+  min-width: 44px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -288,7 +290,8 @@ h1, h2 {
   color: rgba(255, 255, 255, 0.5);
   font-family: 'Share Tech Mono', monospace;
   font-size: clamp(14px, 1.3vw, 17px);
-  padding: 6px 12px;
+  padding: 10px 14px;
+  min-height: 44px;
   border-radius: 4px;
   cursor: pointer;
   transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -361,12 +364,20 @@ h1, h2 {
   }
 }
 
+/* -- Responsive: mid-small (400–600px gap) ----------------------------- */
+@media (max-width: 480px) {
+  #tooltip {
+    white-space: normal;
+    max-width: 90vw;
+  }
+}
+
 /* -- Responsive: small header ------------------------------------------ */
 @media (max-width: 600px) {
   #header-panel {
     padding: 16px 20px 12px;
     max-width: 94vw;
-    top: 56px;
+    top: 68px;
   }
 }
 
