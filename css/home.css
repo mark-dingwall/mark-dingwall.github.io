@@ -48,7 +48,7 @@ a:hover {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  z-index: 2;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -57,7 +57,7 @@ a:hover {
   width: 200vw;
   height: 200vh;
   transform: translate(-100vw, 0);
-  z-index: 1;
+  z-index: 2;
 }
 
 .quadrant {
@@ -168,7 +168,6 @@ a:hover {
 
 #bitbrush-container {
   position: relative;
-  z-index: 3;
   width: 100%;
   max-width: 420px;
 }
