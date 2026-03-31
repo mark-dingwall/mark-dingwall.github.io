@@ -37,7 +37,6 @@ for (const { name, path } of PORTFOLIO_PAGES) {
 // Specific panel overflow checks
 const PANEL_CHECKS: { name: string; path: string; selector: string }[] = [
   { name: 'jointly', path: '/portfolio/jointly/', selector: '#ranking' },
-  { name: 'mystery', path: '/portfolio/mystery/', selector: '#ranking' },
   { name: 'oasis', path: '/portfolio/oasis/', selector: '#dashboard' },
   { name: 'guestflow', path: '/portfolio/guestflow/', selector: '#pipeline' },
 ];

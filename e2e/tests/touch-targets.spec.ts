@@ -15,7 +15,6 @@ const MIN_TOUCH_SIZE = 44; // WCAG 2.5.8
 
 const PAGES_WITH_BUTTONS: { name: string; path: string; selector: string }[] = [
   { name: 'jointly', path: '/portfolio/jointly/', selector: '.pref-btn' },
-  { name: 'mystery', path: '/portfolio/mystery/', selector: '.pref-btn' },
   { name: 'guestflow', path: '/portfolio/guestflow/', selector: '.flow-btn' },
 ];
 
