@@ -77,13 +77,13 @@
             <text class="arch-label" x="410" y="258">Booking</text>
           </svg>
         </div>
-        <h2 class="row-title row-title-hero">under the hood</h2>
+        <h2 class="row-title row-title-hero">Architecture</h2>
         <div class="row-text">
           <ul>
-            <li>Server exists only for what needs auth — everything else stays in Webflow's CDN and edge cache</li>
-            <li>5 embeddable widget bundles communicate via custom DOM events — no shared runtime, no coupling</li>
-            <li>Hand-written Zod schemas at every boundary — Guesty's actual API payloads diverge from their docs</li>
-            <li>Sole developer: ~4,600 lines of TypeScript, 27 test suites, end-to-end</li>
+            <li>Server exists only for what needs auth — everything else is edge-cached</li>
+            <li>5 embeddable widgets communicate via DOM events, not a shared runtime</li>
+            <li>Zod schemas guard every boundary — Guesty's real payloads diverge from their docs</li>
+            <li>Webhook-driven: no polling, no cron — listings sync on every change</li>
           </ul>
         </div>
       </div>
@@ -111,13 +111,13 @@
             </div>
           </div>
         </div>
-        <h2 class="row-title">caching under constraints</h2>
+        <h2 class="row-title">Caching under constraints</h2>
         <div class="row-text">
           <ul>
-            <li>Guesty allows 5 OAuth tokens per day; Workers cold-start and don't share memory — a distributed coordination problem</li>
-            <li>Two-tier cache with refresh lock via Cache API; accepted trade-off: 1 extra token/day worst case, not a thundering herd</li>
-            <li>Calendar availability cached per-listing, per-month; in-flight request dedup prevents duplicate API calls during cold starts</li>
-            <li>Different invalidation per event type: reservations wipe affected dates only, calendar updates wipe 6 future months</li>
+            <li>Guesty caps OAuth tokens at 5/day &mdash; Workers cold-start and lose memory</li>
+            <li>Two-tier cache: in-memory for speed, CF Cache API for persistence across restarts</li>
+            <li>Refresh lock prevents a thundering herd of simultaneous token mints</li>
+            <li>Accepted trade-off: one extra token per day worst-case, not five</li>
           </ul>
         </div>
       </div>
@@ -154,13 +154,13 @@
             <text class="flow-branch-label flow-branch-label-retry" x="500" y="124">5xx retry</text>
           </svg>
         </div>
-        <h2 class="row-title">security &amp; resilience</h2>
+        <h2 class="row-title">Security &amp; resilience</h2>
         <div class="row-text">
           <ul>
-            <li>Svix HMAC-SHA256 verification with timing-safe comparison; Bearer token fallback for zero-downtime migration</li>
-            <li>Returns 200 for permanent errors to prevent retry storms; real status codes for transient failures enable recovery</li>
-            <li>CORS fail-closed: empty origin allowlist blocks everything — no wildcards, HTTPS enforced</li>
-            <li>PCI-compliant payments via SDK delegation — card data never touches the server</li>
+            <li>Svix HMAC-SHA256 with Bearer fallback for zero-downtime auth migration</li>
+            <li>Returns 200 for permanent errors — prevents Svix retry storms</li>
+            <li>Real 5xx codes for transient failures let the retry queue do its job</li>
+            <li>Card data never touches the server — PCI compliance via SDK delegation</li>
           </ul>
         </div>
       </div>
