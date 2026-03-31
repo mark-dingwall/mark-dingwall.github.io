@@ -58,77 +58,6 @@
 .narrative-line:nth-child(4) { color: rgba(100, 220, 220, 0.85); }
 .narrative-line:nth-child(5) { color: rgba(50, 230, 160, 0.85); }
 
-#ranking {
-  position: fixed;
-  right: 5%;
-  top: 28%;
-  width: 36vw;
-  max-width: 550px;
-  z-index: 10;
-  opacity: 0;
-  will-change: opacity;
-  transition: opacity 0.4s ease;
-}
-#ranking-bars {
-  position: relative;
-}
-.ranking-header {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: clamp(14px, 1.2vw, 17px);
-  margin-bottom: 8px;
-}
-.ranking-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: clamp(22px, 3.5vh, 34px);
-  transition: top 0.4s ease;
-  cursor: default;
-}
-.ranking-bar:focus {
-  outline: 2px solid #0cc;
-  outline-offset: 2px;
-}
-.ranking-track {
-  position: absolute;
-  inset: 0;
-  background: var(--bar-color);
-  opacity: 0.12;
-  border-radius: 2px;
-}
-.ranking-fill {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 0;
-  background: var(--bar-color);
-  opacity: 0.65;
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-.ranking-label {
-  position: absolute;
-  top: 0; left: 6px; bottom: 0;
-  display: flex;
-  align-items: center;
-  color: #000;
-  font-size: clamp(14px, 1.3vw, 17px);
-  font-weight: bold;
-}
-.preference-selector {
-  margin-top: 14px;
-  pointer-events: auto;
-}
-.pref-title {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: clamp(14px, 1.2vw, 17px);
-  margin-bottom: 8px;
-}
-.pref-options {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-}
-
 /* Font-size override for shared components */
 .flow-label { font-size: 13px; }
 
@@ -138,6 +67,11 @@
 .flow-before .flow-label { color: rgba(180, 120, 255, 0.6); }
 .flow-after .flow-label { color: rgba(0, 204, 170, 0.6); }
 
+/* ── Row 3 funnel SVG ────────────────────────────────────────────── */
+.funnel-subtitle { font-size: 12px; fill: rgba(255,255,255,0.35); text-anchor: middle; }
+.funnel-optuna { stroke: rgba(180,120,255,0.4); }
+.funnel-optuna-glow { fill: rgba(180,120,255,0.25); }
+
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   #header-panel {
@@ -145,16 +79,6 @@
     transform: translateX(-50%);
     width: min(600px, 90vw);
     transition: opacity 0.4s ease;
-  }
-  #ranking {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(500px, 90vw);
-    max-width: none;
-  }
-  .preference-selector {
-    margin-top: 2em;
   }
 }
 @media (max-width: 600px) {
@@ -169,40 +93,6 @@
     bottom: 80px;
     padding: 10px 12px;
     overflow: hidden;
-  }
-  #ranking {
-    left: 5%;
-    right: 5%;
-    transform: none;
-    top: auto;
-    bottom: 6%;
-    width: auto;
-    max-width: none;
-  }
-  .ranking-bar {
-    height: 18px;
-  }
-  .ranking-track {
-    opacity: 0.06;
-  }
-  .ranking-header {
-    font-size: 11px;
-    margin-bottom: 5px;
-  }
-  .ranking-label {
-    font-size: 11px;
-  }
-  .pref-options {
-    flex-direction: column;
-    gap: 5px;
-  }
-  .pref-btn {
-    font-size: 12px;
-    padding: 10px 12px;
-    min-height: 44px;
-  }
-  #tooltip {
-    font-size: 12px;
   }
 }
 

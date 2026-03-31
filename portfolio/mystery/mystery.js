@@ -77,43 +77,9 @@ const LINE_KEYFRAMES = [
   [[0.80, 1, 0], [0.85, 0, 1], [1.0, 0, 1]],
 ];
 
-// Ranking panel
-const RANKING_MORPH_START = 0.70;
-const RANKING_FADE_RANGE = 0.25;
-const RANKING_INTERACT_THRESHOLD = 0.5;
-const BAR_GAP_DESKTOP = 8;
-const BAR_GAP_MOBILE = 5;
-const BAR_ROW_HEIGHT_INIT = 34;
-
 // Scroll
 const SCRUB_SMOOTHING = 0.8;
 const SCROLL_HINT_THRESHOLD = 0.03;
-
-// Tooltip
-const TOOLTIP_SCORE_SCALE = 10;
-
-// Strategy data
-const STRATEGIES = [
-  { name: 'ILP-optimal',    value: 9.5, same: 9.2, group: 9.3, diversity: 9.0, share: 9.4, floor: 9.8 },
-  { name: 'Local-search',   value: 9.2, same: 8.5, group: 9.0, diversity: 8.3, share: 9.0, floor: 9.5 },
-  { name: 'Round-robin',    value: 7.5, same: 8.8, group: 8.5, diversity: 9.2, share: 8.0, floor: 9.0 },
-  { name: 'Discard-worst',  value: 8.0, same: 8.2, group: 8.0, diversity: 8.5, share: 8.2, floor: 8.8 },
-  { name: 'Deal-topup',     value: 8.5, same: 7.5, group: 7.8, diversity: 7.0, share: 8.5, floor: 9.2 },
-  { name: 'Minmax-deficit', value: 8.2, same: 7.0, group: 7.5, diversity: 7.2, share: 7.0, floor: 8.0 },
-  { name: 'Greedy-best',    value: 7.8, same: 7.2, group: 7.0, diversity: 6.5, share: 7.5, floor: 8.2 },
-  { name: 'Manual',         value: 6.0, same: 5.5, group: 5.0, diversity: 6.2, share: 5.0, floor: 7.0 },
-];
-
-const ATTRS = ['value', 'same', 'group', 'diversity', 'share', 'floor'];
-const ATTR_LABELS = ['Value accuracy', 'Same-item control', 'Group balance', 'Diversity', 'Max share limit', 'Size floor'];
-
-const PREFERENCES = [
-  { label: 'Balanced', weights: [0.22, 0.18, 0.18, 0.18, 0.14, 0.10] },
-  { label: 'Value accuracy first', weights: [0.45, 0.12, 0.12, 0.12, 0.10, 0.09] },
-  { label: 'Maximum diversity', weights: [0.12, 0.12, 0.15, 0.40, 0.12, 0.09] },
-];
-
-const BAR_COLORS = ['#0cc', '#0af', '#08f', '#0ea', '#4df', '#06d', '#09c', '#888'];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -163,13 +129,10 @@ let time = 0;
 let techProgress = 0;
 let progressBar, scrollHint;
 let narrativeLines = [];
-let rankingEl, rankingBarsEl, tooltipEl, headerPanelEl;
+let headerPanelEl;
 let titleOverlayEl, narrativeEl;
 let techFade = 1;
 let boxYOffset = 0;
-let barEls = [];
-let currentPref = 0;
-let rowHeight = BAR_ROW_HEIGHT_INIT;
 
 // Box animation state
 let animTime = 0;
@@ -189,51 +152,6 @@ let solveTime = 0;
 let solveCycleIdx = 0;
 let currentSolveSteps = [];
 let currentQuantities = [];
-
-// ---------------------------------------------------------------------------
-// Scoring & ranking
-// ---------------------------------------------------------------------------
-function computeScores() {
-  const w = PREFERENCES[currentPref].weights;
-  return STRATEGIES.map((s) => {
-    return s.value * w[0] + s.same * w[1] + s.group * w[2] +
-           s.diversity * w[3] + s.share * w[4] + s.floor * w[5];
-  });
-}
-
-function updateBars() {
-  const scores = computeScores();
-  const sorted = scores.map((sc, i) => ({ idx: i, score: sc }))
-    .sort((a, b) => b.score - a.score);
-  const maxScore = sorted[0].score;
-
-  for (let i = 0; i < sorted.length; i++) {
-    const idx = sorted[i].idx;
-    const bar = barEls[idx];
-    bar.rank = i;
-    bar.normalizedW = sorted[i].score / maxScore;
-    bar.el.style.top = (i * rowHeight) + 'px';
-    bar.label.textContent = '#' + (i + 1) + '\u2002' + STRATEGIES[idx].name;
-    bar.fill.style.boxShadow = i === 0 ? '0 0 12px ' + BAR_COLORS[idx] : 'none';
-  }
-}
-
-function getTooltipHTML(stratIdx) {
-  const s = STRATEGIES[stratIdx];
-  const w = PREFERENCES[currentPref].weights;
-  const avgs = ATTRS.map((attr) => {
-    return STRATEGIES.reduce((sum, strat) => sum + strat[attr], 0) / STRATEGIES.length;
-  });
-
-  let html = '<div class="tooltip-name">' + s.name + '</div>';
-  for (let i = 0; i < ATTRS.length; i++) {
-    const delta = Math.round((s[ATTRS[i]] - avgs[i]) * w[i] * TOOLTIP_SCORE_SCALE);
-    const cls = delta >= 0 ? 'tooltip-pos' : 'tooltip-neg';
-    const sign = delta >= 0 ? '+' : '';
-    html += '<div class="' + cls + '">' + ATTR_LABELS[i] + ': ' + sign + delta + '</div>';
-  }
-  return html;
-}
 
 // ---------------------------------------------------------------------------
 // Box animation: shape generation
@@ -1128,95 +1046,6 @@ function drawMatrix(dt, fade) {
 }
 
 // ---------------------------------------------------------------------------
-// Build ranking bars
-// ---------------------------------------------------------------------------
-function buildBars() {
-  rankingBarsEl.innerHTML = '';
-  barEls = [];
-
-  for (let i = 0; i < STRATEGIES.length; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'ranking-bar';
-    bar.setAttribute('tabindex', '0');
-    bar.setAttribute('role', 'listitem');
-    bar.style.setProperty('--bar-color', BAR_COLORS[i]);
-
-    const track = document.createElement('div');
-    track.className = 'ranking-track';
-    bar.appendChild(track);
-
-    const fill = document.createElement('div');
-    fill.className = 'ranking-fill';
-    bar.appendChild(fill);
-
-    const label = document.createElement('span');
-    label.className = 'ranking-label';
-    bar.appendChild(label);
-
-    rankingBarsEl.appendChild(bar);
-    barEls.push({ el: bar, fill: fill, label: label, stratIdx: i, rank: i, normalizedW: 0 });
-
-    (function (idx, barEl) {
-      function showTooltip() {
-        tooltipEl.innerHTML = getTooltipHTML(idx);
-        tooltipEl.style.top = (rankingBarsEl.offsetTop + barEl.offsetTop) + 'px';
-        tooltipEl.classList.add('visible');
-      }
-      function hideTooltip() {
-        tooltipEl.classList.remove('visible');
-      }
-      barEl.addEventListener('mouseenter', showTooltip);
-      barEl.addEventListener('mouseleave', hideTooltip);
-      barEl.addEventListener('focus', showTooltip);
-      barEl.addEventListener('blur', hideTooltip);
-      barEl.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        showTooltip();
-        var hide = function() { hideTooltip(); document.removeEventListener('touchstart', hide); };
-        setTimeout(function() { document.addEventListener('touchstart', hide); }, 0);
-      }, { passive: false });
-    })(i, bar);
-  }
-
-  recalcRowHeight();
-  updateBars();
-}
-
-function recalcRowHeight() {
-  if (!barEls.length) return;
-  const gap = W < MOBILE_BREAKPOINT ? BAR_GAP_MOBILE : BAR_GAP_DESKTOP;
-  rowHeight = barEls[0].el.offsetHeight + gap;
-  rankingBarsEl.style.height = (STRATEGIES.length * rowHeight) + 'px';
-}
-
-function positionRanking() {
-  if (W <= TABLET_BREAKPOINT) {
-    const hpBottom = headerPanelEl.getBoundingClientRect().bottom;
-    const rankH = rankingEl.offsetHeight;
-    const availH = H - hpBottom;
-    const top = hpBottom + Math.max(12, (availH - rankH) / 2);
-
-    rankingEl.style.top = Math.round(top) + 'px';
-    rankingEl.style.bottom = 'auto';
-  } else {
-    rankingEl.style.top = '';
-    rankingEl.style.bottom = '';
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Preference switching
-// ---------------------------------------------------------------------------
-function switchPreference(idx) {
-  currentPref = idx;
-  const btns = document.querySelectorAll('.pref-btn');
-  for (let i = 0; i < btns.length; i++) {
-    btns[i].classList.toggle('active', i === idx);
-  }
-  updateBars();
-}
-
-// ---------------------------------------------------------------------------
 // Render
 // ---------------------------------------------------------------------------
 function render(timestamp) {
@@ -1254,10 +1083,6 @@ function render(timestamp) {
   if (badFade > 0) drawBoxAnimation(dt, badFade * techFade);
   if (goodFade > 0) drawGoodBoxAnimation(dt, goodFade * techFade);
 
-  // Hide HTML ranking panel (replaced by canvas matrix)
-  rankingEl.style.opacity = 0;
-  rankingEl.style.pointerEvents = 'none';
-
   // ILP Matrix (canvas-drawn)
   if (matrixAlpha > 0) drawMatrix(dt, matrixAlpha);
 
@@ -1286,9 +1111,6 @@ function init() {
   scrollHint = document.getElementById('scroll-hint');
   narrativeLines = Array.from(document.querySelectorAll('.narrative-line'));
   headerPanelEl = document.getElementById('header-panel');
-  rankingEl = document.getElementById('ranking');
-  rankingBarsEl = document.getElementById('ranking-bars');
-  tooltipEl = document.getElementById('tooltip');
   titleOverlayEl = document.getElementById('title-overlay');
   narrativeEl = document.getElementById('narrative');
   function resize() {
@@ -1302,22 +1124,10 @@ function init() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     generateSceneShapes();
     generateGoodShapes();
-    recalcRowHeight();
-    updateBars();
-    positionRanking();
   }
 
-  buildBars();
   resize();
   window.addEventListener('resize', resize);
-
-  // Preference buttons
-  const prefBtns = document.querySelectorAll('.pref-btn');
-  for (let i = 0; i < prefBtns.length; i++) {
-    prefBtns[i].addEventListener('click', () => {
-      switchPreference(i);
-    });
-  }
 
   // GSAP ScrollTrigger
   gsap.registerPlugin(ScrollTrigger);
@@ -1353,9 +1163,7 @@ function init() {
         titleOverlayEl.style.transform = 'scale(' + lerp(1, 0.55, p) + ')';
 
         // Hide fixed panels once fully in tech section
-        const vis = p >= 1 ? 'hidden' : 'visible';
-        rankingEl.style.visibility = vis;
-        narrativeEl.style.visibility = vis;
+        narrativeEl.style.visibility = p >= 1 ? 'hidden' : 'visible';
 
         if (p >= 1) {
           if (headerPanelEl.style.position !== 'absolute') {

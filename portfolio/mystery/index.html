@@ -25,21 +25,8 @@
     <div class="narrative-line">Every week, surplus produce needs distributing into mystery boxes.</div>
     <div class="narrative-line">By hand, it's slow and uneven. Some boxes get shortchanged.</div>
     <div class="narrative-line">An ILP solver balances value, variety, and fairness at once.</div>
-    <div class="narrative-line">Seven strategies compete. Every one outperforms manual packing.</div>
+    <div class="narrative-line">Six penalty dimensions. 800 tuning trials. Every box is fair.</div>
     <div class="narrative-line">Tweak the priorities. The algorithm adapts instantly.</div>
-  </div>
-  <div id="ranking">
-    <div class="ranking-header">Strategy leaderboard</div>
-    <div id="ranking-bars" role="list" aria-label="Strategy rankings"></div>
-    <div id="tooltip"></div>
-    <div class="preference-selector">
-      <div class="pref-title">Optimise for:</div>
-      <div class="pref-options">
-        <button class="pref-btn active" data-pref="0">Balanced</button>
-        <button class="pref-btn" data-pref="1">Value accuracy first</button>
-        <button class="pref-btn" data-pref="2">Maximum diversity</button>
-      </div>
-    </div>
   </div>
   <div id="scroll-hint">
     scroll to explore
@@ -75,20 +62,20 @@
             <rect class="arch-hub-glow" x="185" y="80" width="150" height="60" rx="10"
                   fill="rgba(0,204,204,0.25)" filter="url(#strat-blur)"/>
             <rect class="arch-node" x="185" y="80" width="150" height="60" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
-            <text class="arch-label" x="260" y="110">Strategy</text>
+            <text class="arch-label" x="260" y="110">ILP Solver</text>
             <rect class="arch-node" x="365" y="28" width="85" height="48" rx="10"/>
             <text class="arch-label" x="407" y="52" font-size="15">Output</text>
             <rect class="arch-node" x="200" y="220" width="120" height="48" rx="10"/>
             <text class="arch-label" x="260" y="244" font-size="15">Scorer</text>
           </svg>
         </div>
-        <h2 class="row-title">pipeline</h2>
+        <h2 class="row-title">Pipeline</h2>
         <div class="row-text">
           <ul>
-            <li>Weekly XLSX shopping lists define available produce overage</li>
-            <li>SSH-tunnelled MySQL queries fetch prices, customers, and box tiers</li>
-            <li>Pluggable strategy architecture: swap algorithms without changing plumbing</li>
-            <li>Tab-delimited output imports directly back into the Laravel app</li>
+            <li>Weekly XLSX defines surplus produce; SSH-tunnelled MySQL supplies prices and box tiers</li>
+            <li>HiGHS ILP solver finds provably optimal allocations for each box tier</li>
+            <li>Output feeds directly back into the running Laravel system as tab-delimited data</li>
+            <li>Validated offline against 42 real historical offers spanning four data tiers</li>
           </ul>
         </div>
       </div>
@@ -114,45 +101,61 @@
             </div>
           </div>
         </div>
-        <h2 class="row-title">six-dimensional scoring</h2>
+        <h2 class="row-title">Hyper-dimensional scoring</h2>
         <div class="row-text">
           <ul>
-            <li>Value accuracy, same-item concentration, group balance, diversity, max share, size floor</li>
-            <li>A box with perfect value but no variety still gets penalised</li>
-            <li>Two-layer concentration model prevents both item and category flooding</li>
-            <li>Optuna-tuned weights, cross-validated against 42 historical offers</li>
+            <li>Multiple penalty dimensions score every box: value, variety, concentration and more</li>
+            <li>Hitting the target value means nothing if half the box is carrots</li>
+            <li>Two-layer model penalises flooding at item and category level</li>
+            <li>Penalty weights tuned by Optuna, cross-validated against 42 historical offers</li>
           </ul>
         </div>
       </div>
 
-      <!-- Row 3: Optimisation pipeline — visual left, text right -->
+      <!-- Row 3: Tuning to proof — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <div class="flow-compare">
-            <div class="flow-card flow-before">
-              <div class="flow-label">Optuna</div>
-              <div class="flow-detail">800 trials &times; 5-fold CV</div>
-              <div class="flow-detail">14 scoring parameters</div>
-              <div class="flow-detail">Bayesian TPE sampling</div>
-              <div class="flow-detail">Manual boxes &ge; 85</div>
-            </div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-card flow-after">
-              <div class="flow-label">ILP solver</div>
-              <div class="flow-detail">PuLP/CBC mixed-integer</div>
-              <div class="flow-detail">17-line tangent approx</div>
-              <div class="flow-detail">Linearised penalty epigraph</div>
-              <div class="flow-detail">Provably optimal allocation</div>
-            </div>
-          </div>
+          <svg class="arch-svg" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="optuna-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+              <filter id="ilp-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <!-- Band 1: Optuna tuning (wide, purple) -->
+            <polygon class="arch-hub-glow funnel-optuna-glow" points="20,10 280,10 255,55 45,55"
+                     filter="url(#optuna-blur)"/>
+            <polygon class="arch-node funnel-optuna" points="20,10 280,10 255,55 45,55"/>
+            <text class="arch-label" x="150" y="35">Optuna tuning</text>
+            <text class="funnel-subtitle" x="150" y="50">cross-validated</text>
+            <!-- Connector: Optuna → ILP -->
+            <line class="arch-line" x1="45" y1="55" x2="60" y2="67"/>
+            <line class="arch-line" x1="255" y1="55" x2="240" y2="67"/>
+            <!-- Band 2: ILP solver (medium, cyan + glow) -->
+            <polygon class="arch-hub-glow" points="60,67 240,67 220,112 80,112"
+                     fill="rgba(0,204,204,0.25)" filter="url(#ilp-blur)"/>
+            <polygon class="arch-node" points="60,67 240,67 220,112 80,112"
+                     style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="150" y="92">ILP solver</text>
+            <text class="funnel-subtitle" x="150" y="107">provably optimal</text>
+            <!-- Connector: ILP → gap assessment -->
+            <line class="arch-line" x1="80" y1="112" x2="95" y2="124"/>
+            <line class="arch-line" x1="220" y1="112" x2="205" y2="124"/>
+            <!-- Band 3: gap assessment (narrow, cyan, no glow) -->
+            <polygon class="arch-node" points="95,124 205,124 190,169 110,169"
+                     style="stroke:rgba(0,204,204,0.6)"/>
+            <text class="arch-label" x="150" y="148">gap assessment</text>
+            <text class="funnel-subtitle" x="150" y="163">EBM + ordinal regression</text>
+          </svg>
         </div>
-        <h2 class="row-title">optimisation pipeline</h2>
+        <h2 class="row-title">Tuning to proof</h2>
         <div class="row-text">
           <ul>
-            <li>Optuna tunes 14 penalty weights across 364 historical boxes and synthetic negatives, cross-validated per tier</li>
-            <li>ILP embeds the tuned scoring function via tangent-line linearisation of the convex power penalties</li>
-            <li>EBM glass-box models diagnose structural gaps the hand-crafted function misses, distilling gains back in</li>
-            <li>Packer survey (130 scenarios, 7-point Likert) adds rank-correlation signal to sharpen penalty interactions</li>
+            <li>Optuna explores 800 weight configurations, cross-validated against real packing history</li>
+            <li>Best weights feed into an ILP solver that finds the provably optimal allocation</li>
+            <li>Glass-box EBM and ordinal regression on packer survey data diagnose scoring blind spots, distilling discovered patterns as new penalty terms</li>
           </ul>
         </div>
       </div>
@@ -160,9 +163,9 @@
     </div>
 
     <footer class="tech-footer">
-      Sole developer <span>&middot;</span> Python <span>&middot;</span> PuLP/CBC <span>&middot;</span>
-      MySQL <span>&middot;</span> Paramiko <span>&middot;</span> Textual TUI <span>&middot;</span>
-      Optuna <span>&middot;</span> openpyxl
+      Sole developer <span>&middot;</span> Python <span>&middot;</span> ILP/HiGHS <span>&middot;</span>
+      MySQL <span>&middot;</span> Optuna <span>&middot;</span> EBM <span>&middot;</span>
+      ordinal regression <span>&middot;</span> cross-validation
     </footer>
   </div>
 
