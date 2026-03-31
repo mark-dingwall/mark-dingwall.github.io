@@ -22,7 +22,7 @@
 }
 #narrative {
   position: fixed;
-  bottom: 48px;
+  bottom: 84px;
   left: 50%;
   transform: translateX(-50%);
   width: min(700px, 80vw);
@@ -82,6 +82,9 @@
   }
 }
 @media (max-width: 600px) {
+  #header-panel {
+    padding: 16px 16px 12px;
+  }
   #title-overlay {
     font-size: clamp(18px, 6vw, 28px);
   }
@@ -90,7 +93,7 @@
   }
   #narrative {
     width: min(500px, 92vw);
-    bottom: 80px;
+    bottom: 84px;
     padding: 10px 12px;
     overflow: hidden;
   }

@@ -368,6 +368,14 @@
     max-width: none;
   }
 }
+@media (max-width: 800px) {
+  .narrative-line {
+    max-width: 80vw;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    text-align: center !important;
+  }
+}
 @media (max-width: 600px) {
   #header-panel {
     padding: 16px 20px 12px;
