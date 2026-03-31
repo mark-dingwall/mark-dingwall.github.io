@@ -47,12 +47,12 @@ for (const { name, path, selector } of PAGES_WITH_BUTTONS) {
   });
 }
 
-// Also check the back-link on all pages
+// Also check the nav-btn__link on all pages
 for (const { name, path } of PORTFOLIO_PAGES) {
-  test(`${name}: .back-link touch target >= ${MIN_TOUCH_SIZE}px`, async ({ page }) => {
+  test(`${name}: .nav-btn__link touch target >= ${MIN_TOUCH_SIZE}px`, async ({ page }) => {
     await navigateToPortfolioPage(page, path);
 
-    const backLink = page.locator('.back-link');
+    const backLink = page.locator('.nav-btn__link');
     const box = await backLink.boundingBox();
     expect(box).toBeTruthy();
 
@@ -66,7 +66,7 @@ for (const { name, path } of PORTFOLIO_PAGES) {
     });
     expect(
       minDim,
-      `${name} .back-link min dimension is ${minDim}px, needs ${MIN_TOUCH_SIZE}px`,
+      `${name} .nav-btn__link min dimension is ${minDim}px, needs ${MIN_TOUCH_SIZE}px`,
     ).toBeGreaterThanOrEqual(MIN_TOUCH_SIZE);
   });
 }

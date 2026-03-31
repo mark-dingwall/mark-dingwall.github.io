@@ -15,11 +15,11 @@ import { isElementVisible } from '../helpers/geometry';
  */
 
 const TRACKED_ELEMENTS: Record<string, string[]> = {
-  jointly: ['#header-panel', '#title-overlay', '#scroll-hint', '.back-link', '#ranking', '#narrative'],
-  oasis: ['#header-panel', '#title-overlay', '#scroll-hint', '.back-link', '#dashboard'],
-  mystery: ['#header-panel', '#title-overlay', '#scroll-hint', '.back-link', '#narrative'],
-  guestflow: ['#header-panel', '#title-overlay', '#scroll-hint', '.back-link', '#narrative-panel'],
-  bitbrush: ['#header-panel', '#title-overlay', '#scroll-hint', '.back-link', '#demo-panel'],
+  jointly: ['#header-panel', '#title-overlay', '#scroll-hint', '.nav-btn', '#ranking', '#narrative'],
+  oasis: ['#header-panel', '#title-overlay', '#scroll-hint', '.nav-btn', '#dashboard'],
+  mystery: ['#header-panel', '#title-overlay', '#scroll-hint', '.nav-btn', '#narrative'],
+  guestflow: ['#header-panel', '#title-overlay', '#scroll-hint', '.nav-btn', '#narrative-panel'],
+  bitbrush: ['#header-panel', '#title-overlay', '#scroll-hint', '.nav-btn', '#demo-panel'],
 };
 
 const PROGRESS_STEPS = Array.from({ length: 11 }, (_, i) => +(i * 0.1).toFixed(1));

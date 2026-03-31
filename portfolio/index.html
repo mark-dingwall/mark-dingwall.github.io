@@ -9,12 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../reset.css">
   <link rel="stylesheet" href="../css/portfolio-gallery.css">
+  <link rel="stylesheet" href="../css/nav-buttons.css">
   <title>Mark Dingwall - Portfolio</title>
 </head>
 
 <body>
   <canvas id="bg-canvas"></canvas>
-  <a class="back-link" href="/">&larr; back</a>
+  <nav class="nav-btn" aria-label="Navigation">
+    <a class="nav-btn__link" href="/" aria-label="Back">
+      <svg class="nav-btn__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </a>
+  </nav>
 
   <header class="gallery-header">
     <h1 id="title-text">Portfolio</h1>

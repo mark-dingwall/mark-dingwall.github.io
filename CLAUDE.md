@@ -33,7 +33,8 @@ Shared CSS lives in `css/`. Each file is linked via `<link rel="stylesheet">` fr
 reset.css                     — global reset (box-sizing, margin, media)
 css/
   home.css                    — homepage quad nav, canvases, nav markers
-  sketch.css                  — shared by all sketch sub-pages (back-link, instructions banner, fullscreen canvas)
+  nav-buttons.css             — shared nav-btn component (fixed icon buttons, pill variant, hover/touch states)
+  sketch.css                  — shared by all sketch sub-pages (instructions banner, fullscreen canvas)
   sketch-gallery.css          — sketch gallery grid, frosted glass, grove toggle
   portfolio.css               — shared by all portfolio project pages (scroll scaffolding, row grid, arch SVG, tooltips, theming)
   portfolio-components.css    — shared flow-card, score-compare, flow-arrow/match, pulse keyframes, 600px collapse
@@ -72,10 +73,11 @@ Note the trailing space in `m` — it's intentional.
 ## Adding a New Sketch
 
 1. Create `sketches/sketchname/` with `index.html`, `sketchname.js`, and a preview image (`sketchname.png` or `.jpg`)
-2. Link `../../css/sketch.css` in `<head>` (provides back-link, instructions banner, fullscreen canvas setup). Keep the VT323 Google Fonts `<link>` tag.
-3. Add to the gallery grid in `sketches/index.html`: a `.grid-cell` with `<a>`, `<img>`, `<h2>` (name), and `<p>` (tagline)
-4. For p5.js sketches, follow the pattern in `sketches/forest/index.html` (zero inline CSS needed)
-5. For Three.js sketches, follow `sketches/cubeworms/index.html` (small inline overrides for canvas/body)
+2. Link `../../css/sketch.css` and `../../css/nav-buttons.css` in `<head>` (provides instructions banner, fullscreen canvas, and nav button styles). Keep the VT323 Google Fonts `<link>` tag.
+3. Add a `<nav class="nav-btn nav-btn--pill">` with back (`../`) and home (`/`) links using the SVG icon markup from `sketches/forest/index.html`
+4. Add to the gallery grid in `sketches/index.html`: a `.grid-cell` with `<a>`, `<img>`, `<h2>` (name), and `<p>` (tagline)
+5. For p5.js sketches, follow the pattern in `sketches/forest/index.html` (zero inline CSS needed)
+6. For Three.js sketches, follow `sketches/cubeworms/index.html` (small inline overrides for canvas/body)
 
 ## Conventions
 

@@ -38,28 +38,11 @@ h1, h2 {
   pointer-events: none;
 }
 
-/* -- Back link (frosted glass) ----------------------------------------- */
-.back-link {
-  position: fixed;
+/* -- Nav button override (safe-area + z-index) ------------------------- */
+.nav-btn {
   top: max(16px, env(safe-area-inset-top, 0px));
-  left: 16px;
   z-index: 100;
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 24px;
-  font-family: 'Share Tech Mono', monospace;
-  transition: color 0.3s;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 10px 14px;
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
 }
-
-.back-link:hover { color: #fff; }
 
 /* -- Progress bar ------------------------------------------------------ */
 #progress-bar {
@@ -350,7 +333,7 @@ h1, h2 {
 
 /* -- Responsive: touch device ------------------------------------------ */
 @media (hover: none) {
-  .back-link,
+  .nav-btn,
   #header-panel,
   #tooltip {
     background: rgba(0, 0, 0, 0.75);

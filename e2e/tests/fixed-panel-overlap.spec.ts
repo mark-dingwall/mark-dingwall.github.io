@@ -5,11 +5,11 @@ import { rectsOverlap } from '../helpers/geometry';
 import { type Page } from '@playwright/test';
 
 /**
- * Issues 4 & 10 — Fixed panels overlap at 375px; z-index stacking obscures back-link
+ * Issues 4 & 10 — Fixed panels overlap at 375px; z-index stacking obscures nav-btn
  *
- * Multiple fixed elements (#header-panel, #ranking/#dashboard/#pipeline, .back-link, #progress-bar)
+ * Multiple fixed elements (#header-panel, #ranking/#dashboard/#pipeline, .nav-btn, #progress-bar)
  * compete for limited screen real estate. At mid-scroll, overlapping panels can obscure
- * the back-link so it's not clickable.
+ * the nav-btn so it's not clickable.
  *
  * #header-panel has pointer-events: none, so it never blocks interaction.
  * We skip overlap checks involving non-interactive elements (pointer-events: none).
@@ -17,11 +17,11 @@ import { type Page } from '@playwright/test';
 
 // Map pages to their fixed interactive panel selectors
 const PAGE_PANELS: Record<string, string[]> = {
-  jointly: ['#header-panel', '#ranking', '.back-link'],
-  oasis: ['#header-panel', '#dashboard', '.back-link'],
-  guestflow: ['#header-panel', '#pipeline', '#narrative-panel', '.back-link'],
-  mystery: ['#header-panel', '#narrative', '.back-link'],
-  bitbrush: ['#header-panel', '#demo-panel', '.back-link'],
+  jointly: ['#header-panel', '#ranking', '.nav-btn'],
+  oasis: ['#header-panel', '#dashboard', '.nav-btn'],
+  guestflow: ['#header-panel', '#pipeline', '#narrative-panel', '.nav-btn'],
+  mystery: ['#header-panel', '#narrative', '.nav-btn'],
+  bitbrush: ['#header-panel', '#demo-panel', '.nav-btn'],
 };
 
 const SWEEP_POSITIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
@@ -88,18 +88,18 @@ for (const { name, path } of PORTFOLIO_PAGES) {
     expect(violations, `${name} overlap violations:\n${violations.join('\n')}`).toHaveLength(0);
   });
 
-  test(`${name}: back-link is clickable (not obscured by panels)`, async ({ page }) => {
+  test(`${name}: nav-btn is clickable (not obscured by panels)`, async ({ page }) => {
     await navigateToPortfolioPage(page, path);
     await scrollToProgress(page, 0.5);
 
-    const backLink = page.locator('.back-link');
+    const backLink = page.locator('.nav-btn');
     const box = await backLink.boundingBox();
     if (!box) {
       test.skip();
       return;
     }
 
-    // Check elementFromPoint at the center of the back-link
+    // Check elementFromPoint at the center of the nav-btn
     const centerX = box.x + box.width / 2;
     const centerY = box.y + box.height / 2;
 
@@ -107,10 +107,10 @@ for (const { name, path } of PORTFOLIO_PAGES) {
       ([x, y]) => {
         const el = document.elementFromPoint(x, y);
         if (!el) return null;
-        // Walk up to find if back-link is this element or an ancestor
+        // Walk up to find if nav-btn is this element or an ancestor
         let node: Element | null = el;
         while (node) {
-          if (node.classList.contains('back-link')) return 'back-link';
+          if (node.classList.contains('nav-btn')) return 'nav-btn';
           node = node.parentElement;
         }
         return el.tagName + (el.id ? '#' + el.id : '');
@@ -118,8 +118,8 @@ for (const { name, path } of PORTFOLIO_PAGES) {
       [centerX, centerY] as const,
     );
 
-    expect(topElement, `${name}: elementFromPoint at back-link center should be the back-link`).toBe(
-      'back-link',
+    expect(topElement, `${name}: elementFromPoint at nav-btn center should be the nav-btn`).toBe(
+      'nav-btn',
     );
   });
 }

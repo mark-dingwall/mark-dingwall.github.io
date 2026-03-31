@@ -9,16 +9,6 @@ h1, h2 {
   font-family: 'Major Mono Display', monospace;
 }
 
-.back-link {
-  display: inline-block;
-  margin: 16px 24px;
-  color: #0cc;
-  text-decoration: none;
-  font-size: 22px;
-  transition: color 0.3s;
-}
-
-.back-link:hover { color: #fff; }
 
 .gallery-header {
   text-align: center;
@@ -177,7 +167,7 @@ footer a:hover { color: #fff; }
   transition: opacity 0.5s;
 }
 
-.back-link,
+.nav-btn,
 .gallery-header,
 .gallery,
 footer {

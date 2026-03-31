@@ -15,19 +15,19 @@ import { type Page } from '@playwright/test';
  */
 
 const INTERACTIVE_ELEMENTS: Record<string, string[]> = {
-  jointly: ['.back-link', '#ranking'],
-  oasis: ['.back-link', '#dashboard'],
-  mystery: ['.back-link'],
-  guestflow: ['.back-link', '#narrative-panel'],
-  bitbrush: ['.back-link', '#demo-panel'],
+  jointly: ['.nav-btn', '#ranking'],
+  oasis: ['.nav-btn', '#dashboard'],
+  mystery: ['.nav-btn'],
+  guestflow: ['.nav-btn', '#narrative-panel'],
+  bitbrush: ['.nav-btn', '#demo-panel'],
 };
 
 const CONTAINMENT_ELEMENTS: Record<string, string[]> = {
-  jointly: ['#header-panel', '#title-overlay', '.back-link', '#ranking', '#narrative'],
-  oasis: ['#header-panel', '#title-overlay', '.back-link', '#dashboard'],
-  mystery: ['#header-panel', '#title-overlay', '.back-link', '#narrative'],
-  guestflow: ['#header-panel', '#title-overlay', '.back-link', '#narrative-panel'],
-  bitbrush: ['#header-panel', '#title-overlay', '.back-link', '#demo-panel'],
+  jointly: ['#header-panel', '#title-overlay', '.nav-btn', '#ranking', '#narrative'],
+  oasis: ['#header-panel', '#title-overlay', '.nav-btn', '#dashboard'],
+  mystery: ['#header-panel', '#title-overlay', '.nav-btn', '#narrative'],
+  guestflow: ['#header-panel', '#title-overlay', '.nav-btn', '#narrative-panel'],
+  bitbrush: ['#header-panel', '#title-overlay', '.nav-btn', '#demo-panel'],
 };
 
 const PROGRESS_STEPS = Array.from({ length: 11 }, (_, i) => +(i * 0.1).toFixed(1));

@@ -36,18 +36,3 @@ body,
   to   { transform: translate(-50%, -100%); }
 }
 
-.back-link {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 1000;
-  color: #0cc;
-  text-decoration: none;
-  font-family: 'VT323', monospace;
-  font-size: 24px;
-  transition: color 0.3s;
-}
-
-.back-link:hover {
-  color: #fff;
-}
