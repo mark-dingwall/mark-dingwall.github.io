@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mark Dingwall - BitBrush</title>
+  <link rel="preconnect" href="https://bitbrush.fly.dev">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -27,17 +28,7 @@
   </div>
 
   <div id="demo-panel">
-    <div class="demo-header">try it &mdash; paint some pixels</div>
-    <div class="mini-canvas-wrap">
-      <canvas id="mini-canvas"></canvas>
-    </div>
-    <div class="mini-palette" id="mini-palette"></div>
-    <div class="mini-bank">
-      <span class="bank-label">bank:</span>
-      <div class="bank-bar-track"><div id="bank-fill"></div></div>
-      <span class="bank-count"><span id="bank-count">25</span>/25</span>
-    </div>
-    <div class="ghost-label">other users are painting too</div>
+    <div id="bitbrush-container"></div>
   </div>
 
   <div id="scroll-hint">
@@ -78,52 +69,55 @@
             <text class="arch-label" x="250" y="180">Services</text>
             <text class="arch-label-sm" x="250" y="200">Pixel &middot; Banking</text>
             <rect class="arch-node" x="175" y="242" width="150" height="36" rx="10"/>
-            <text class="arch-label" x="250" y="260">Repository &middot; H2</text>
+            <text class="arch-label" x="250" y="260">Postgres</text>
           </svg>
         </div>
-        <h2 class="row-title">architecture</h2>
+        <h2 class="row-title">Architecture</h2>
         <div class="row-text">
           <ul>
-            <li>Spring Boot 3.5 with Controller &rarr; Service &rarr; Repository layering</li>
-            <li>REST endpoints for pixel placement, canvas state, and PNG export</li>
-            <li>Built-in STOMP broker broadcasts every pixel to all connected clients</li>
-            <li>H2 embedded database &mdash; zero setup, persists via Docker volume</li>
+            <li>Painted locally first for instant feedback, then persisted and broadcast server-side</li>
+            <li>Full canvas state delivered on first subscribe &mdash; late joiners never miss a pixel</li>
+            <li>Anonymous multiplayer via client-generated UUID &mdash; no sign-up required</li>
+            <li>Cloudflare Turnstile blocks bots without interrupting painters</li>
           </ul>
         </div>
       </div>
 
       <div class="row row--reverse">
         <div class="row-visual">
-          <div class="ws-flow">
-            <div class="flow-card flow-client">
-              <div class="flow-label">Client A</div>
-              <div class="flow-detail">POST /api/pixels</div>
-              <div class="flow-detail">{x, y, color}</div>
-              <div class="flow-detail">Paint locally</div>
+          <div class="pixel-log">
+            <div class="log-header">placement log &mdash; pixel (12, 7)</div>
+            <div class="log-entry log-old">
+              <span class="log-swatch" style="background:#f33"></span>
+              <span class="log-action">placed</span>
+              <span class="log-time">2:01 pm</span>
             </div>
-            <div class="flow-match">&rarr;</div>
-            <div class="flow-card flow-server">
-              <div class="flow-label">Server</div>
-              <div class="flow-detail">Validate &amp; persist</div>
-              <div class="flow-detail">Broadcast via STOMP</div>
-              <div class="flow-detail">/topic/pixels</div>
+            <div class="log-entry log-old">
+              <span class="log-swatch" style="background:#3c6"></span>
+              <span class="log-action">placed</span>
+              <span class="log-time">2:03 pm</span>
             </div>
-            <div class="flow-match">&rarr;</div>
-            <div class="flow-card flow-client">
-              <div class="flow-label">Client B</div>
-              <div class="flow-detail">Receive via WS</div>
-              <div class="flow-detail">Paint pixel</div>
-              <div class="flow-detail">Instant update</div>
+            <div class="log-entry log-erased">
+              <span class="log-swatch log-swatch-x">&times;</span>
+              <span class="log-action">erased</span>
+              <span class="log-time">2:05 pm</span>
             </div>
+            <div class="log-entry log-current">
+              <span class="log-swatch" style="background:#39f"></span>
+              <span class="log-action">placed</span>
+              <span class="log-time">2:08 pm</span>
+              <span class="log-now">&larr; now</span>
+            </div>
+            <div class="log-derive">MAX(placed_at) &rarr; derives current state</div>
           </div>
         </div>
-        <h2 class="row-title">real-time collaboration</h2>
+        <h2 class="row-title">Append-only canvas</h2>
         <div class="row-text">
           <ul>
-            <li>Pixels painted locally on click for instant feedback, then POSTed</li>
-            <li>Server validates, persists, and broadcasts via SimpMessagingTemplate</li>
-            <li>All clients subscribe to /topic/pixels &mdash; placements appear instantly</li>
-            <li>@SubscribeMapping delivers initial state on connect (no race conditions)</li>
+            <li>Every pixel placement appended to the log &mdash; no updates, no deletes</li>
+            <li>Current state derived via MAX(placed_at) &mdash; last writer wins</li>
+            <li>Eraser writes palette index 0 &mdash; erasing without destroying history</li>
+            <li>Full history enables stats, author tracking, and future canvas replay</li>
           </ul>
         </div>
       </div>
@@ -150,13 +144,13 @@
             </div>
           </div>
         </div>
-        <h2 class="row-title">thread-safe banking</h2>
+        <h2 class="row-title">Thread-safe banking</h2>
         <div class="row-text">
           <ul>
-            <li>ConcurrentHashMap.compute() for atomic check-and-deduct</li>
-            <li>Immutable BankState record prevents partial mutations</li>
-            <li>Drag painting: if balance runs out mid-batch, only first N pixels placed</li>
-            <li>Per-user WebSocket push updates the bank display in real time</li>
+            <li>ConcurrentHashMap.compute() &mdash; atomic balance check-and-deduct, no locks</li>
+            <li>Immutable BankState record eliminates partial-mutation bugs</li>
+            <li>Drag-painting with low balance: partial batch placed, not rejected outright</li>
+            <li>Per-user balance pushed via WebSocket &mdash; bank bar always in sync</li>
           </ul>
         </div>
       </div>
@@ -165,7 +159,7 @@
 
     <footer class="tech-footer">
       Sole developer <span>&middot;</span> Java 21 <span>&middot;</span> Spring Boot 3.5 <span>&middot;</span>
-      H2 <span>&middot;</span> WebSocket/STOMP <span>&middot;</span> Vanilla JS <span>&middot;</span>
+      Postgres <span>&middot;</span> WebSocket/STOMP <span>&middot;</span> Vanilla JS <span>&middot;</span>
       Canvas API <span>&middot;</span> Docker <span>&middot;</span> Gradle
     </footer>
   </div>
@@ -174,6 +168,14 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="../../utils/math.js"></script>
   <script src="../../utils/prng.js"></script>
+  <script>
+    window.bitbrushConfig = {
+      server: 'https://bitbrush.fly.dev',
+      container: '#bitbrush-container',
+      turnstileSiteKey: '0x4AAAAAACwHh6lB9uQESFQA'
+    };
+  </script>
+  <script src="https://bitbrush.fly.dev/bitbrush-widget.js?v=3"></script>
   <script src="bitbrush.js"></script>
   <script src="../../marquee.js"></script>
 </body>

@@ -73,20 +73,6 @@ const PIXEL_FADE_SLOTS = 4; // how many pixel-slots a fade-in/out spans
 const DEMO_MORPH_START = 0.65;
 const DEMO_FADE_RANGE = 0.25;
 const DEMO_INTERACT_THRESH = 0.5;
-const TABLET_BP = 1200;
-
-const MINI_SIZE = 20;
-const MINI_CELL = 14;
-const MINI_COLORS = [
-  '#000000', '#666666', '#ffffff',
-  '#ff0000', '#ff6600', '#ffff00',
-  '#00ff00', '#00cccc', '#0066ff',
-  '#9900ff', '#ff0099', '#006600',
-];
-const BANK_MAX = 25;
-const BANK_EARN_MS = 600;
-const GHOST_MIN_MS = 2000;
-const GHOST_MAX_MS = 3800;
 
 // Scroll
 const SCRUB_SMOOTH = 0.8;
@@ -102,19 +88,6 @@ const FRAME_DT = 0.016;
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-function bresenham(x0, y0, x1, y1, cb) {
-  const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-  const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
-  let err = dx - dy;
-  while (true) {
-    cb(x0, y0);
-    if (x0 === x1 && y0 === y1) break;
-    const e2 = 2 * err;
-    if (e2 > -dy) { err -= dy; x0 += sx; }
-    if (e2 < dx) { err += dx; y0 += sy; }
-  }
-}
-
 function shuffleIndices(n, rng) {
   const arr = [];
   for (let i = 0; i < n; i++) arr[i] = i;
@@ -151,20 +124,9 @@ let techFade = 1;
 // Pixel text
 let textWords = [];
 let mobileTextWords = [];  // mobile: canvas-pixel text (not grid-aligned)
+let mobileTextPx = MOBILE_TEXT_PX;  // dynamic: scales to ~80% viewport width
 let textExclusion = null;  // {minCol, maxCol, minRow, maxRow}
 let zoneFillOrder = [];    // fills the text zone when demo panel appears
-
-// Mini canvas
-let miniCanvas, miniCtx;
-let miniGrid;
-let miniColorIdx = 7;
-let bankBalance = BANK_MAX;
-let lastEarnTime = 0;
-let nextGhostTime = 0;
-let ghostRng;
-let isDragging = false;
-let lastDragCol = -1, lastDragRow = -1;
-const ghostFlashes = [];
 
 // ---------------------------------------------------------------------------
 // Text exclusion zone (keeps background pixels away from the word area)
@@ -340,8 +302,25 @@ function computeMobileTextPixels() {
   mobileTextWords = [];
   if (gridCols >= TEXT_MIN_COLS) return; // desktop mode handles text
 
+  // Compute dynamic pixel size so widest line fills ~82% of viewport width
+  let maxLineW = 0;
+  for (let wi = 0; wi < MOBILE_TEXT_WORDS.length; wi++) {
+    for (let li = 0; li < MOBILE_TEXT_WORDS[wi].lines.length; li++) {
+      const text = MOBILE_TEXT_WORDS[wi].lines[li];
+      let lw = 0;
+      for (let ci = 0; ci < text.length; ci++) {
+        const glyph = FONT[text[ci]];
+        if (!glyph) continue;
+        if (ci > 0) lw += 1;  // inter-char gap in font-pixel units
+        lw += glyph[0].length;
+      }
+      if (lw > maxLineW) maxLineW = lw;
+    }
+  }
+  mobileTextPx = Math.max(MOBILE_TEXT_PX, Math.floor(W * 0.82 / maxLineW));
+
   const rng = alea('bitbrush-mobile-text');
-  const px = MOBILE_TEXT_PX;
+  const px = mobileTextPx;
   const fontH = FONT_HEIGHT * px;
   const lineGap = px * 2;
 
@@ -410,7 +389,7 @@ function renderMobileText(masterAlpha) {
   const wt = cycleTime - wordIdx * WORD_DURATION;
   const word = mobileTextWords[wordIdx];
   const total = word.pixels.length;
-  const px = MOBILE_TEXT_PX;
+  const px = mobileTextPx;
 
   for (let i = 0; i < total; i++) {
     const p = word.pixels[i];
@@ -570,167 +549,6 @@ function renderText(masterAlpha) {
 }
 
 // ---------------------------------------------------------------------------
-// Mini canvas — init
-// ---------------------------------------------------------------------------
-function initMiniCanvas() {
-  miniCanvas = document.getElementById('mini-canvas');
-  miniCtx = miniCanvas.getContext('2d');
-  miniCanvas.width = MINI_SIZE * MINI_CELL;
-  miniCanvas.height = MINI_SIZE * MINI_CELL;
-
-  miniGrid = [];
-  for (let r = 0; r < MINI_SIZE; r++) {
-    miniGrid[r] = [];
-    for (let c = 0; c < MINI_SIZE; c++) miniGrid[r][c] = -1;
-  }
-
-  const paletteEl = document.getElementById('mini-palette');
-  for (let i = 0; i < MINI_COLORS.length; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'mini-swatch' + (i === miniColorIdx ? ' active' : '');
-    btn.style.background = MINI_COLORS[i];
-    if (MINI_COLORS[i] === '#000000') btn.style.border = '2px solid #333';
-    btn.setAttribute('aria-label', 'Color ' + MINI_COLORS[i]);
-    paletteEl.appendChild(btn);
-    ((idx) => {
-      btn.addEventListener('click', () => {
-        miniColorIdx = idx;
-        updateSwatchSelection();
-      });
-    })(i);
-  }
-
-  ghostRng = alea('bitbrush-ghost');
-  lastEarnTime = Date.now();
-  nextGhostTime = Date.now() + 3000;
-  renderMiniCanvas();
-
-  miniCanvas.addEventListener('pointerdown', onMiniDown);
-  miniCanvas.addEventListener('pointermove', onMiniMove);
-  window.addEventListener('pointerup', onMiniUp);
-}
-
-// ---------------------------------------------------------------------------
-// Mini canvas — interaction
-// ---------------------------------------------------------------------------
-function getMiniPos(e) {
-  const rect = miniCanvas.getBoundingClientRect();
-  const sx = miniCanvas.width / rect.width;
-  const sy = miniCanvas.height / rect.height;
-  const col = Math.floor((e.clientX - rect.left) * sx / MINI_CELL);
-  const row = Math.floor((e.clientY - rect.top) * sy / MINI_CELL);
-  if (col >= 0 && col < MINI_SIZE && row >= 0 && row < MINI_SIZE) return { col: col, row: row };
-  return null;
-}
-
-function onMiniDown(e) {
-  if (bankBalance <= 0) return;
-  const pos = getMiniPos(e);
-  if (!pos) return; // outside grid — let scroll through
-  e.preventDefault();
-  miniCanvas.setPointerCapture(e.pointerId);
-  isDragging = true;
-  placeMiniPixel(pos.col, pos.row);
-  lastDragCol = pos.col;
-  lastDragRow = pos.row;
-}
-
-function onMiniMove(e) {
-  if (!isDragging) return;
-  const pos = getMiniPos(e);
-  if (!pos) return;
-  bresenham(lastDragCol, lastDragRow, pos.col, pos.row, (bx, by) => {
-    if (bankBalance <= 0) return;
-    if (bx >= 0 && bx < MINI_SIZE && by >= 0 && by < MINI_SIZE) {
-      placeMiniPixel(bx, by);
-    }
-  });
-  lastDragCol = pos.col;
-  lastDragRow = pos.row;
-}
-
-function onMiniUp() { isDragging = false; }
-
-function placeMiniPixel(col, row) {
-  if (miniGrid[row][col] === miniColorIdx) return;
-  if (bankBalance <= 0) return;
-  miniGrid[row][col] = miniColorIdx;
-  bankBalance--;
-  updateBankDisplay();
-  renderMiniCanvas();
-}
-
-// ---------------------------------------------------------------------------
-// Mini canvas — rendering
-// ---------------------------------------------------------------------------
-function renderMiniCanvas() {
-  miniCtx.fillStyle = '#111';
-  miniCtx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-
-  miniCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-  miniCtx.lineWidth = 0.5;
-  miniCtx.beginPath();
-  for (let x = 0; x <= miniCanvas.width; x += MINI_CELL) {
-    miniCtx.moveTo(x + 0.5, 0);
-    miniCtx.lineTo(x + 0.5, miniCanvas.height);
-  }
-  for (let y = 0; y <= miniCanvas.height; y += MINI_CELL) {
-    miniCtx.moveTo(0, y + 0.5);
-    miniCtx.lineTo(miniCanvas.width, y + 0.5);
-  }
-  miniCtx.stroke();
-
-  for (let r = 0; r < MINI_SIZE; r++) {
-    for (let c = 0; c < MINI_SIZE; c++) {
-      if (miniGrid[r][c] >= 0) {
-        miniCtx.fillStyle = MINI_COLORS[miniGrid[r][c]];
-        miniCtx.fillRect(c * MINI_CELL + 1, r * MINI_CELL + 1, MINI_CELL - 2, MINI_CELL - 2);
-      }
-    }
-  }
-
-  const now = time;
-  for (let i = ghostFlashes.length - 1; i >= 0; i--) {
-    const f = ghostFlashes[i];
-    const age = now - f.time;
-    if (age > 0.5) { ghostFlashes.splice(i, 1); continue; }
-    miniCtx.fillStyle = 'rgba(255, 255, 255, ' + (0.5 * (1 - age / 0.5)).toFixed(3) + ')';
-    miniCtx.fillRect(f.col * MINI_CELL + 1, f.row * MINI_CELL + 1, MINI_CELL - 2, MINI_CELL - 2);
-  }
-}
-
-function ghostPaint() {
-  const col = Math.floor(ghostRng() * MINI_SIZE);
-  const row = Math.floor(ghostRng() * MINI_SIZE);
-  const color = 3 + Math.floor(ghostRng() * (MINI_COLORS.length - 3));
-  const len = 1 + Math.floor(ghostRng() * 3);
-  const dx = Math.round((ghostRng() - 0.5) * 2);
-  const dy = Math.round((ghostRng() - 0.5) * 2);
-
-  for (let i = 0; i < len; i++) {
-    const c = Math.max(0, Math.min(MINI_SIZE - 1, col + dx * i));
-    const r = Math.max(0, Math.min(MINI_SIZE - 1, row + dy * i));
-    miniGrid[r][c] = color;
-    ghostFlashes.push({ col: c, row: r, time: time });
-  }
-  renderMiniCanvas();
-}
-
-function updateBankDisplay() {
-  const countEl = document.getElementById('bank-count');
-  const fillEl = document.getElementById('bank-fill');
-  if (countEl) countEl.textContent = bankBalance;
-  if (fillEl) fillEl.style.width = (bankBalance / BANK_MAX * 100) + '%';
-}
-
-function updateSwatchSelection() {
-  const swatches = document.querySelectorAll('.mini-swatch');
-  for (let i = 0; i < swatches.length; i++) {
-    swatches[i].classList.toggle('active', i === miniColorIdx);
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Main render loop
 // ---------------------------------------------------------------------------
 function render() {
@@ -753,22 +571,6 @@ function render() {
     demoPanelEl.style.opacity = alpha;
     demoPanelEl.style.pointerEvents = alpha > DEMO_INTERACT_THRESH ? 'auto' : 'none';
   }
-
-  // Bank earning
-  const now = Date.now();
-  if (now - lastEarnTime >= BANK_EARN_MS && bankBalance < BANK_MAX) {
-    bankBalance++;
-    lastEarnTime = now;
-    updateBankDisplay();
-  }
-
-  // Ghost painting (only when panel visible)
-  if (t > 0.7 && now >= nextGhostTime) {
-    ghostPaint();
-    nextGhostTime = now + GHOST_MIN_MS + ghostRng() * (GHOST_MAX_MS - GHOST_MIN_MS);
-  }
-
-  if (ghostFlashes.length > 0) renderMiniCanvas();
 
   requestAnimationFrame(render);
 }
@@ -812,7 +614,6 @@ function init() {
     computeMobileTextPixels();
   }
 
-  initMiniCanvas();
   resize();
   window.addEventListener('resize', resize);
 
