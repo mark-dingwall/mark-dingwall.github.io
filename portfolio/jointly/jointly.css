@@ -204,8 +204,11 @@
   }
   #narrative {
     font-size: clamp(18px, 4.5vw, 24px);
-    height: 6em;
+    height: 8em;
     margin-top: 16px;
+  }
+  .narrative-line {
+    top: 45%;
   }
   #ranking {
     left: 5%;
@@ -215,7 +218,6 @@
     bottom: 12%;
     width: auto;
     max-width: none;
-    overflow-y: auto;
   }
   .ranking-bar {
     height: 20px;

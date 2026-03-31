@@ -698,7 +698,12 @@ function init() {
     recalcRowHeight();
     updateBars();
     positionRanking();
-    if (narrativeEl) narrativeOrigH = narrativeEl.offsetHeight;
+    if (narrativeEl) {
+      const savedH = narrativeEl.style.height;
+      narrativeEl.style.height = '';
+      narrativeOrigH = narrativeEl.offsetHeight;
+      narrativeEl.style.height = savedH;
+    }
   }
 
   buildBars();
