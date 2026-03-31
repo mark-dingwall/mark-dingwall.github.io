@@ -64,14 +64,26 @@ export default defineConfig({
       },
     },
     {
-      name: 'Narrow 320',
+      name: 'Tablet 650',
       use: {
-        viewport: { width: 320, height: 568 },
+        viewport: { width: 650, height: 1024 },
         isMobile: true,
         hasTouch: true,
-        userAgent:
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         deviceScaleFactor: 2,
+      },
+    },
+    {
+      name: 'Laptop 900',
+      use: {
+        viewport: { width: 900, height: 810 },
+        deviceScaleFactor: 1,
+      },
+    },
+    {
+      name: 'Desktop 1440',
+      use: {
+        viewport: { width: 1440, height: 900 },
+        deviceScaleFactor: 1,
       },
     },
   ],

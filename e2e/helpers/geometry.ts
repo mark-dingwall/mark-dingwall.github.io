@@ -45,6 +45,30 @@ export async function hasHorizontalOverflow(page: Page): Promise<boolean> {
   });
 }
 
+/** Check if an element is visible (not hidden by opacity, display, or visibility). */
+export async function isElementVisible(page: Page, selector: string): Promise<boolean> {
+  return page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return false;
+    const style = getComputedStyle(el);
+    if (style.display === 'none') return false;
+    if (style.visibility === 'hidden') return false;
+    if (parseFloat(style.opacity) === 0) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }, selector);
+}
+
+/** Check if a box fits within the viewport (with tolerance for sub-pixel rounding). */
+export function isContainedInViewport(box: Box, vw: number, vh: number, tolerance = 2): boolean {
+  return (
+    box.x >= -tolerance &&
+    box.y >= -tolerance &&
+    box.right <= vw + tolerance &&
+    box.bottom <= vh + tolerance
+  );
+}
+
 /** Get the element at a given point (for z-index / clickability checks). */
 export async function elementAtPoint(page: Page, x: number, y: number): Promise<string | null> {
   return page.evaluate(
