@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import {
   initRuntimeSettings, CAMERA_Z, NEAR_CLIP_DIVISOR, SKETCH_Z,
   MOUSE_SENSITIVITY, INIT_ZOOM, ZOOM_STEP, MIN_ZOOM, MAX_ZOOM,
-  WORM_COUNT, L_F_X_LEN, L_F_Y_LEN, LURE_Z
+  WORM_COUNT, L_F_X_LEN, L_F_Y_LEN, LURE_Z, FOV_Y
 } from './settings.js';
 import { RenderPipeline } from './renderpipeline.js';
 import { TrailPool } from './trailpool.js';
@@ -70,12 +70,15 @@ setWormContext({ worms, trailPool, lure, HypnowormClass: Hypnoworm });
 // interaction state
 const cumulativeQuat = new THREE.Quaternion();
 let sketchScale = INIT_ZOOM;
-let dragging = false;
-let baseX = 0, baseY = 0;
+const panOffset = new THREE.Vector2(0, 0);
+let rotDragging = false;
+let rotBaseX = 0, rotBaseY = 0;
+let panDragging = false;
+let panBaseX = 0, panBaseY = 0;
 
 // apply initial scale and sync rotation groups
 function syncGroups() {
-  const pos = new THREE.Vector3(0, 0, SKETCH_Z);
+  const pos = new THREE.Vector3(panOffset.x, panOffset.y, SKETCH_Z);
   const scale = new THREE.Vector3().setScalar(sketchScale * ZOOM_STEP);
   pipeline.syncRotationGroups(cumulativeQuat, pos, scale);
 }
@@ -90,6 +93,8 @@ function _unprojectLureClick(clientX, clientY) {
   const by = -THREE.MathUtils.mapLinear(clientY - H / 2, -H / 2, H / 2, -L_F_Y_LEN, L_F_Y_LEN);
   // Negate Y: Processing Y-down → Three.js Y-up
   const bPos = new THREE.Vector3(bx, by, LURE_Z);
+  bPos.x -= panOffset.x; // un-pan
+  bPos.y -= panOffset.y;
   bPos.applyQuaternion(cumulativeQuat.clone().conjugate()); // un-rotate
   bPos.multiplyScalar(1 / (sketchScale * ZOOM_STEP));       // un-zoom
   return bPos;
@@ -112,39 +117,70 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
 // right-click drag rotation
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (e.button === 2) {
-    baseX = e.clientX;
-    baseY = e.clientY;
-    dragging = true;
+    rotBaseX = e.clientX;
+    rotBaseY = e.clientY;
+    rotDragging = true;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }
+});
+
+// middle-click drag pan
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (e.button === 1) {
+    e.preventDefault();
+    panBaseX = e.clientX;
+    panBaseY = e.clientY;
+    panDragging = true;
     renderer.domElement.setPointerCapture(e.pointerId);
   }
 });
 
 renderer.domElement.addEventListener('pointermove', (e) => {
-  if (!dragging) return;
-  const dx = e.clientX - baseX;
-  const dy = e.clientY - baseY;
-  if (dx === 0 && dy === 0) return;
+  if (rotDragging) {
+    const dx = e.clientX - rotBaseX;
+    const dy = e.clientY - rotBaseY;
+    if (dx !== 0 || dy !== 0) {
+      const axis = new THREE.Vector3(-dy, dx, 0).normalize();
+      const angle = Math.sqrt(dx * dx + dy * dy) * MOUSE_SENSITIVITY;
+      const incrementalQuat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+      cumulativeQuat.premultiply(incrementalQuat);
+      cumulativeQuat.normalize();
+      rotBaseX = e.clientX;
+      rotBaseY = e.clientY;
+    }
+  }
 
-  const axis = new THREE.Vector3(-dy, dx, 0).normalize();
-  const angle = Math.sqrt(dx * dx + dy * dy) * MOUSE_SENSITIVITY;
-  const incrementalQuat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+  if (panDragging) {
+    const dx = e.clientX - panBaseX;
+    const dy = e.clientY - panBaseY;
+    if (dx !== 0 || dy !== 0) {
+      const frustumHeight = 2 * Math.tan(FOV_Y / 2) * (CAMERA_Z - SKETCH_Z);
+      const worldPerPx = frustumHeight / (window.innerHeight * sketchScale * ZOOM_STEP);
+      panOffset.x += dx * worldPerPx;
+      panOffset.y -= dy * worldPerPx; // screen Y-down → world Y-up
+      panBaseX = e.clientX;
+      panBaseY = e.clientY;
+    }
+  }
 
-  cumulativeQuat.premultiply(incrementalQuat);
-  cumulativeQuat.normalize();
-  syncGroups();
-
-  baseX = e.clientX;
-  baseY = e.clientY;
+  if (rotDragging || panDragging) syncGroups();
 });
 
 renderer.domElement.addEventListener('pointerup', (e) => {
   if (e.button === 2) {
-    dragging = false;
+    rotDragging = false;
+    renderer.domElement.releasePointerCapture(e.pointerId);
+  }
+  if (e.button === 1) {
+    panDragging = false;
     renderer.domElement.releasePointerCapture(e.pointerId);
   }
 });
 
 renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+renderer.domElement.addEventListener('auxclick', (e) => {
+  if (e.button === 1) e.preventDefault();
+});
 
 // scroll zoom
 renderer.domElement.addEventListener('wheel', (e) => {
@@ -160,6 +196,7 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
     cumulativeQuat.identity();
     sketchScale = INIT_ZOOM;
+    panOffset.set(0, 0);
     syncGroups();
   }
 });
