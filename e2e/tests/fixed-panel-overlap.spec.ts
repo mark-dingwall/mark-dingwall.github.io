@@ -19,10 +19,12 @@ import { type Page } from '@playwright/test';
 const PAGE_PANELS: Record<string, string[]> = {
   jointly: ['#header-panel', '#ranking', '.back-link'],
   oasis: ['#header-panel', '#dashboard', '.back-link'],
-  guestflow: ['#header-panel', '#pipeline', '.back-link'],
-  mystery: ['#header-panel', '#ranking', '.back-link'],
+  guestflow: ['#header-panel', '#pipeline', '#narrative-panel', '.back-link'],
+  mystery: ['#header-panel', '#narrative', '.back-link'],
   bitbrush: ['#header-panel', '#demo-panel', '.back-link'],
 };
+
+const SWEEP_POSITIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 
 interface PanelInfo {
   selector: string;
@@ -39,45 +41,51 @@ async function isInteractive(page: Page, selector: string): Promise<boolean> {
 }
 
 for (const { name, path } of PORTFOLIO_PAGES) {
-  test(`${name}: fixed panels do not overlap at scroll progress 0.8`, async ({ page }) => {
+  test(`${name}: fixed panels do not overlap across scroll sweep`, async ({ page }) => {
+    test.setTimeout(60_000);
     await navigateToPortfolioPage(page, path);
-    await scrollToProgress(page, 0.8);
 
     const selectors = PAGE_PANELS[name] || [];
-    const panels: PanelInfo[] = [];
+    const violations: string[] = [];
 
-    for (const sel of selectors) {
-      const el = page.locator(sel).first();
-      const box = await el.boundingBox();
-      if (box && box.width > 0 && box.height > 0) {
-        panels.push({
-          selector: sel,
-          box: {
-            x: box.x,
-            y: box.y,
-            width: box.width,
-            height: box.height,
-            right: box.x + box.width,
-            bottom: box.y + box.height,
-          },
-          interactive: await isInteractive(page, sel),
-        });
+    for (const progress of SWEEP_POSITIONS) {
+      await scrollToProgress(page, progress);
+
+      const panels: PanelInfo[] = [];
+      for (const sel of selectors) {
+        const el = page.locator(sel).first();
+        const box = await el.boundingBox();
+        if (box && box.width > 0 && box.height > 0) {
+          panels.push({
+            selector: sel,
+            box: {
+              x: box.x,
+              y: box.y,
+              width: box.width,
+              height: box.height,
+              right: box.x + box.width,
+              bottom: box.y + box.height,
+            },
+            interactive: await isInteractive(page, sel),
+          });
+        }
+      }
+
+      for (let i = 0; i < panels.length; i++) {
+        for (let j = i + 1; j < panels.length; j++) {
+          const a = panels[i];
+          const b = panels[j];
+          if (!a.interactive || !b.interactive) continue;
+          if (rectsOverlap(a.box, b.box)) {
+            violations.push(
+              `progress=${progress}: ${a.selector} overlaps ${b.selector}`,
+            );
+          }
+        }
       }
     }
 
-    // Pairwise overlap check — skip pairs where one element has pointer-events: none
-    for (let i = 0; i < panels.length; i++) {
-      for (let j = i + 1; j < panels.length; j++) {
-        const a = panels[i];
-        const b = panels[j];
-        // If either element is non-interactive, visual overlap is acceptable
-        if (!a.interactive || !b.interactive) continue;
-        expect(
-          rectsOverlap(a.box, b.box),
-          `${name}: ${a.selector} overlaps ${b.selector}`,
-        ).toBe(false);
-      }
-    }
+    expect(violations, `${name} overlap violations:\n${violations.join('\n')}`).toHaveLength(0);
   });
 
   test(`${name}: back-link is clickable (not obscured by panels)`, async ({ page }) => {

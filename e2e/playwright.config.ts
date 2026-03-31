@@ -19,6 +19,13 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
     browserName: 'chromium',
+    launchOptions: {
+      args: [
+        '--disable-gpu',
+        '--use-gl=angle',
+        '--use-angle=swiftshader',
+      ],
+    },
   },
   projects: [
     {

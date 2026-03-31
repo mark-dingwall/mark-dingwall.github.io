@@ -10,7 +10,7 @@ import { isElementVisible } from '../helpers/geometry';
  * Also verifies panel show/hide timing at key morph progress points.
  */
 
-const SCREENSHOT_POSITIONS = [0.0, 0.5, 1.0] as const;
+const SCREENSHOT_POSITIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] as const;
 
 /** Panels that should be hidden early and visible late in the scroll. */
 const PAGE_PANELS: Record<string, string[]> = {

@@ -4,6 +4,9 @@
   "scripts": {
     "test": "npx playwright test",
     "test:se": "npx playwright test --project='iPhone SE'",
+    "test:headed": "npx playwright test --headed",
+    "test:headed:se": "npx playwright test --headed --project='iPhone SE'",
+    "test:debug": "npx playwright test --headed --debug",
     "report": "npx playwright show-report"
   },
   "devDependencies": {
