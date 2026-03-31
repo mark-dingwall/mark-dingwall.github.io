@@ -352,8 +352,8 @@ function drawMachine() {
   const slotY = (BELT_WIDTH - slotD) / 2;
   drawIsoBlock(-0.12, slotY, BELT_Z + BELT_THICKNESS, 0.12, slotD, slotH, 12, 12, 15, 1);
 
-  // Warning light (blinks) — positioned past the counter gantry for visibility
-  const lp = toScreen(COUNTER_X + 2.5, BELT_WIDTH / 2, BELT_Z + GANTRY_TOTAL_H + 0.5);
+  // Warning light (blinks) — on top of the machine housing, left edge midpoint
+  const lp = toScreen(-MACHINE_LENGTH / 2, (BELT_WIDTH + MACHINE_DEPTH) / 2, MACHINE_HEIGHT + 0.5);
   const blink = Math.sin(time * 3.5) * 0.4 + 0.6;
   ctx.fillStyle = 'rgba(255, 50, 30, ' + (blink * 0.15) + ')';
   ctx.beginPath();

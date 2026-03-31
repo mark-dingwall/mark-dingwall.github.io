@@ -216,50 +216,67 @@
   letter-spacing: 0.05em;
 }
 
-/* ── Data flow visual ──────────────────────────────────────────── */
-.data-flow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* ── Workflow comparison visual (Row 2) ────────────────────────── */
+.wf-compare {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.flow-stage {
-  flex: 1;
+.wf-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 12px 10px;
-  text-align: center;
 }
-.flow-stage.stage-scan { border-color: rgba(0, 170, 255, 0.3); }
-.flow-stage.stage-csv {
-  border-color: rgba(0, 204, 102, 0.4);
-  box-shadow: 0 0 20px rgba(0, 204, 102, 0.1);
+.wf-paper {
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.flow-stage.stage-sse { border-color: rgba(255, 170, 0, 0.3); }
-.flow-icon {
-  font-size: 22px;
-  margin-bottom: 4px;
+.wf-digital {
+  border: 1px solid rgba(0, 204, 102, 0.35);
+  box-shadow: 0 0 16px rgba(0, 204, 102, 0.06);
+  animation: wf-sweep 3s ease-in-out infinite;
 }
-.stage-scan .flow-icon { color: #0af; }
-.stage-csv .flow-icon { color: #0c6; }
-.stage-sse .flow-icon { color: #fa0; }
-.flow-name {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 6px;
+.wf-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-width: 46px;
+  flex-shrink: 0;
+}
+.wf-paper .wf-label { color: rgba(255, 255, 255, 0.25); }
+.wf-digital .wf-label { color: #0c6; }
+.wf-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 5px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.wf-paper .wf-steps { color: rgba(255, 255, 255, 0.3); }
+.wf-digital .wf-steps { color: rgba(255, 255, 255, 0.8); }
+.wf-dot {
+  color: rgba(255, 255, 255, 0.15);
+}
+.wf-digital .wf-dot { color: rgba(0, 204, 102, 0.5); }
+.wf-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: #0c6;
+  font-weight: bold;
+  white-space: nowrap;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
-/* Overrides for shared components */
-.flow-detail {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.4;
-}
-.flow-arrow {
-  color: rgba(0, 204, 102, 0.4);
-  font-size: 18px;
+@keyframes wf-sweep {
+  0%, 100% { box-shadow: 0 0 16px rgba(0, 204, 102, 0.06); }
+  50%      { box-shadow: 0 0 24px rgba(0, 204, 102, 0.15); }
 }
 
 /* ── Reconciliation visual ─────────────────────────────────────── */
@@ -308,6 +325,11 @@
   top: 0; bottom: 0;
   background: rgba(255, 170, 0, 0.5);
   border-radius: 0 3px 3px 0;
+  animation: over-pulse 2s ease-in-out infinite;
+}
+@keyframes over-pulse {
+  0%, 100% { opacity: 0.5; box-shadow: none; }
+  50%      { opacity: 1;   box-shadow: 0 0 8px rgba(255, 170, 0, 0.3); }
 }
 .recon-counts {
   font-size: 13px;
@@ -380,16 +402,9 @@
   }
 }
 
-@media (max-width: 800px) {
-  .data-flow {
-    flex-direction: column;
-  }
-  .flow-arrow {
-    transform: rotate(90deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .arch-line-blue { animation: none; }
   .narrative-line { filter: none !important; }
+  .wf-digital { animation: none; }
+  .recon-bar-over { animation: none; }
 }

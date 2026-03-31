@@ -118,36 +118,44 @@
         </div>
       </div>
 
-      <!-- Row 2: Data Flow — text left, visual right -->
+      <!-- Row 2: Real-time operations — text left, visual right -->
       <div class="row row--reverse">
         <div class="row-visual">
-          <div class="data-flow">
-            <div class="flow-stage stage-scan">
-              <div class="flow-icon">&#9641;</div>
-              <div class="flow-name">Barcode Scan</div>
-              <div class="flow-detail">17-char plug<br>13-char seedling</div>
+          <div class="wf-compare">
+            <div class="wf-row wf-paper">
+              <div class="wf-label">Before</div>
+              <div class="wf-steps">
+                <span class="wf-step">Tray arrives</span>
+                <span class="wf-dot">&middot;</span>
+                <span class="wf-step">Tally on clipboard</span>
+                <span class="wf-dot">&middot;</span>
+                <span class="wf-step">End of shift</span>
+                <span class="wf-dot">&middot;</span>
+                <span class="wf-step">Transcribe to Excel</span>
+                <span class="wf-dot">&middot;</span>
+                <span class="wf-step">Manager reviews</span>
+                <span class="wf-dot">&middot;</span>
+                <span class="wf-step">Errors found next week</span>
+              </div>
             </div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-stage stage-csv">
-              <div class="flow-icon">&#9776;</div>
-              <div class="flow-name">CSV + Index</div>
-              <div class="flow-detail">Single source<br>of truth</div>
-            </div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-stage stage-sse">
-              <div class="flow-icon">&#9889;</div>
-              <div class="flow-name">SSE Push</div>
-              <div class="flow-detail">Per-line events<br>to iPads</div>
+            <div class="wf-row wf-digital">
+              <div class="wf-label">After</div>
+              <div class="wf-steps">
+                <span class="wf-step">Tray scanned</span>
+                <span class="wf-dot">&rarr;</span>
+                <span class="wf-step">Validated &plus; recorded &plus; iPad updated</span>
+              </div>
+              <span class="wf-time">&lt;1s</span>
             </div>
           </div>
         </div>
-        <h2 class="row-title">Data flow</h2>
+        <h2 class="row-title">Real-time operations</h2>
         <div class="row-text">
           <ul>
-            <li>Barcode protocol: 4-digit lot prefix + EAN-13 identifies every plug tray</li>
-            <li>GPIO interrupts on laser beam-break trigger atomic CSV writes</li>
-            <li>Per-line mutex serialises concurrent scan and count events</li>
-            <li>In-memory index rebuilt on startup from CSV &mdash; no database required</li>
+            <li>Sub-second SSE pushes every scan and count to iPads instantly</li>
+            <li>UI deliberately mirrors the paper spreadsheet for frictionless adoption</li>
+            <li>One-tap ghost, adjust, and reassign &mdash; full audit trail included</li>
+            <li>Management monitors all lines live; weekly XLSX auto-generated from in-memory index</li>
           </ul>
         </div>
       </div>
@@ -196,13 +204,13 @@
             </div>
           </div>
         </div>
-        <h2 class="row-title">Reconciliation engine</h2>
+        <h2 class="row-title">Built for the floor</h2>
         <div class="row-text">
           <ul>
-            <li>Real-time input/output reconciliation across all 4 production lines</li>
-            <li>Automated oversupply detection flags mismatches instantly on iPad</li>
-            <li>Schedule-aware validation warns on products outside the weekly plan</li>
-            <li>JSONL audit trail logs every operator action for traceability</li>
+            <li>Concurrent events serialised through per-line mutex into append-only, audit-ready CSV</li>
+            <li>Oversupply and unscheduled-product warnings surface issues within minutes</li>
+            <li>Self-healing index: 5-minute verification rebuilds from CSV and auto-corrects drift</li>
+            <li>Production never stops: bad scans, sensor faults, and network drops handled gracefully</li>
           </ul>
         </div>
       </div>
