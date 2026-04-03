@@ -31,12 +31,12 @@ const BOUNCE_OFFSET = {
 };
 
 // Corner markers: corner position → quad index that direction points to
-/** @type {{ quad: number, label: string, corner: string }[]} */
+/** @type {{ quad: number, label: string, corner: string, name: string }[]} */
 const MARKERS = [
-  { quad: 3, label: '\u2196', corner: 'nav-tl' },   // ↖ → TL(3)
-  { quad: 0, label: '\u2197', corner: 'nav-tr' },   // ↗ → TR(0)
-  { quad: 2, label: '\u2199', corner: 'nav-bl' },   // ↙ → BL(2)
-  { quad: 1, label: '\u2198', corner: 'nav-br' },   // ↘ → BR(1)
+  { quad: 3, label: '\u2196', corner: 'nav-tl', name: 'BitBrush' },    // ↖ → TL(3)
+  { quad: 0, label: '\u2197', corner: 'nav-tr', name: 'Hero' },        // ↗ → TR(0)
+  { quad: 2, label: '\u2199', corner: 'nav-bl', name: 'Sketches' },    // ↙ → BL(2)
+  { quad: 1, label: '\u2198', corner: 'nav-br', name: 'Portfolio' },   // ↘ → BR(1)
 ];
 
 /** @type {number} */
@@ -173,10 +173,19 @@ function bounce(key) {
 const markerEls = MARKERS.map(m => {
   const el = document.createElement('div');
   el.className = `nav-marker ${m.corner}`;
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', `Navigate to ${m.name}`);
   const span = document.createElement('span');
   span.textContent = m.label;
   el.appendChild(span);
   el.addEventListener('click', () => navigateToQuad(m.quad));
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigateToQuad(m.quad);
+    }
+  });
   document.body.appendChild(el);
   return { el, quad: m.quad };
 });
@@ -188,7 +197,9 @@ const markerEls = MARKERS.map(m => {
 function updateMarkers() {
   const nq = nearestQuad();
   for (const m of markerEls) {
-    m.el.classList.toggle('hidden', m.quad === nq);
+    const hidden = m.quad === nq;
+    m.el.classList.toggle('hidden', hidden);
+    m.el.setAttribute('tabindex', hidden ? '-1' : '0');
   }
 }
 

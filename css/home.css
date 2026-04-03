@@ -132,13 +132,19 @@ a:hover {
 .nav-marker span {
   position: absolute;
   font-size: 40px;
-  color: #fff;
-  opacity: 0.5;
+  color: #0cc;
+  font-weight: bold;
+  opacity: 0.7;
   transition: opacity 0.3s;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.6);
 }
 
 .nav-marker:hover span { opacity: 1; }
+
+.nav-marker:focus-visible {
+  outline: 2px solid #0cc;
+  outline-offset: 2px;
+}
 
 .nav-tl { top: 0; left: 0; }
 .nav-tl::before { clip-path: polygon(0 0, 100% 0, 0 100%); }
