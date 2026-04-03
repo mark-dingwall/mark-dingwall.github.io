@@ -133,31 +133,44 @@
       <!-- Row 2: Real-time operations — text left, visual right -->
       <div class="row row--reverse">
         <div class="row-visual">
-          <div class="wf-compare">
-            <div class="wf-row wf-paper">
-              <div class="wf-label">Before</div>
-              <div class="wf-steps">
-                <span class="wf-step">Tray arrives</span>
-                <span class="wf-dot">&middot;</span>
-                <span class="wf-step">Tally on clipboard</span>
-                <span class="wf-dot">&middot;</span>
-                <span class="wf-step">End of shift</span>
-                <span class="wf-dot">&middot;</span>
-                <span class="wf-step">Transcribe to Excel</span>
-                <span class="wf-dot">&middot;</span>
-                <span class="wf-step">Manager reviews</span>
-                <span class="wf-dot">&middot;</span>
-                <span class="wf-step">Errors found next week</span>
-              </div>
-            </div>
-            <div class="wf-row wf-digital">
-              <div class="wf-label">After</div>
-              <div class="wf-steps">
-                <span class="wf-step">Tray scanned</span>
-                <span class="wf-dot">&rarr;</span>
-                <span class="wf-step">Validated &plus; recorded &plus; iPad updated</span>
-              </div>
-              <span class="wf-time">&lt;1s</span>
+          <div class="tl-compare" aria-hidden="true">
+            <div class="tl-paper">
+              <svg viewBox="0 0 380 68" xmlns="http://www.w3.org/2000/svg">
+                <!-- Panel label -->
+                <text class="tl-label-dim" x="22" y="8" font-size="8" text-anchor="start" text-transform="uppercase" letter-spacing="0.1em">Paper</text>
+
+                <!-- 6 nodes — spacing increases to show growing delays -->
+                <circle class="tl-node-dim" cx="25"  cy="22" r="4"/>
+                <circle class="tl-node-dim" cx="75"  cy="22" r="4"/>
+                <circle class="tl-node-dim" cx="135" cy="22" r="4"/>
+                <circle class="tl-node-dim" cx="205" cy="22" r="4"/>
+                <circle class="tl-node-dim" cx="278" cy="22" r="4"/>
+                <circle class="tl-node-dim" cx="355" cy="22" r="4"/>
+
+                <!-- Dashed connectors between nodes -->
+                <line class="tl-dash-dim" x1="29"  y1="22" x2="71"  y2="22"/>
+                <line class="tl-dash-dim" x1="79"  y1="22" x2="131" y2="22"/>
+                <line class="tl-dash-dim" x1="139" y1="22" x2="201" y2="22"/>
+                <line class="tl-dash-dim" x1="209" y1="22" x2="274" y2="22"/>
+                <line class="tl-dash-dim" x1="282" y1="22" x2="351" y2="22"/>
+
+                <!-- Step labels below nodes -->
+                <text class="tl-label-dim" x="25"  y="40">Tray</text>
+                <text class="tl-label-dim" x="75"  y="40">Tally</text>
+                <text class="tl-label-dim" x="135" y="40">Shift ends</text>
+                <text class="tl-label-dim" x="205" y="40">Type up</text>
+                <text class="tl-label-dim" x="278" y="40">Review</text>
+                <text class="tl-label-dim" x="355" y="40">Errors</text>
+
+                <!-- Time scale — shows delay accumulating -->
+                <text class="tl-timescale" x="50"  y="58">mins</text>
+                <text class="tl-timescale" x="120" y="58">&#x2192;</text>
+                <text class="tl-timescale" x="170" y="58">hours</text>
+                <text class="tl-timescale" x="240" y="58">&#x2192;</text>
+                <text class="tl-timescale" x="300" y="58">days</text>
+                <text class="tl-timescale" x="340" y="58">&#x2192;</text>
+                <text class="tl-timescale" x="365" y="58" font-size="8">next wk</text>
+              </svg>
             </div>
           </div>
         </div>
