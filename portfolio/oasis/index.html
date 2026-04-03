@@ -16,14 +16,14 @@
 
 <body>
   <nav class="nav-btn nav-btn--pill" aria-label="Navigation">
-    <a class="nav-btn__link" href="../" aria-label="Back">
-      <svg class="nav-btn__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </a>
     <a class="nav-btn__link" href="/" aria-label="Home">
       <svg class="nav-btn__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12L12 3l9 9"/><path d="M9 21V14h6v7"/>
+      </svg>
+    </a>
+    <a class="nav-btn__link" href="../" aria-label="Back">
+      <svg class="nav-btn__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
       </svg>
     </a>
   </nav>
@@ -112,7 +112,7 @@
             <line class="arch-line" x1="240" y1="207" x2="380" y2="255"/>
             <!-- Bottom row nodes -->
             <rect class="arch-node" x="40"  y="255" width="120" height="40" rx="10"/>
-            <text class="arch-label" x="100" y="275" style="font-size:14px">CSV + Index</text>
+            <text class="arch-label" x="100" y="275" style="font-size:14px">Indexed file</text>
             <rect class="arch-node" x="180" y="255" width="120" height="40" rx="10"/>
             <text class="arch-label" x="240" y="275" style="font-size:14px">SSE Broadcast</text>
             <rect class="arch-node-warn" x="320" y="255" width="120" height="40" rx="10"/>
@@ -125,7 +125,7 @@
             <li>Headless Raspberry Pis read USB barcode scanners and GPIO laser counters</li>
             <li>Node.js + Express REST API aggregates scan events from 4 production lines</li>
             <li>Server-Sent Events push real-time state to React iPad dashboards</li>
-            <li>CSV-backed persistence with in-memory index for sub-ms query times</li>
+            <li>File-backed persistence with in-memory index for sub-ms query times</li>
           </ul>
         </div>
       </div>
@@ -219,9 +219,9 @@
         <h2 class="row-title">Built for the floor</h2>
         <div class="row-text">
           <ul>
-            <li>Concurrent events serialised through per-line mutex into append-only, audit-ready CSV</li>
+            <li>Concurrent events serialised through per-line mutex into append-only, audit-ready files</li>
             <li>Oversupply and unscheduled-product warnings surface issues within minutes</li>
-            <li>Self-healing index: 5-minute verification rebuilds from CSV and auto-corrects drift</li>
+            <li>Self-healing index: periodic verification rebuilds from authoritative source and auto-corrects drift</li>
             <li>Production never stops: bad scans, sensor faults, and network drops handled gracefully</li>
           </ul>
         </div>
@@ -232,7 +232,7 @@
     <footer class="tech-footer">
       Sole developer <span>&middot;</span> Node.js <span>&middot;</span> Express <span>&middot;</span>
       React <span>&middot;</span> Raspberry Pi <span>&middot;</span> GPIO <span>&middot;</span>
-      SSE <span>&middot;</span> CSV <span>&middot;</span> 865 tests
+      SSE
     </footer>
   </div>
 
