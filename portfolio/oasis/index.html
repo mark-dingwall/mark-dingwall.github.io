@@ -172,6 +172,40 @@
                 <text class="tl-timescale" x="365" y="58" font-size="8">next wk</text>
               </svg>
             </div>
+            <div class="tl-digital">
+              <svg viewBox="0 0 380 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <marker id="tl-arrow" viewBox="0 0 6 6" refX="6" refY="3"
+                          markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M0,0 L6,3 L0,6" fill="none" stroke="#0c6" stroke-width="1"/>
+                  </marker>
+                </defs>
+
+                <!-- Panel label -->
+                <text class="tl-scan-label" x="22" y="8" font-size="8" text-anchor="start" letter-spacing="0.1em">Oasis</text>
+
+                <!-- Central scan node -->
+                <circle class="tl-scan-node" cx="190" cy="28" r="6"/>
+                <text class="tl-scan-label" x="190" y="16">SCAN</text>
+
+                <!-- Fan-out lines (W, E, SW, S, SE) -->
+                <line class="tl-fan-line" x1="184" y1="28" x2="75"  y2="28"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="196" y1="28" x2="310" y2="28"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="186" y1="33" x2="80"  y2="78"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="190" y1="34" x2="190" y2="80"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="194" y1="33" x2="300" y2="78"  marker-end="url(#tl-arrow)"/>
+
+                <!-- Outcome labels -->
+                <text class="tl-label-bright" x="50"  y="32">Validated</text>
+                <text class="tl-label-bright" x="338" y="32">iPad updated</text>
+                <text class="tl-label-bright" x="60"  y="90">Recorded</text>
+                <text class="tl-label-bright" x="190" y="95">Report</text>
+                <text class="tl-label-bright" x="320" y="90">Management</text>
+
+                <!-- <1s badge -->
+                <text class="tl-time-badge" x="372" y="95">&lt; 1 s</text>
+              </svg>
+            </div>
           </div>
         </div>
         <h2 class="row-title">Real-time operations</h2>
