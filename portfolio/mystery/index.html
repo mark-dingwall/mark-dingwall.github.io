@@ -7,7 +7,7 @@
   <title>Mark Dingwall - Mystery Manager</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/portfolio.css">
   <link rel="stylesheet" href="../../css/portfolio-components.css">
   <link rel="stylesheet" href="../../css/nav-buttons.css">
@@ -54,40 +54,116 @@
       <!-- Row 1: Pipeline architecture — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <svg class="arch-svg" viewBox="0 0 460 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- curved connections -->
-            <path class="arch-line" d="M 120 52 C 155 52, 160 90, 185 100" fill="none"/>
-            <path class="arch-line" d="M 120 200 C 155 200, 165 145, 185 130" fill="none"/>
-            <path class="arch-line" d="M 310 115 C 330 115, 345 60, 365 52" fill="none"/>
-            <path class="arch-line" d="M 250 155 C 250 185, 250 200, 250 220" fill="none"/>
-            <!-- nodes -->
-            <rect class="arch-node" x="15" y="28" width="105" height="48" rx="10"/>
-            <text class="arch-label" x="68" y="52">XLSX</text>
-            <rect class="arch-node" x="15" y="176" width="105" height="48" rx="10"/>
-            <text class="arch-label" x="68" y="200">MySQL</text>
-            <!-- Strategy hub with glow -->
+          <svg class="arch-svg pipeline-svg" viewBox="0 0 460 200" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <filter id="strat-blur" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="10"/>
               </filter>
+              <linearGradient id="pipe-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="rgba(0,204,204,0.05)"/>
+                <stop offset="50%" stop-color="rgba(0,204,204,0.35)"/>
+                <stop offset="100%" stop-color="rgba(0,204,204,0.05)"/>
+                <animate attributeName="x1" values="-1;1" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="x2" values="0;2" dur="2s" repeatCount="indefinite"/>
+              </linearGradient>
+              <style>
+                .pipe-connector { fill: url(#pipe-grad); }
+                .pipe-chevron { fill: rgba(0,204,204,0.4); }
+                .pipe-data { font-family: 'Share Tech Mono', monospace; font-size: 11px; fill: rgba(255,255,255,0.35); text-anchor: middle; }
+                .pipe-stage-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; fill: rgba(255,255,255,0.5); text-anchor: middle; }
+                /* Mobile: stack vertically */
+                @media (max-width: 600px) {
+                  .pipeline-desktop { display: none; }
+                  .pipeline-mobile { display: block; }
+                }
+                @media (min-width: 601px) {
+                  .pipeline-desktop { display: block; }
+                  .pipeline-mobile { display: none; }
+                }
+              </style>
             </defs>
-            <rect class="arch-hub-glow" x="185" y="80" width="150" height="60" rx="10"
-                  fill="rgba(0,204,204,0.25)" filter="url(#strat-blur)"/>
-            <rect class="arch-node" x="185" y="80" width="150" height="60" rx="10" style="stroke:rgba(0,204,204,0.6)"/>
-            <text class="arch-label" x="260" y="110">ILP Solver</text>
-            <rect class="arch-node" x="365" y="28" width="85" height="48" rx="10"/>
-            <text class="arch-label" x="407" y="52" font-size="15">Output</text>
-            <rect class="arch-node" x="200" y="220" width="120" height="48" rx="10"/>
-            <text class="arch-label" x="260" y="244" font-size="15">Scorer</text>
+
+            <!-- Desktop: horizontal layout -->
+            <g class="pipeline-desktop">
+              <!-- Stage labels -->
+              <text class="pipe-stage-label" x="55" y="20">Ingest</text>
+              <text class="pipe-stage-label" x="230" y="20">Solve</text>
+              <text class="pipe-stage-label" x="405" y="20">Emit</text>
+
+              <!-- Ingest: two stacked input nodes -->
+              <rect class="arch-node" x="5" y="40" width="100" height="44" rx="10"/>
+              <text class="arch-label" x="55" y="62" font-size="16">XLSX</text>
+              <rect class="arch-node" x="5" y="108" width="100" height="44" rx="10"/>
+              <text class="arch-label" x="55" y="130" font-size="16">MySQL</text>
+
+              <!-- Ingest → Solve connectors -->
+              <rect class="pipe-connector" x="115" y="58" width="60" height="8" rx="4"/>
+              <rect class="pipe-connector" x="115" y="126" width="60" height="8" rx="4"/>
+              <polygon class="pipe-chevron" points="172,56 180,62 172,68"/>
+              <polygon class="pipe-chevron" points="172,124 180,130 172,136"/>
+              <!-- Data labels on connectors -->
+              <text class="pipe-data" x="145" y="52">surplus</text>
+              <text class="pipe-data" x="145" y="148">prices</text>
+
+              <!-- Solve: ILP Solver hub with glow -->
+              <rect class="arch-hub-glow" x="180" y="60" width="100" height="72" rx="10"
+                    fill="rgba(0,204,204,0.25)" filter="url(#strat-blur)"/>
+              <rect class="arch-node" x="180" y="60" width="100" height="72" rx="10"
+                    style="stroke:rgba(0,204,204,0.6)"/>
+              <text class="arch-label" x="230" y="92" font-size="14">ILP Solver</text>
+
+              <!-- Solve → Emit connectors -->
+              <rect class="pipe-connector" x="290" y="78" width="60" height="8" rx="4"/>
+              <rect class="pipe-connector" x="290" y="106" width="60" height="8" rx="4"/>
+              <polygon class="pipe-chevron" points="347,76 355,82 347,88"/>
+              <polygon class="pipe-chevron" points="347,104 355,110 347,116"/>
+              <!-- Data labels on connectors -->
+              <text class="pipe-data" x="320" y="72">allocations</text>
+              <text class="pipe-data" x="320" y="126">scores</text>
+
+              <!-- Emit: two stacked output nodes -->
+              <rect class="arch-node" x="355" y="52" width="100" height="44" rx="10"/>
+              <text class="arch-label" x="405" y="74" font-size="16">Output</text>
+              <rect class="arch-node" x="355" y="108" width="100" height="44" rx="10"/>
+              <text class="arch-label" x="405" y="130" font-size="16">Scorer</text>
+            </g>
+
+            <!-- Mobile: vertical layout -->
+            <g class="pipeline-mobile">
+              <!-- Ingest -->
+              <text class="pipe-stage-label" x="230" y="18">Ingest</text>
+              <rect class="arch-node" x="155" y="25" width="70" height="36" rx="8"/>
+              <text class="arch-label" x="190" y="43" font-size="13">XLSX</text>
+              <rect class="arch-node" x="235" y="25" width="70" height="36" rx="8"/>
+              <text class="arch-label" x="270" y="43" font-size="13">MySQL</text>
+              <!-- Down connector -->
+              <rect class="pipe-connector" x="226" y="65" width="8" height="30" rx="4"/>
+              <polygon class="pipe-chevron" points="224,92 230,100 236,92"/>
+              <text class="pipe-data" x="250" y="83">surplus, prices</text>
+
+              <!-- Solve -->
+              <text class="pipe-stage-label" x="230" y="112">Solve</text>
+              <rect class="arch-hub-glow" x="185" y="118" width="90" height="42" rx="8"
+                    fill="rgba(0,204,204,0.25)" filter="url(#strat-blur)"/>
+              <rect class="arch-node" x="185" y="118" width="90" height="42" rx="8"
+                    style="stroke:rgba(0,204,204,0.6)"/>
+              <text class="arch-label" x="230" y="139" font-size="13">ILP Solver</text>
+              <!-- Down connector -->
+              <rect class="pipe-connector" x="226" y="164" width="8" height="24" rx="4"/>
+              <polygon class="pipe-chevron" points="224,185 230,193 236,185"/>
+
+              <!-- Emit -->
+              <text class="pipe-stage-label" x="230" y="203">Emit</text>
+            </g>
           </svg>
         </div>
         <h2 class="row-title">Pipeline</h2>
         <div class="row-text">
           <ul>
-            <li>Weekly XLSX defines surplus produce; SSH-tunnelled MySQL supplies prices and box tiers</li>
-            <li>HiGHS ILP solver finds provably optimal allocations for each box tier</li>
-            <li>Output feeds directly back into the running Laravel system as tab-delimited data</li>
-            <li>Validated offline against 42 real historical offers spanning four data tiers</li>
+            <li>Volatile prices, seasonal variety and unpredictable surplus create a fresh problem each week</li>
+            <li>ILP solver finds provably optimal allocations across multiple box tiers</li>
+            <li>Multi-objective optimisation for value, diversity, fairness and more</li>
+            <li>Validated against years of real historical packing data</li>
           </ul>
         </div>
       </div>
@@ -95,23 +171,53 @@
       <!-- Row 2: Multi-objective scoring — text left, visual right -->
       <div class="row row--reverse">
         <div class="row-visual">
-          <div class="score-compare">
-            <div class="score-card">
-              <div class="score-label">Manual</div>
-              <div class="score-value" style="color: #f96">71</div>
-              <div class="score-stat">Value: 72% <span class="score-neg">-28%</span></div>
-              <div class="score-stat">Same item: 4x <span class="score-neg">excess</span></div>
-              <div class="score-stat">Categories: 3/8</div>
-            </div>
-            <div class="score-vs">vs</div>
-            <div class="score-card score-winner">
-              <div class="score-label">ILP-optimal</div>
-              <div class="score-value">94</div>
-              <div class="score-stat">Value: 98% <span class="score-pos">+26%</span></div>
-              <div class="score-stat">Same item: 2x <span class="score-pos">max</span></div>
-              <div class="score-stat">Categories: 7/8</div>
-            </div>
-          </div>
+          <svg class="arch-svg radar-svg" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="radar-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4"/>
+              </filter>
+              <style>
+                .radar-spoke { stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+                .radar-ring { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
+                .radar-spoke-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; fill: rgba(255,255,255,0.55); text-anchor: middle; dominant-baseline: central; }
+                .radar-legend { font-family: 'Share Tech Mono', monospace; font-size: 12px; dominant-baseline: central; }
+              </style>
+            </defs>
+            <!-- Guide rings at 33%, 66%, 100% -->
+            <polygon class="radar-ring" points="150,107 178.9,118.5 178.9,161.5 150,173 121.1,161.5 121.1,118.5"/>
+            <polygon class="radar-ring" points="150,74 207.7,97 207.7,183 150,206 92.3,183 92.3,97"/>
+            <polygon class="radar-ring" points="150,40 236.6,90 236.6,190 150,240 63.4,190 63.4,90"/>
+            <!-- Spokes -->
+            <line class="radar-spoke" x1="150" y1="140" x2="150" y2="40"/>
+            <line class="radar-spoke" x1="150" y1="140" x2="236.6" y2="90"/>
+            <line class="radar-spoke" x1="150" y1="140" x2="236.6" y2="190"/>
+            <line class="radar-spoke" x1="150" y1="140" x2="150" y2="240"/>
+            <line class="radar-spoke" x1="150" y1="140" x2="63.4" y2="190"/>
+            <line class="radar-spoke" x1="150" y1="140" x2="63.4" y2="90"/>
+            <!-- Manual polygon (orange, low irregular values) -->
+            <!-- values: 0.55, 0.40, 0.70, 0.45, 0.75, 0.50 -->
+            <polygon points="150,85 184.6,120 210.6,175 150,185 85.0,177.5 106.7,115"
+                     fill="rgba(255,153,102,0.12)" stroke="#f96" stroke-width="1.5" stroke-opacity="0.5"/>
+            <!-- ILP polygon (cyan, high values) with glow -->
+            <!-- values: 0.95, 0.88, 0.92, 0.98, 0.85, 0.90 -->
+            <polygon points="150,45 226.2,96 229.7,186 150,238 76.4,182.5 72.1,95"
+                     fill="rgba(0,204,204,0.15)" stroke="#0cc" stroke-width="1.5" stroke-opacity="0.7"
+                     filter="url(#radar-glow)"/>
+            <polygon points="150,45 226.2,96 229.7,186 150,238 76.4,182.5 72.1,95"
+                     fill="none" stroke="#0cc" stroke-width="1.5" stroke-opacity="0.7"/>
+            <!-- Spoke labels -->
+            <text class="radar-spoke-label" x="150" y="28">value</text>
+            <text class="radar-spoke-label" x="248" y="85">variety</text>
+            <text class="radar-spoke-label" x="256" y="196">concentration</text>
+            <text class="radar-spoke-label" x="150" y="258">category</text>
+            <text class="radar-spoke-label" x="44" y="196">item limit</text>
+            <text class="radar-spoke-label" x="48" y="85">fairness</text>
+            <!-- Legend -->
+            <circle cx="102" cy="280" r="4" fill="#f96"/>
+            <text class="radar-legend" x="110" y="280" fill="#f96">Manual 71</text>
+            <circle cx="178" cy="280" r="4" fill="#0cc"/>
+            <text class="radar-legend" x="186" y="280" fill="#0cc">ILP-optimal 94</text>
+          </svg>
         </div>
         <h2 class="row-title">Hyper-dimensional scoring</h2>
         <div class="row-text">
@@ -127,7 +233,7 @@
       <!-- Row 3: Tuning to proof — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <svg class="arch-svg" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="arch-svg" viewBox="0 0 300 220" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <filter id="optuna-blur" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="10"/>
@@ -135,31 +241,40 @@
               <filter id="ilp-blur" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="10"/>
               </filter>
+              <!-- Animated dashed flow along funnel edges -->
+              <style>
+                @keyframes funnel-flow { to { stroke-dashoffset: -24; } }
+                .funnel-edge-flow {
+                  stroke: rgba(0,204,204,0.25);
+                  stroke-width: 1.5;
+                  stroke-dasharray: 6 6;
+                  fill: none;
+                  animation: funnel-flow 1.2s linear infinite;
+                }
+              </style>
             </defs>
-            <!-- Band 1: Optuna tuning (wide, purple) -->
-            <polygon class="arch-hub-glow funnel-optuna-glow" points="20,10 280,10 255,55 45,55"
+            <!-- Section 1: Optuna tuning (wide, purple tint) -->
+            <polygon class="arch-hub-glow funnel-optuna-glow" points="20,10 280,10 243,73 57,73"
                      filter="url(#optuna-blur)"/>
-            <polygon class="arch-node funnel-optuna" points="20,10 280,10 255,55 45,55"/>
-            <text class="arch-label" x="150" y="35">Optuna tuning</text>
-            <text class="funnel-subtitle" x="150" y="50">cross-validated</text>
-            <!-- Connector: Optuna → ILP -->
-            <line class="arch-line" x1="45" y1="55" x2="60" y2="67"/>
-            <line class="arch-line" x1="255" y1="55" x2="240" y2="67"/>
-            <!-- Band 2: ILP solver (medium, cyan + glow) -->
-            <polygon class="arch-hub-glow" points="60,67 240,67 220,112 80,112"
+            <polygon class="funnel-optuna" points="20,10 280,10 243,73 57,73"
+                     fill="rgba(180,120,255,0.06)" stroke="rgba(180,120,255,0.4)" stroke-width="1.5"/>
+            <text class="arch-label" x="150" y="38">Optuna tuning</text>
+            <text class="funnel-subtitle" x="150" y="55">cross-validated</text>
+            <!-- Section 2: ILP solver (medium, cyan + glow) -->
+            <polygon class="arch-hub-glow" points="57,75 243,75 210,143 90,143"
                      fill="rgba(0,204,204,0.25)" filter="url(#ilp-blur)"/>
-            <polygon class="arch-node" points="60,67 240,67 220,112 80,112"
-                     style="stroke:rgba(0,204,204,0.6)"/>
-            <text class="arch-label" x="150" y="92">ILP solver</text>
-            <text class="funnel-subtitle" x="150" y="107">provably optimal</text>
-            <!-- Connector: ILP → gap assessment -->
-            <line class="arch-line" x1="80" y1="112" x2="95" y2="124"/>
-            <line class="arch-line" x1="220" y1="112" x2="205" y2="124"/>
-            <!-- Band 3: gap assessment (narrow, cyan, no glow) -->
-            <polygon class="arch-node" points="95,124 205,124 190,169 110,169"
-                     style="stroke:rgba(0,204,204,0.6)"/>
-            <text class="arch-label" x="150" y="148">gap assessment</text>
-            <text class="funnel-subtitle" x="150" y="163">EBM + ordinal regression</text>
+            <polygon points="57,75 243,75 210,143 90,143"
+                     fill="rgba(0,204,204,0.06)" stroke="rgba(0,204,204,0.6)" stroke-width="1.5"/>
+            <text class="arch-label" x="150" y="105">ILP solver</text>
+            <text class="funnel-subtitle" x="150" y="122">provably optimal</text>
+            <!-- Section 3: Gap assessment (narrow, cyan) -->
+            <polygon points="90,145 210,145 185,210 115,210"
+                     fill="rgba(0,204,204,0.04)" stroke="rgba(0,204,204,0.6)" stroke-width="1.5"/>
+            <text class="arch-label" x="150" y="173" font-size="13">gap assessment</text>
+            <text class="funnel-subtitle" x="150" y="190" font-size="10">EBM + ordinal</text>
+            <!-- Animated dashed flow along funnel edges -->
+            <path class="funnel-edge-flow" d="M20,10 L57,73 L57,75 L90,143 L90,145 L115,210"/>
+            <path class="funnel-edge-flow" d="M280,10 L243,73 L243,75 L210,143 L210,145 L185,210"/>
           </svg>
         </div>
         <h2 class="row-title">Tuning to proof</h2>
