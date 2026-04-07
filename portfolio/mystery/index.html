@@ -166,61 +166,98 @@
       <!-- Row 2: Multi-objective scoring — text left, visual right -->
       <div class="row row--reverse">
         <div class="row-visual">
-          <svg class="arch-svg radar-svg" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="arch-svg box-anatomy-svg" viewBox="0 0 340 300" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="radar-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="4"/>
+              <filter id="box-glow-m" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6"/>
               </filter>
-              <style>
-                .radar-spoke { stroke: rgba(255,255,255,0.1); stroke-width: 1; }
-                .radar-ring { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
-                .radar-spoke-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; fill: rgba(255,255,255,0.55); text-anchor: middle; dominant-baseline: central; }
-                .radar-legend { font-family: 'Share Tech Mono', monospace; font-size: 12px; dominant-baseline: central; }
-              </style>
+              <filter id="box-glow-i" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6"/>
+              </filter>
             </defs>
-            <!-- Guide rings at 33%, 66%, 100% -->
-            <polygon class="radar-ring" points="150,107 178.9,118.5 178.9,161.5 150,173 121.1,161.5 121.1,118.5"/>
-            <polygon class="radar-ring" points="150,74 207.7,97 207.7,183 150,206 92.3,183 92.3,97"/>
-            <polygon class="radar-ring" points="150,40 236.6,90 236.6,190 150,240 63.4,190 63.4,90"/>
-            <!-- Spokes -->
-            <line class="radar-spoke" x1="150" y1="140" x2="150" y2="40"/>
-            <line class="radar-spoke" x1="150" y1="140" x2="236.6" y2="90"/>
-            <line class="radar-spoke" x1="150" y1="140" x2="236.6" y2="190"/>
-            <line class="radar-spoke" x1="150" y1="140" x2="150" y2="240"/>
-            <line class="radar-spoke" x1="150" y1="140" x2="63.4" y2="190"/>
-            <line class="radar-spoke" x1="150" y1="140" x2="63.4" y2="90"/>
-            <!-- Manual polygon (orange, low irregular values) -->
-            <!-- values: 0.55, 0.40, 0.70, 0.45, 0.75, 0.50 -->
-            <polygon points="150,85 184.6,120 210.6,175 150,185 85.0,177.5 106.7,115"
-                     fill="rgba(255,153,102,0.12)" stroke="#f96" stroke-width="1.5" stroke-opacity="0.5"/>
-            <!-- ILP polygon (cyan, high values) with glow -->
-            <!-- values: 0.95, 0.88, 0.92, 0.98, 0.85, 0.90 -->
-            <polygon points="150,45 226.2,96 229.7,186 150,238 76.4,182.5 72.1,95"
-                     fill="rgba(0,204,204,0.15)" stroke="#0cc" stroke-width="1.5" stroke-opacity="0.7"
-                     filter="url(#radar-glow)"/>
-            <polygon points="150,45 226.2,96 229.7,186 150,238 76.4,182.5 72.1,95"
-                     fill="none" stroke="#0cc" stroke-width="1.5" stroke-opacity="0.7"/>
-            <!-- Spoke labels -->
-            <text class="radar-spoke-label" x="150" y="28">value</text>
-            <text class="radar-spoke-label" x="248" y="85">variety</text>
-            <text class="radar-spoke-label" x="256" y="196">concentration</text>
-            <text class="radar-spoke-label" x="150" y="258">category</text>
-            <text class="radar-spoke-label" x="44" y="196">item limit</text>
-            <text class="radar-spoke-label" x="48" y="85">fairness</text>
-            <!-- Legend -->
-            <circle cx="102" cy="280" r="4" fill="#f96"/>
-            <text class="radar-legend" x="110" y="280" fill="#f96">Manual 71</text>
-            <circle cx="178" cy="280" r="4" fill="#0cc"/>
-            <text class="radar-legend" x="186" y="280" fill="#0cc">ILP-optimal 94</text>
+
+            <!-- Central box outline -->
+            <rect x="110" y="80" width="120" height="120" rx="12"
+                  fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+            <!-- Manual state: concentrated items (orange) -->
+            <g class="morph-manual">
+              <!-- Box glow -->
+              <rect x="110" y="80" width="120" height="120" rx="12"
+                    fill="rgba(255,153,102,0.15)" filter="url(#box-glow-m)"/>
+              <!-- Items — lots of same colour (concentrated) -->
+              <circle cx="140" cy="110" r="8" fill="rgba(255,153,102,0.7)"/>
+              <circle cx="165" cy="105" r="8" fill="rgba(255,153,102,0.7)"/>
+              <circle cx="190" cy="112" r="8" fill="rgba(255,153,102,0.7)"/>
+              <circle cx="152" cy="135" r="8" fill="rgba(255,153,102,0.7)"/>
+              <circle cx="178" cy="138" r="8" fill="rgba(102,204,102,0.5)"/>
+              <circle cx="145" cy="162" r="8" fill="rgba(255,153,102,0.7)"/>
+              <circle cx="170" cy="168" r="8" fill="rgba(255,204,0,0.4)"/>
+              <circle cx="195" cy="160" r="8" fill="rgba(255,153,102,0.7)"/>
+              <!-- Callout scores (orange, uneven) -->
+              <line x1="110" y1="100" x2="50" y2="50" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="42" y="44" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">62</text>
+              <line x1="230" y1="100" x2="290" y2="50" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="298" y="44" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11">45</text>
+              <line x1="230" y1="140" x2="300" y2="140" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="308" y="144" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11">38</text>
+              <line x1="230" y1="180" x2="290" y2="230" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="298" y="236" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11">71</text>
+              <line x1="110" y1="180" x2="50" y2="230" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="42" y="236" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">80</text>
+              <line x1="110" y1="140" x2="40" y2="140" stroke="rgba(255,153,102,0.3)" stroke-width="1"/>
+              <text x="32" y="144" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">76</text>
+              <!-- Subtitle -->
+              <text x="170" y="275" fill="#f96" font-family="'Share Tech Mono', monospace" font-size="14" text-anchor="middle">Manual 71</text>
+            </g>
+
+            <!-- ILP-optimal state: diverse items (cyan) -->
+            <g class="morph-ilp">
+              <!-- Box glow -->
+              <rect x="110" y="80" width="120" height="120" rx="12"
+                    fill="rgba(0,204,204,0.15)" filter="url(#box-glow-i)"/>
+              <!-- Items — diverse colours -->
+              <circle cx="138" cy="108" r="8" fill="rgba(0,204,204,0.6)"/>
+              <circle cx="165" cy="105" r="8" fill="rgba(255,153,102,0.6)"/>
+              <circle cx="192" cy="110" r="8" fill="rgba(102,204,102,0.6)"/>
+              <circle cx="148" cy="133" r="8" fill="rgba(255,204,0,0.55)"/>
+              <circle cx="178" cy="137" r="8" fill="rgba(204,102,255,0.55)"/>
+              <circle cx="140" cy="160" r="8" fill="rgba(255,102,102,0.55)"/>
+              <circle cx="168" cy="166" r="8" fill="rgba(102,204,204,0.55)"/>
+              <circle cx="195" cy="158" r="8" fill="rgba(102,204,102,0.6)"/>
+              <!-- Callout scores (cyan, uniformly high) -->
+              <line x1="110" y1="100" x2="50" y2="50" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="42" y="44" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">95</text>
+              <line x1="230" y1="100" x2="290" y2="50" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="298" y="44" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11">92</text>
+              <line x1="230" y1="140" x2="300" y2="140" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="308" y="144" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11">96</text>
+              <line x1="230" y1="180" x2="290" y2="230" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="298" y="236" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11">94</text>
+              <line x1="110" y1="180" x2="50" y2="230" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="42" y="236" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">90</text>
+              <line x1="110" y1="140" x2="40" y2="140" stroke="rgba(0,204,204,0.3)" stroke-width="1"/>
+              <text x="32" y="144" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="11" text-anchor="end">97</text>
+              <!-- Subtitle -->
+              <text x="170" y="275" fill="#0cc" font-family="'Share Tech Mono', monospace" font-size="14" text-anchor="middle">ILP-optimal 94</text>
+            </g>
+
+            <!-- Dimension labels (always visible, between the callout endpoints) -->
+            <text x="16" y="30" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10" text-anchor="end">value</text>
+            <text x="324" y="30" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10">diversity</text>
+            <text x="330" y="144" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10">concentration</text>
+            <text x="324" y="250" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10">max share</text>
+            <text x="16" y="250" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10" text-anchor="end">size floor</text>
+            <text x="10" y="144" fill="rgba(255,255,255,0.4)" font-family="'Share Tech Mono', monospace" font-size="10" text-anchor="end">fungibility</text>
           </svg>
         </div>
         <h2 class="row-title">Hyper-dimensional scoring</h2>
         <div class="row-text">
           <ul>
-            <li>Multiple penalty dimensions score every box: value, variety, concentration and more</li>
-            <li>Hitting the target value means nothing if half the box is carrots</li>
-            <li>Two-layer model penalises flooding at item and category level</li>
-            <li>Penalty weights tuned by Optuna, cross-validated against 42 historical offers</li>
+            <li>Multiple penalty dimensions score every box: value, diversity, fungibility and more</li>
+            <li>ILP penalty scores embed power curves with piecewise-linear tangent lines</li>
+            <li>HHI concentration measures effective diversity per dimension</li>
+            <li>Two-layer model caps flooding at individual and fungible group levels</li>
           </ul>
         </div>
       </div>
@@ -228,56 +265,92 @@
       <!-- Row 3: Tuning to proof — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <svg class="arch-svg" viewBox="0 0 300 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="arch-svg dials-svg" viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="optuna-blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="10"/>
+              <filter id="dial-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4"/>
               </filter>
-              <filter id="ilp-blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="10"/>
-              </filter>
-              <!-- Animated dashed flow along funnel edges -->
-              <style>
-                @keyframes funnel-flow { to { stroke-dashoffset: -24; } }
-                .funnel-edge-flow {
-                  stroke: rgba(0,204,204,0.25);
-                  stroke-width: 1.5;
-                  stroke-dasharray: 6 6;
-                  fill: none;
-                  animation: funnel-flow 1.2s linear infinite;
-                }
-              </style>
             </defs>
-            <!-- Section 1: Optuna tuning (wide, purple tint) -->
-            <polygon class="arch-hub-glow funnel-optuna-glow" points="20,10 280,10 243,73 57,73"
-                     filter="url(#optuna-blur)"/>
-            <polygon class="funnel-optuna" points="20,10 280,10 243,73 57,73"
-                     fill="rgba(180,120,255,0.06)" stroke="rgba(180,120,255,0.4)" stroke-width="1.5"/>
-            <text class="arch-label" x="150" y="38">Optuna tuning</text>
-            <text class="funnel-subtitle" x="150" y="55">cross-validated</text>
-            <!-- Section 2: ILP solver (medium, cyan + glow) -->
-            <polygon class="arch-hub-glow" points="57,75 243,75 210,143 90,143"
-                     fill="rgba(0,204,204,0.25)" filter="url(#ilp-blur)"/>
-            <polygon points="57,75 243,75 210,143 90,143"
-                     fill="rgba(0,204,204,0.06)" stroke="rgba(0,204,204,0.6)" stroke-width="1.5"/>
-            <text class="arch-label" x="150" y="105">ILP solver</text>
-            <text class="funnel-subtitle" x="150" y="122">provably optimal</text>
-            <!-- Section 3: Gap assessment (narrow, cyan) -->
-            <polygon points="90,145 210,145 185,210 115,210"
-                     fill="rgba(0,204,204,0.04)" stroke="rgba(0,204,204,0.6)" stroke-width="1.5"/>
-            <text class="arch-label" x="150" y="173" font-size="13">gap assessment</text>
-            <text class="funnel-subtitle" x="150" y="190" font-size="10">EBM + ordinal</text>
-            <!-- Animated dashed flow along funnel edges -->
-            <path class="funnel-edge-flow" d="M20,10 L57,73 L57,75 L90,143 L90,145 L115,210"/>
-            <path class="funnel-edge-flow" d="M280,10 L243,73 L243,75 L210,143 L210,145 L185,210"/>
+
+            <!-- Dial 1 -->
+            <circle cx="50" cy="70" r="28" fill="none" stroke="rgba(0,204,204,0.2)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="50" cy="70" r="28"
+                    fill="rgba(0,204,204,0.15)" filter="url(#dial-blur)" style="animation-delay: 0s;"/>
+            <line class="dial-needle" x1="50" y1="70" x2="50" y2="46"
+                  stroke="#0cc" stroke-width="2" stroke-linecap="round"
+                  style="--dial-start: -120deg; --dial-end: -25deg; transform-origin: 50px 70px; animation-delay: 0s;"/>
+            <circle cx="50" cy="70" r="3" fill="#0cc"/>
+
+            <!-- Dial 2 -->
+            <circle cx="120" cy="70" r="28" fill="none" stroke="rgba(0,204,204,0.2)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="120" cy="70" r="28"
+                    fill="rgba(0,204,204,0.15)" filter="url(#dial-blur)" style="animation-delay: 0.3s;"/>
+            <line class="dial-needle" x1="120" y1="70" x2="120" y2="46"
+                  stroke="#0cc" stroke-width="2" stroke-linecap="round"
+                  style="--dial-start: 90deg; --dial-end: 15deg; transform-origin: 120px 70px; animation-delay: 0.3s;"/>
+            <circle cx="120" cy="70" r="3" fill="#0cc"/>
+
+            <!-- Dial 3 -->
+            <circle cx="190" cy="70" r="28" fill="none" stroke="rgba(0,204,204,0.2)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="190" cy="70" r="28"
+                    fill="rgba(0,204,204,0.15)" filter="url(#dial-blur)" style="animation-delay: 0.6s;"/>
+            <line class="dial-needle" x1="190" y1="70" x2="190" y2="46"
+                  stroke="#0cc" stroke-width="2" stroke-linecap="round"
+                  style="--dial-start: -80deg; --dial-end: 30deg; transform-origin: 190px 70px; animation-delay: 0.6s;"/>
+            <circle cx="190" cy="70" r="3" fill="#0cc"/>
+
+            <!-- Dial 4 -->
+            <circle cx="260" cy="70" r="28" fill="none" stroke="rgba(0,204,204,0.2)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="260" cy="70" r="28"
+                    fill="rgba(0,204,204,0.15)" filter="url(#dial-blur)" style="animation-delay: 0.9s;"/>
+            <line class="dial-needle" x1="260" y1="70" x2="260" y2="46"
+                  stroke="#0cc" stroke-width="2" stroke-linecap="round"
+                  style="--dial-start: 60deg; --dial-end: -10deg; transform-origin: 260px 70px; animation-delay: 0.9s;"/>
+            <circle cx="260" cy="70" r="3" fill="#0cc"/>
+
+            <!-- Dial 5 (smaller row below, offset) -->
+            <circle cx="85" cy="140" r="24" fill="none" stroke="rgba(0,204,204,0.15)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="85" cy="140" r="24"
+                    fill="rgba(0,204,204,0.1)" filter="url(#dial-blur)" style="animation-delay: 1.2s;"/>
+            <line class="dial-needle" x1="85" y1="140" x2="85" y2="120"
+                  stroke="#0cc" stroke-width="1.5" stroke-linecap="round"
+                  style="--dial-start: -150deg; --dial-end: 20deg; transform-origin: 85px 140px; animation-delay: 1.2s;"/>
+            <circle cx="85" cy="140" r="2.5" fill="#0cc"/>
+
+            <!-- Dial 6 -->
+            <circle cx="155" cy="140" r="24" fill="none" stroke="rgba(0,204,204,0.15)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="155" cy="140" r="24"
+                    fill="rgba(0,204,204,0.1)" filter="url(#dial-blur)" style="animation-delay: 1.5s;"/>
+            <line class="dial-needle" x1="155" y1="140" x2="155" y2="120"
+                  stroke="#0cc" stroke-width="1.5" stroke-linecap="round"
+                  style="--dial-start: 100deg; --dial-end: -35deg; transform-origin: 155px 140px; animation-delay: 1.5s;"/>
+            <circle cx="155" cy="140" r="2.5" fill="#0cc"/>
+
+            <!-- Dial 7 -->
+            <circle cx="225" cy="140" r="24" fill="none" stroke="rgba(0,204,204,0.15)" stroke-width="1.5"/>
+            <circle class="dial-settle-glow" cx="225" cy="140" r="24"
+                    fill="rgba(0,204,204,0.1)" filter="url(#dial-blur)" style="animation-delay: 1.8s;"/>
+            <line class="dial-needle" x1="225" y1="140" x2="225" y2="120"
+                  stroke="#0cc" stroke-width="1.5" stroke-linecap="round"
+                  style="--dial-start: -60deg; --dial-end: 5deg; transform-origin: 225px 140px; animation-delay: 1.8s;"/>
+            <circle cx="225" cy="140" r="2.5" fill="#0cc"/>
+
+            <!-- Composite score counter -->
+            <text class="dial-score" x="300" y="140" fill="#0cc"
+                  font-family="'Share Tech Mono', monospace" font-size="28"
+                  text-anchor="middle" dominant-baseline="central">94</text>
+            <text x="300" y="162" fill="rgba(255,255,255,0.3)"
+                  font-family="'Share Tech Mono', monospace" font-size="10"
+                  text-anchor="middle">score</text>
           </svg>
         </div>
         <h2 class="row-title">Tuning to proof</h2>
         <div class="row-text">
           <ul>
-            <li>Optuna explores 800 weight configurations, cross-validated against real packing history</li>
-            <li>Best weights feed into an ILP solver that finds the provably optimal allocation</li>
-            <li>Glass-box EBM and ordinal regression on packer survey data diagnose scoring blind spots, distilling discovered patterns as new penalty terms</li>
+            <li>Bayesian optimisation tunes scoring parameters against years of packing history</li>
+            <li>Cross-validated with repeated-run stability grading per parameter</li>
+            <li>Glass-box EBM diagnoses scoring gaps and distils new penalty terms</li>
+            <li>HITL preference ratings tune penalties via Spearman correlation</li>
           </ul>
         </div>
       </div>
