@@ -99,7 +99,7 @@ const SCAN_FLASH_DURATION = 0.3;
 const SCAN_BOUNCE_Z = 0.35;
 
 // Dashboard reveal
-const DASH_MORPH_START = 0.55;
+const DASH_MORPH_START = 0.68;
 const DASH_MORPH_END = 0.80;
 
 // Narrative keyframes: [morphProgress, yMultiplier, opacity, blur]
@@ -352,17 +352,39 @@ function drawMachine() {
   const slotY = (BELT_WIDTH - slotD) / 2;
   drawIsoBlock(-0.12, slotY, BELT_Z + BELT_THICKNESS, 0.12, slotD, slotH, 12, 12, 15, 1);
 
-  // Warning light (blinks) — on top of the machine housing, left edge midpoint
-  const lp = toScreen(-MACHINE_LENGTH / 2, (BELT_WIDTH + MACHINE_DEPTH) / 2, MACHINE_HEIGHT + 0.5);
-  const blink = Math.sin(time * 3.5) * 0.4 + 0.6;
-  ctx.fillStyle = 'rgba(255, 50, 30, ' + (blink * 0.15) + ')';
-  ctx.beginPath();
-  ctx.arc(lp.x, lp.y, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(255, 50, 30, ' + blink + ')';
-  ctx.beginPath();
-  ctx.arc(lp.x, lp.y, 3, 0, Math.PI * 2);
-  ctx.fill();
+  // Stack light — 3-layer housing with red/amber/green lamps
+  const slY = (BELT_WIDTH + MACHINE_DEPTH) / 2;
+  drawIsoBlock(
+    -MACHINE_LENGTH / 2 - 0.15, slY - 0.15, MACHINE_HEIGHT,
+    0.3, 0.3, 1.2,
+    25, 25, 28, 1
+  );
+
+  const redAmt   = Math.max(0, 1 - morphProgress * 3);
+  const amberAmt = Math.max(0, 1 - Math.abs(morphProgress - 0.2) * 6);
+  const greenAmt = clamp(morphProgress * 3 - 0.5, 0, 1);
+
+  const slRed   = toScreen(-MACHINE_LENGTH / 2, slY, MACHINE_HEIGHT + 1.0);
+  const slAmber = toScreen(-MACHINE_LENGTH / 2, slY, MACHINE_HEIGHT + 0.7);
+  const slGreen = toScreen(-MACHINE_LENGTH / 2, slY, MACHINE_HEIGHT + 0.4);
+
+  // Red lamp (top)
+  ctx.fillStyle = 'rgba(255, 50, 30, ' + (redAmt * 0.15) + ')';
+  ctx.beginPath(); ctx.arc(slRed.x, slRed.y, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255, 50, 30, ' + redAmt + ')';
+  ctx.beginPath(); ctx.arc(slRed.x, slRed.y, 3, 0, Math.PI * 2); ctx.fill();
+
+  // Amber lamp (middle)
+  ctx.fillStyle = 'rgba(255, 170, 0, ' + (amberAmt * 0.15) + ')';
+  ctx.beginPath(); ctx.arc(slAmber.x, slAmber.y, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255, 170, 0, ' + amberAmt + ')';
+  ctx.beginPath(); ctx.arc(slAmber.x, slAmber.y, 3, 0, Math.PI * 2); ctx.fill();
+
+  // Green lamp (bottom)
+  ctx.fillStyle = 'rgba(0, 204, 102, ' + (greenAmt * 0.15) + ')';
+  ctx.beginPath(); ctx.arc(slGreen.x, slGreen.y, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(0, 204, 102, ' + greenAmt + ')';
+  ctx.beginPath(); ctx.arc(slGreen.x, slGreen.y, 3, 0, Math.PI * 2); ctx.fill();
 }
 
 // ---------------------------------------------------------------------------
@@ -831,7 +853,7 @@ function buildIPad() {
 
   const warn = document.createElement('div');
   warn.className = 'ipad-warn-banner';
-  warn.textContent = 'UNSCHEDULED - RECATEGORISE OR NOTE REQUIRED';
+  warn.textContent = 'UNSCHEDULED - ATTENTION REQUIRED';
   tbody.appendChild(warn);
 
   ipadEls.unsched = buildIPadRow(tbody, IPAD_UNSCHED, 'warn');

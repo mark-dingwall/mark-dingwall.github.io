@@ -33,11 +33,11 @@
     <span id="title-overlay"><img id="oasis-logo" src="oasis.png" alt="Oasis"> Production Scanner</span>
     <div id="subtitle">Realtime production-line tracking system</div>
   </div>
-  <div class="narrative-line" data-side="left">Staff tracked transplanting with clipboards and printed Excel sheets.</div>
-  <div class="narrative-line" data-side="right">Miscounts went unnoticed. Oversupply wasted thousands of plants.</div>
-  <div class="narrative-line" data-side="left">What if every tray was automatically scanned and counted?</div>
-  <div class="narrative-line" data-side="right">Barcodes and lasers feed real-time data to iPads at each line.</div>
-  <div class="narrative-line" data-side="left">Four production lines. One source of truth. Zero guesswork.</div>
+  <div class="narrative-line" data-side="left">Production lines were tracked with pen &amp; paper.</div>
+  <div class="narrative-line" data-side="right">Yields were unclear. Miscounts and oversupply went unnoticed.</div>
+  <div class="narrative-line" data-side="left">What if every seedling was automatically scanned and counted?</div>
+  <div class="narrative-line" data-side="right">Real-time data is streamed from barcode scanners and laser counters.</div>
+  <div class="narrative-line" data-side="left">iPads surface issues instantly. Accurate metrics now, not next week.</div>
   <div id="dashboard">
     <div class="ipad-frame">
       <div class="ipad-screen">
@@ -123,8 +123,8 @@
         <div class="row-text">
           <ul>
             <li>Headless Raspberry Pis read USB barcode scanners and GPIO laser counters</li>
-            <li>Node.js + Express REST API aggregates scan events from 4 production lines</li>
-            <li>Server-Sent Events push real-time state to React iPad dashboards</li>
+            <li>Node.js + Express REST API aggregates multi-sensor data from all production lines</li>
+            <li>Server-Sent Events push state to React iPad dashboards</li>
             <li>File-backed persistence with in-memory index for sub-ms query times</li>
           </ul>
         </div>
@@ -137,7 +137,7 @@
             <div class="tl-paper">
               <svg viewBox="0 0 380 68" xmlns="http://www.w3.org/2000/svg">
                 <!-- Panel label -->
-                <text class="tl-label-dim" x="22" y="8" font-size="8" text-anchor="start" text-transform="uppercase" letter-spacing="0.1em">Paper</text>
+                <text class="tl-label-dim" x="22" y="14" font-size="10" style="text-anchor: start" text-transform="uppercase" letter-spacing="0.1em">Paper</text>
 
                 <!-- 6 nodes — spacing increases to show growing delays -->
                 <circle class="tl-node-dim" cx="25"  cy="22" r="4"/>
@@ -163,17 +163,17 @@
                 <text class="tl-label-dim" x="355" y="40">Errors</text>
 
                 <!-- Time scale — shows delay accumulating -->
-                <text class="tl-timescale" x="50"  y="58">mins</text>
-                <text class="tl-timescale" x="120" y="58">&#x2192;</text>
-                <text class="tl-timescale" x="170" y="58">hours</text>
-                <text class="tl-timescale" x="240" y="58">&#x2192;</text>
-                <text class="tl-timescale" x="300" y="58">days</text>
-                <text class="tl-timescale" x="340" y="58">&#x2192;</text>
-                <text class="tl-timescale" x="365" y="58" font-size="8">next wk</text>
+                <text class="tl-timescale" x="25"  y="58">mins</text>
+                <text class="tl-timescale" x="80"  y="58">&#x2192;</text>
+                <text class="tl-timescale" x="135" y="58">hours</text>
+                <text class="tl-timescale" x="190" y="58">&#x2192;</text>
+                <text class="tl-timescale" x="245" y="58">days</text>
+                <text class="tl-timescale" x="300" y="58">&#x2192;</text>
+                <text class="tl-timescale" x="355" y="58" font-size="10">next wk</text>
               </svg>
             </div>
             <div class="tl-digital">
-              <svg viewBox="0 0 380 100" xmlns="http://www.w3.org/2000/svg">
+              <svg viewBox="0 0 380 110" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <marker id="tl-arrow" viewBox="0 0 6 6" refX="6" refY="3"
                           markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -182,28 +182,28 @@
                 </defs>
 
                 <!-- Panel label -->
-                <text class="tl-scan-label" x="22" y="8" font-size="8" text-anchor="start" letter-spacing="0.1em">Oasis</text>
+                <text class="tl-scan-label" x="22" y="14" font-size="10" style="text-anchor: start" letter-spacing="0.1em">Digital</text>
 
                 <!-- Central scan node -->
                 <circle class="tl-scan-node" cx="190" cy="28" r="6"/>
                 <text class="tl-scan-label" x="190" y="16">SCAN</text>
 
-                <!-- Fan-out lines (W, E, SW, S, SE) -->
-                <line class="tl-fan-line" x1="184" y1="28" x2="75"  y2="28"  marker-end="url(#tl-arrow)"/>
-                <line class="tl-fan-line" x1="196" y1="28" x2="310" y2="28"  marker-end="url(#tl-arrow)"/>
-                <line class="tl-fan-line" x1="186" y1="33" x2="80"  y2="78"  marker-end="url(#tl-arrow)"/>
-                <line class="tl-fan-line" x1="190" y1="34" x2="190" y2="80"  marker-end="url(#tl-arrow)"/>
-                <line class="tl-fan-line" x1="194" y1="33" x2="300" y2="78"  marker-end="url(#tl-arrow)"/>
+                <!-- Fan-out lines (W, E, SW, S, SE) — each arrow points at its label -->
+                <line class="tl-fan-line" x1="184" y1="29" x2="80"  y2="39"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="196" y1="29" x2="315" y2="39"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="186" y1="33" x2="60"  y2="90"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="190" y1="34" x2="190" y2="95"  marker-end="url(#tl-arrow)"/>
+                <line class="tl-fan-line" x1="194" y1="33" x2="320" y2="82"  marker-end="url(#tl-arrow)"/>
 
                 <!-- Outcome labels -->
-                <text class="tl-label-bright" x="50"  y="32">Validated</text>
-                <text class="tl-label-bright" x="338" y="32">iPad updated</text>
-                <text class="tl-label-bright" x="60"  y="90">Recorded</text>
-                <text class="tl-label-bright" x="190" y="95">Report</text>
-                <text class="tl-label-bright" x="320" y="90">Management</text>
+                <text class="tl-label-bright" x="50"  y="44">Validated</text>
+                <text class="tl-label-bright" x="338" y="38"><tspan x="338">iPad</tspan><tspan x="338" dy="14">updated</tspan></text>
+                <text class="tl-label-bright" x="60"  y="100">Recorded</text>
+                <text class="tl-label-bright" x="190" y="105">Reported</text>
+                <text class="tl-label-bright" x="320" y="94"><tspan x="320">Management</tspan><tspan x="320" dy="14">Dashboard</tspan></text>
 
                 <!-- <1s badge -->
-                <text class="tl-time-badge" x="372" y="95">&lt; 1 s</text>
+                <text class="tl-time-badge" x="372" y="12">&lt; 1 s</text>
               </svg>
             </div>
           </div>
@@ -211,10 +211,10 @@
         <h2 class="row-title">Real-time operations</h2>
         <div class="row-text">
           <ul>
-            <li>Sub-second SSE pushes every scan and count to iPads instantly</li>
-            <li>UI deliberately mirrors the paper spreadsheet for frictionless adoption</li>
-            <li>One-tap ghost, adjust, and reassign &mdash; full audit trail included</li>
-            <li>Management monitors all lines live; weekly XLSX auto-generated from in-memory index</li>
+            <li>SSE pushes every scan and count to iPads instantly</li>
+            <li>UI built in collaboration with production line staff</li>
+            <li>One-tap on-the-fly adjustments with full audit trail</li>
+            <li>Supervisors, managers and accounting all get custom live dashboards</li>
           </ul>
         </div>
       </div>
@@ -222,54 +222,68 @@
       <!-- Row 3: Reconciliation — visual left, text right -->
       <div class="row">
         <div class="row-visual">
-          <div class="recon-visual">
-            <div class="recon-row">
-              <span class="recon-line-tag">L1</span>
-              <div class="recon-bar-wrap">
-                <div class="recon-bar-plug" style="width:76%"></div>
-                <div class="recon-bar-seed" style="width:75%"></div>
+          <div class="health-visual">
+            <div class="health-row" style="--stagger: 0s">
+              <span class="health-label">Audit writes</span>
+              <div class="health-dots">
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
+                <span class="hd hd--f1"></span><span class="hd"></span>
               </div>
-              <span class="recon-counts"><span class="recon-ok">245 &rarr; 240</span></span>
+              <span class="health-badge">
+                <span class="hb hb--ok">atomic ✓</span>
+                <span class="hb hb--fault">flush</span>
+              </span>
             </div>
-            <div class="recon-row recon-warn">
-              <span class="recon-line-tag">L2</span>
-              <div class="recon-bar-wrap">
-                <div class="recon-bar-plug" style="width:56%"></div>
-                <div class="recon-bar-seed" style="width:56%"></div>
-                <div class="recon-bar-over" style="left:56%;width:4%"></div>
+
+            <div class="health-row" style="--stagger: 2s">
+              <span class="health-label">Network queue</span>
+              <div class="health-dots">
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
+                <span class="hd hd--f1"></span><span class="hd hd--f2"></span>
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
               </div>
-              <span class="recon-counts"><span class="recon-delta">180 &rarr; 193 (+13)</span></span>
+              <span class="health-badge">
+                <span class="hb hb--ok">retry OK</span>
+                <span class="hb hb--fault">queuing</span>
+              </span>
             </div>
-            <div class="recon-row">
-              <span class="recon-line-tag">L3</span>
-              <div class="recon-bar-wrap">
-                <div class="recon-bar-plug" style="width:100%"></div>
-                <div class="recon-bar-seed" style="width:99%"></div>
+
+            <div class="health-row" style="--stagger: 4s">
+              <span class="health-label">Index verify</span>
+              <div class="health-dots">
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
+                <span class="hd"></span><span class="hd hd--f1"></span>
+                <span class="hd hd--heal"></span><span class="hd"></span><span class="hd"></span>
               </div>
-              <span class="recon-counts"><span class="recon-ok">320 &rarr; 318</span></span>
+              <span class="health-badge">
+                <span class="hb hb--ok">healed</span>
+                <span class="hb hb--fault">mismatch</span>
+              </span>
             </div>
-            <div class="recon-row">
-              <span class="recon-line-tag">L4</span>
-              <div class="recon-bar-wrap">
-                <div class="recon-bar-plug" style="width:62%"></div>
-                <div class="recon-bar-seed" style="width:62%"></div>
+
+            <div class="health-row" style="--stagger: 6s">
+              <span class="health-label">Scan fallback</span>
+              <div class="health-dots">
+                <span class="hd"></span><span class="hd"></span>
+                <span class="hd hd--f1 hd--red"></span>
+                <span class="hd"></span><span class="hd"></span><span class="hd"></span>
+                <span class="hd"></span><span class="hd"></span>
               </div>
-              <span class="recon-counts"><span class="recon-ok">200 &rarr; 200</span></span>
-            </div>
-            <div class="recon-legend">
-              <span><span class="legend-dot" style="background:#0af"></span>Plugs in</span>
-              <span><span class="legend-dot" style="background:#0c6"></span>Seedlings out</span>
-              <span><span class="legend-dot" style="background:#fa0"></span>Oversupply</span>
+              <span class="health-badge">
+                <span class="hb hb--ok">degraded OK</span>
+                <span class="hb hb--fault">bad scan</span>
+              </span>
             </div>
           </div>
         </div>
         <h2 class="row-title">Built for the floor</h2>
         <div class="row-text">
           <ul>
-            <li>Concurrent events serialised through per-line mutex into append-only, audit-ready files</li>
-            <li>Oversupply and unscheduled-product warnings surface issues within minutes</li>
-            <li>Self-healing index: periodic verification rebuilds from authoritative source and auto-corrects drift</li>
-            <li>Production never stops: bad scans, sensor faults, and network drops handled gracefully</li>
+            <li>All events queued and written atomically to audit-ready files</li>
+            <li>Network drops handled seamlessly by queue and retry with backoff</li>
+            <li>In-memory index auto-verifies and self-heals from single source of truth</li>
+            <li>Production never stops: graceful degradation with bad scans and sensor faults</li>
           </ul>
         </div>
       </div>
@@ -278,8 +292,8 @@
 
     <footer class="tech-footer">
       Sole developer <span>&middot;</span> Node.js <span>&middot;</span> Express <span>&middot;</span>
-      React <span>&middot;</span> Raspberry Pi <span>&middot;</span> GPIO <span>&middot;</span>
-      SSE
+      REST API <span>&middot;</span> SSE <span>&middot;</span> React <span>&middot;</span>
+      Raspberry Pi
     </footer>
   </div>
 
