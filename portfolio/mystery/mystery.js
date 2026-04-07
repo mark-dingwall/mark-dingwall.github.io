@@ -44,13 +44,17 @@ const SCENES = [
   { count: 6,  types: 'square',   symbol: 'triangle',    giant: false },
 ];
 
-// Good-state morph thresholds
-const GOOD_MORPH_START = 0.30;
-const GOOD_FADE_RANGE = 0.10;
+// Bad/good sequential transition thresholds
+const BAD_FADE_START = 0.28;
+const BAD_FADE_DUR = 0.04;
+const GOOD_FADE_START = 0.34;
+const GOOD_FADE_DUR = 0.04;
+const BG_TRANSITION_START = 0.28;
+const BG_TRANSITION_END = 0.38;
 
 // ILP Matrix animation
 const MATRIX_ITEMS = ['🍎', '🍌', '🥕', '🥬', '🥔', '🍊', '🍇', '🥒'];
-const MATRIX_BOXES = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+const MATRIX_BOXES = ['B1', 'B2', 'B3', 'B4', 'B5'];
 const MATRIX_MORPH_START = 0.50;
 const MATRIX_FADE_RANGE = 0.15;
 const SOLVE_STEP_DUR = 0.0875;
@@ -830,7 +834,7 @@ function drawMatrix(dt, fade) {
   const gridW = COLS * cellSz;
   const gridH = ROWS * cellSz;
   const titleH = cellSz * 0.8;
-  const constraintH = cellSz * 0.8;
+  const constraintH = cellSz * 1.6;
   const totalW = labelSz + gridW;
   const totalH = titleH + labelSz + gridH + constraintH;
 
@@ -855,15 +859,18 @@ function drawMatrix(dt, fade) {
   ctx.textBaseline = 'middle';
   ctx.fillText('ILP SOLVER', mx + totalW / 2, my + titleH / 2);
 
-  // Column headers
-  const emojiFontSz = Math.round(cellSz * 0.5);
-  ctx.font = emojiFontSz + 'px serif';
+  // Column headers (text labels in VT323)
+  const headerFontSz = Math.round(cellSz * 0.5);
+  ctx.font = headerFontSz + "px VT323, monospace";
+  ctx.fillStyle = '#0cc';
   for (let c = 0; c < COLS; c++) {
     ctx.globalAlpha = fade * 0.7;
     ctx.fillText(MATRIX_BOXES[c], gridLeft + c * cellSz + cellSz / 2, my + titleH + labelSz / 2);
   }
 
-  // Row labels
+  // Row labels (emoji with cross-platform font stack)
+  const emojiFontSz = Math.round(cellSz * 0.5);
+  ctx.font = emojiFontSz + "px 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif";
   for (let r = 0; r < ROWS; r++) {
     ctx.globalAlpha = fade * 0.7;
     ctx.fillText(MATRIX_ITEMS[r], mx + labelSz / 2, gridTop + r * cellSz + cellSz / 2);
@@ -903,9 +910,9 @@ function drawMatrix(dt, fade) {
           }
         } else {
           const age = el - SOLVE_TRY_DUR;
-          if (age < 0.18) {
+          if (age < 0.5) {
             flashType = 'reject';
-            flashAmt = 1 - age / 0.18;
+            flashAmt = Math.exp(-age * 5) * (0.5 + 0.5 * Math.cos(age * Math.PI * 8));
           }
         }
       }
@@ -985,21 +992,33 @@ function drawMatrix(dt, fade) {
     const shown = Math.min(SOLVE_CONSTRAINT_LABELS.length,
                          Math.floor(conElapsed / SOLVE_CONSTRAINT_DELAY) + 1);
 
-    const conFont = Math.round(cellSz * 0.64) + 'px VT323, monospace';
-    ctx.font = conFont;
+    let conFontSz = Math.min(Math.round(cellSz * 0.64), 18);
+    ctx.font = conFontSz + 'px VT323, monospace';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
 
     const labels = [];
     let totalLabelW = 0;
+    const spacing = cellSz * 0.2;
     for (let i = 0; i < shown; i++) {
       const text = '\u2713 ' + SOLVE_CONSTRAINT_LABELS[i];
       const w = ctx.measureText(text).width;
       labels.push({ text: text, w: w });
       totalLabelW += w;
     }
-    const spacing = cellSz * 0.3;
     totalLabelW += Math.max(0, shown - 1) * spacing;
+
+    // Scale down if labels exceed available width
+    if (totalLabelW > totalW) {
+      conFontSz = Math.round(conFontSz * totalW / totalLabelW);
+      ctx.font = conFontSz + 'px VT323, monospace';
+      totalLabelW = 0;
+      for (let i = 0; i < labels.length; i++) {
+        labels[i].w = ctx.measureText(labels[i].text).width;
+        totalLabelW += labels[i].w;
+      }
+      totalLabelW += Math.max(0, shown - 1) * spacing;
+    }
 
     let conX = mx + (totalW - totalLabelW) / 2;
 
@@ -1039,7 +1058,7 @@ function drawMatrix(dt, fade) {
     ctx.font = Math.round(cellSz * 0.70) + 'px VT323, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('OPTIMAL', mx + totalW / 2, constraintY + constraintH * 0.45);
+    ctx.fillText('OPTIMAL', mx + totalW / 2, constraintY + constraintH * 0.6);
   }
 
   ctx.globalAlpha = 1;
@@ -1061,15 +1080,15 @@ function render(timestamp) {
 
   const t = morphProgress;
 
-  // Bad/good morph blend
-  const goodT = clamp01((t - GOOD_MORPH_START) / GOOD_FADE_RANGE);
-  const badFade = 1 - goodT;
-  const goodFade = goodT;
+  // Bad/good sequential fade (no overlap)
+  const badFade = 1 - clamp01((t - BAD_FADE_START) / BAD_FADE_DUR);
+  const goodFade = clamp01((t - GOOD_FADE_START) / GOOD_FADE_DUR);
 
-  // Background interpolation
-  const bgR = Math.round(lerp(BG_COLOR[0], GOOD_BG_COLOR[0], goodT));
-  const bgG = Math.round(lerp(BG_COLOR[1], GOOD_BG_COLOR[1], goodT));
-  const bgB = Math.round(lerp(BG_COLOR[2], GOOD_BG_COLOR[2], goodT));
+  // Background interpolation (smooth across full transition range)
+  const bgT = clamp01((t - BG_TRANSITION_START) / (BG_TRANSITION_END - BG_TRANSITION_START));
+  const bgR = Math.round(lerp(BG_COLOR[0], GOOD_BG_COLOR[0], bgT));
+  const bgG = Math.round(lerp(BG_COLOR[1], GOOD_BG_COLOR[1], bgT));
+  const bgB = Math.round(lerp(BG_COLOR[2], GOOD_BG_COLOR[2], bgT));
   ctx.fillStyle = 'rgb(' + bgR + ',' + bgG + ',' + bgB + ')';
   ctx.fillRect(0, 0, W, H);
 
