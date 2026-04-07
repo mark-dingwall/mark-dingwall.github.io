@@ -64,7 +64,7 @@ h1, h2 {
   z-index: 100;
   text-align: center;
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
   transition: opacity 0.6s;
 }
 
@@ -270,7 +270,7 @@ h1, h2 {
 .flow-btn {
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
   font-family: 'Share Tech Mono', monospace;
   font-size: clamp(14px, 1.3vw, 17px);
   padding: 10px 14px;
@@ -304,7 +304,7 @@ h1, h2 {
   padding: 20px 0 24px;
   text-align: center;
   font-size: clamp(14px, 1.3vw, 16px);
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.5);
   opacity: 0;
   transform: translateY(24px);
 }
@@ -360,7 +360,7 @@ h1, h2 {
   #header-panel {
     padding: 16px 20px 12px;
     max-width: 94vw;
-    top: 68px;
+    top: 4%;
   }
 }
 
