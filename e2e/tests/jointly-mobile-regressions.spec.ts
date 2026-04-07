@@ -109,3 +109,138 @@ test('narrative recovers height after resize during collapse', async ({ page }) 
   expect(recovered.opacity).toBeGreaterThan(0);
   expect(recovered.visibleLines).toBeGreaterThan(0);
 });
+
+test('tooltip appears above narrative on mobile (z-index)', async ({ page }) => {
+  const viewport = page.viewportSize()!;
+  test.skip(viewport.width > 600, 'mobile-only bug');
+  test.setTimeout(60_000);
+
+  await navigateToPortfolioPage(page, JOINTLY_PATH);
+  await scrollToProgress(page, 0.8);
+
+  // Tap the topmost-ranked bar
+  await page.evaluate(() => {
+    const bars = Array.from(document.querySelectorAll('.ranking-bar')) as HTMLElement[];
+    if (!bars.length) return;
+    let topIdx = 0;
+    for (let i = 1; i < bars.length; i++) {
+      if (bars[i].offsetTop < bars[topIdx].offsetTop) topIdx = i;
+    }
+    bars[topIdx].dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
+  });
+
+  await page.waitForSelector('#tooltip.visible', { timeout: 3_000 });
+
+  const tooltipBox = await getBox(page.locator('#tooltip'));
+  const tooltipCenterX = tooltipBox.x + tooltipBox.width / 2;
+  const tooltipCenterY = tooltipBox.y + tooltipBox.height / 2;
+
+  // Tooltip has pointer-events:none, so temporarily enable for elementFromPoint check
+  const topEl = await page.evaluate(([cx, cy]) => {
+    const tip = document.getElementById('tooltip')!;
+    tip.style.pointerEvents = 'auto';
+    const el = document.elementFromPoint(cx, cy);
+    tip.style.pointerEvents = '';
+    if (!el) return null;
+    return el.id || el.closest('#tooltip')?.id || el.tagName;
+  }, [tooltipCenterX, tooltipCenterY]);
+  expect(topEl).toBe('tooltip');
+});
+
+test('tooltip toggles reliably on repeated taps', async ({ page }) => {
+  const viewport = page.viewportSize()!;
+  test.skip(viewport.width > 600, 'mobile-only bug');
+  test.setTimeout(60_000);
+
+  await navigateToPortfolioPage(page, JOINTLY_PATH);
+  await scrollToProgress(page, 0.8);
+
+  const tapBar = (barIndex: number) =>
+    page.evaluate((idx) => {
+      const bars = document.querySelectorAll('.ranking-bar');
+      bars[idx]?.dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
+    }, barIndex);
+
+  const isTooltipVisible = () =>
+    page.evaluate(() => document.querySelector('#tooltip')?.classList.contains('visible') ?? false);
+
+  const activeBarIndex = () =>
+    page.evaluate(() => {
+      const bars = Array.from(document.querySelectorAll('.ranking-bar'));
+      const idx = bars.findIndex(b => b.classList.contains('touch-active'));
+      return idx;
+    });
+
+  // Tap bar 0 → visible, bar 0 outlined
+  await tapBar(0);
+  await page.waitForSelector('#tooltip.visible', { timeout: 3_000 });
+  expect(await isTooltipVisible()).toBe(true);
+  expect(await activeBarIndex()).toBe(0);
+
+  // Tap bar 0 again → hidden (toggle off), no bar outlined
+  await tapBar(0);
+  await page.waitForTimeout(200);
+  expect(await isTooltipVisible()).toBe(false);
+  expect(await activeBarIndex()).toBe(-1);
+
+  // Tap bar 0 again → visible (toggle back on), bar 0 outlined
+  await tapBar(0);
+  await page.waitForSelector('#tooltip.visible', { timeout: 3_000 });
+  expect(await isTooltipVisible()).toBe(true);
+  expect(await activeBarIndex()).toBe(0);
+
+  // Tap bar 1 → switches, bar 1 outlined (not bar 0)
+  await tapBar(1);
+  await page.waitForSelector('#tooltip.visible', { timeout: 3_000 });
+  expect(await isTooltipVisible()).toBe(true);
+  expect(await activeBarIndex()).toBe(1);
+
+  // Tap elsewhere → hidden, no bar outlined
+  await page.evaluate(() => {
+    document.body.dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
+  });
+  await page.waitForTimeout(200);
+  expect(await isTooltipVisible()).toBe(false);
+  expect(await activeBarIndex()).toBe(-1);
+});
+
+test('tooltip switches between bars on consecutive taps', async ({ page }) => {
+  const viewport = page.viewportSize()!;
+  test.skip(viewport.width > 600, 'mobile-only bug');
+  test.setTimeout(60_000);
+
+  await navigateToPortfolioPage(page, JOINTLY_PATH);
+  await scrollToProgress(page, 0.8);
+
+  const tapBarAndGetName = async (barIndex: number) => {
+    await page.evaluate((idx) => {
+      const bars = document.querySelectorAll('.ranking-bar');
+      bars[idx]?.dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
+    }, barIndex);
+    await page.waitForSelector('#tooltip.visible', { timeout: 3_000 });
+    return page.evaluate(() => {
+      const name = document.querySelector('.tooltip-name');
+      return name?.textContent ?? '';
+    });
+  };
+
+  // Get expected seller names from the data
+  const sellerNames = await page.evaluate(() => {
+    const bars = document.querySelectorAll('.ranking-bar');
+    return Array.from(bars).map((_, i) => {
+      // Seller names are embedded in tooltip HTML by index
+      const sellers = ['BulkBazaar', 'QuickShip', 'ValueVault', 'TrustTrade', 'BonusBarn'];
+      return sellers[i];
+    });
+  });
+
+  // Tap bar 0, 1, 2 in sequence — each should show the correct seller
+  const name0 = await tapBarAndGetName(0);
+  expect(name0).toContain(sellerNames[0]);
+
+  const name1 = await tapBarAndGetName(1);
+  expect(name1).toContain(sellerNames[1]);
+
+  const name2 = await tapBarAndGetName(2);
+  expect(name2).toContain(sellerNames[2]);
+});

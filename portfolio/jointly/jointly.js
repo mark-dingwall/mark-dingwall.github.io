@@ -609,12 +609,45 @@ function buildBars() {
     };
     bar.addEventListener('mouseenter', showTooltip);
     bar.addEventListener('mouseleave', hideTooltip);
-    bar.addEventListener('focus', showTooltip);
-    bar.addEventListener('blur', hideTooltip);
+    bar.addEventListener('focus', () => { if (!tooltipEl._touchActive) showTooltip(); });
+    bar.addEventListener('blur', () => { if (!tooltipEl._touchActive) hideTooltip(); });
     bar.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      tooltipEl._touchActive = true;
+      // Clean up previous document listener
+      if (tooltipEl._touchHide) {
+        document.removeEventListener('touchstart', tooltipEl._touchHide);
+        tooltipEl._touchHide = null;
+      }
+      // Clear outline from any previously active bar
+      const prev = rankingBarsEl.querySelector('.touch-active');
+      if (prev) prev.classList.remove('touch-active');
+      // Toggle off if same bar tapped again
+      if (tooltipEl.classList.contains('visible') && tooltipEl._activeIdx === i) {
+        hideTooltip();
+        tooltipEl._activeIdx = null;
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        tooltipEl._touchActive = false;
+        return;
+      }
       showTooltip();
-      const hide = () => { hideTooltip(); document.removeEventListener('touchstart', hide); };
+      tooltipEl._activeIdx = i;
+      bar.classList.add('touch-active');
+      if (document.activeElement instanceof HTMLElement && document.activeElement !== bar) document.activeElement.blur();
+      const hide = (ev) => {
+        if (ev.target.closest('.ranking-bar')) return;
+        tooltipEl._touchActive = true;
+        hideTooltip();
+        tooltipEl._activeIdx = null;
+        const active = rankingBarsEl.querySelector('.touch-active');
+        if (active) active.classList.remove('touch-active');
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        tooltipEl._touchActive = false;
+        document.removeEventListener('touchstart', hide);
+        tooltipEl._touchHide = null;
+      };
+      tooltipEl._touchHide = hide;
+      tooltipEl._touchActive = false;
       setTimeout(() => document.addEventListener('touchstart', hide), 0);
     }, { passive: false });
   }
@@ -669,6 +702,10 @@ function switchPreference(idx) {
 // Init
 // ---------------------------------------------------------------------------
 function init() {
+  // Prevent mobile scroll-restoration so the page always starts at the top
+  history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
   const container = document.getElementById('canvas-container');
   canvas = document.createElement('canvas');
   container.appendChild(canvas);
@@ -710,6 +747,10 @@ function init() {
   resize();
   window.addEventListener('resize', resize);
   document.fonts.ready.then(measureLineGaps);
+
+  // Set initial top to match the value the tech-content ScrollTrigger uses at p=0,
+  // so the header doesn't jump when the trigger first fires.
+  headerPanelEl.style.top = Math.round(H * 0.04) + 'px';
 
   // Preference buttons
   const prefBtns = document.querySelectorAll('.pref-btn');

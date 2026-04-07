@@ -46,7 +46,7 @@
   top: 30%;
   width: 36vw;
   max-width: 550px;
-  z-index: 10;
+  z-index: 16;
   opacity: 0;
   will-change: opacity;
   transition: opacity 0.4s ease;
@@ -55,7 +55,7 @@
   position: relative;
 }
 .ranking-header {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.55);
   font-size: clamp(14px, 1.3vw, 17px);
   margin-bottom: 10px;
 }
@@ -67,7 +67,8 @@
   transition: top 0.4s ease;
   cursor: default;
 }
-.ranking-bar:focus {
+.ranking-bar:focus,
+.ranking-bar.touch-active {
   outline: 2px solid #0cc;
   outline-offset: 2px;
 }
@@ -101,7 +102,7 @@
   pointer-events: auto;
 }
 .pref-title {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.55);
   font-size: clamp(13px, 1.2vw, 17px);
   margin-bottom: 8px;
 }
@@ -137,7 +138,7 @@
 .ahp-winner .ahp-rank { color: #0cc; }
 .ahp-name {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 10px;
 }
 .ahp-stat {
