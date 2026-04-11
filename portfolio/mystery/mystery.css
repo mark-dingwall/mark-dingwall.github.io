@@ -70,83 +70,26 @@
 /* ── Row 1 transformation strip ────────────────────────────────── */
 .transform-strip { max-width: 440px; }
 
-/* Flow particles travelling left-to-right */
-@keyframes strip-flow {
-  0%   { transform: translateX(-20px); opacity: 0; }
-  15%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: translateX(20px); opacity: 0; }
+@keyframes solver-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.strip-particle {
-  animation: strip-flow 2s linear infinite;
+.solver-gear {
+  animation: solver-spin 6s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
-
-.strip-particle:nth-child(2) { animation-delay: 0.5s; }
-.strip-particle:nth-child(3) { animation-delay: 1.0s; }
-.strip-particle:nth-child(4) { animation-delay: 1.5s; }
 
 /* ── Row 2 box anatomy ─────────────────────────────────────────── */
-@keyframes morph-cycle {
-  0%, 8%    { opacity: 1; }
-  42%, 58%  { opacity: 0; }
-  92%, 100% { opacity: 1; }
-}
-
-@keyframes morph-cycle-inv {
-  0%, 8%    { opacity: 0; }
-  42%, 58%  { opacity: 1; }
-  92%, 100% { opacity: 0; }
-}
-
-.morph-manual   { animation: morph-cycle 8s ease-in-out infinite; }
-.morph-ilp      { animation: morph-cycle-inv 8s ease-in-out infinite; }
 .box-anatomy-svg { max-width: 340px; }
 
 /* ── Row 3 parameter dials ──────────────────────────────────────── */
-@keyframes dial-settle {
-  0%   { transform: rotate(var(--dial-start)); }
-  70%  { transform: rotate(var(--dial-end)); }
-  80%  { transform: rotate(calc(var(--dial-end) + 5deg)); }
-  100% { transform: rotate(var(--dial-end)); }
-}
-
-@keyframes dial-glow {
-  0%, 70%  { opacity: 0; }
-  85%, 95% { opacity: 1; }
-  100%     { opacity: 0; }
-}
-
-@keyframes score-tick {
-  0%   { opacity: 0; }
-  70%  { opacity: 0; }
-  85%  { opacity: 1; }
-  100% { opacity: 1; }
-}
-
-.dial-needle {
-  animation: dial-settle 4s ease-out infinite;
-  /* transform-origin set per-element via inline style (SVG needs px, not %) */
-}
-
-.dial-settle-glow {
-  animation: dial-glow 4s ease-in-out infinite;
-}
-
-.dial-score {
-  animation: score-tick 4s ease-in-out infinite;
-}
-
 .dials-svg { max-width: 340px; }
 
 /* ── Reduced motion overrides ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .strip-particle { animation: none; opacity: 0.6; }
-  .morph-manual   { animation: none; opacity: 1; }
-  .morph-ilp      { animation: none; opacity: 0; }
-  .dial-needle    { animation: none; transform: rotate(var(--dial-end)); }
-  .dial-settle-glow { animation: none; opacity: 0.5; }
-  .dial-score     { animation: none; opacity: 1; }
+  .solver-gear { animation: none; }
 }
 
 /* ── Responsive ──────────────────────────────────────────────────── */
