@@ -195,6 +195,7 @@ let progressBar, scrollHint;
 let narrativeLines = [];
 let pipelineEl, pipelineBarsEl, tooltipEl, headerPanelEl;
 let titleOverlayEl, narrativePanelEl;
+let narrativeSlideLimit = 0;
 let barEls = [];
 let currentFlow = 0;
 let rowHeight = BAR_ROW_HEIGHT_INIT;
@@ -728,11 +729,14 @@ function render() {
   //   }
   // }
 
+  const phoneNarrative = W <= MOBILE_BREAKPOINT;
   for (let i = 0; i < narrativeLines.length; i++) {
     const kf = interpolateKeyframes(LINE_KEYFRAMES[i], t);
     narrativeLines[i].style.opacity = kf.op;
-    const verticalCenter = W <= MOBILE_BREAKPOINT ? 'translateY(-50%) ' : '';
-    narrativeLines[i].style.transform = verticalCenter + 'translateX(' + (-Math.abs(kf.y) * NARRATIVE_SLIDE_PX) + 'px)';
+    const verticalCenter = phoneNarrative ? 'translateY(-50%) ' : '';
+    const requestedSlide = Math.abs(kf.y) * NARRATIVE_SLIDE_PX;
+    const horizontalSlide = phoneNarrative ? 0 : -Math.min(requestedSlide, narrativeSlideLimit);
+    narrativeLines[i].style.transform = verticalCenter + 'translateX(' + horizontalSlide + 'px)';
   }
 
   requestAnimationFrame(render);
@@ -851,6 +855,7 @@ function init() {
     W = window.innerWidth;
     H = window.innerHeight;
     S = Math.min(W, H) / SCALE_DIVISOR;
+    narrativeSlideLimit = Math.max(0, narrativePanelEl.getBoundingClientRect().left - 8);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     canvas.style.width = W + 'px';

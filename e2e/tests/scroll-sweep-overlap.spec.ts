@@ -5,7 +5,7 @@ import {
   type PortfolioPageName,
 } from '../helpers/pages';
 import { scrollToProgress } from '../helpers/scroll';
-import { isElementVisible, isContainedInViewport, hasHorizontalOverflow, rectsOverlap } from '../helpers/geometry';
+import { getBox, isElementVisible, isContainedInViewport, hasHorizontalOverflow, rectsOverlap } from '../helpers/geometry';
 import { type Page } from '@playwright/test';
 
 /**
@@ -115,3 +115,32 @@ for (const { name, path } of PORTFOLIO_PAGES) {
     expect(violations, `Overlap/containment violations:\n${violations.join('\n')}`).toHaveLength(0);
   });
 }
+
+test('bitbrush reserves a clear backdrop for fallback pixel lettering', async ({ page }) => {
+  await navigateToPortfolioPage(page, '/portfolio/bitbrush/');
+
+  const viewport = page.viewportSize()!;
+  const clearance = await page.locator('#canvas-container canvas').getAttribute('data-text-clearance');
+  if (viewport.width >= 1317) {
+    expect(clearance).toBe('grid');
+    return;
+  }
+
+  expect(clearance).toMatch(/^\d+,\d+,\d+,\d+$/);
+  const [x, y, width, height] = clearance!.split(',').map(Number);
+  expect(width).toBeGreaterThan(0);
+  expect(height).toBeGreaterThan(0);
+  expect(x).toBeGreaterThanOrEqual(0);
+  expect(y).toBeGreaterThanOrEqual(0);
+  expect(x + width).toBeLessThanOrEqual(viewport.width);
+  expect(y + height).toBeLessThanOrEqual(viewport.height);
+});
+
+test('guestflow keeps a transitioning narrative line inside the viewport', async ({ page }) => {
+  await navigateToPortfolioPage(page, '/portfolio/guestflow/');
+  await scrollToProgress(page, 0.80);
+
+  const lineBox = await getBox(page.locator('.narrative-line').last());
+  const viewport = page.viewportSize()!;
+  expect(isContainedInViewport(lineBox, viewport.width, viewport.height)).toBe(true);
+});
