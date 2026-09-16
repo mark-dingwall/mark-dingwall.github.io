@@ -125,6 +125,7 @@ let techFade = 1;
 let textWords = [];
 let mobileTextWords = [];  // mobile: canvas-pixel text (not grid-aligned)
 let mobileTextPx = MOBILE_TEXT_PX;  // dynamic: scales to ~80% viewport width
+let mobileTextBounds = null; // backdrop clearance shared by every fallback word
 let textExclusion = null;  // {minCol, maxCol, minRow, maxRow}
 let zoneFillOrder = [];    // fills the text zone when demo panel appears
 
@@ -300,6 +301,7 @@ function computeTextPixels() {
 // ---------------------------------------------------------------------------
 function computeMobileTextPixels() {
   mobileTextWords = [];
+  mobileTextBounds = null;
   if (gridCols >= TEXT_MIN_COLS) return; // desktop mode handles text
 
   // Compute dynamic pixel size so widest line fills ~82% of viewport width
@@ -376,6 +378,26 @@ function computeMobileTextPixels() {
 
     mobileTextWords.push({ pixels: pixels, color: wordDef.color, glow: wordDef.glow });
   }
+
+  const allPixels = mobileTextWords.flatMap((word) => word.pixels);
+  if (allPixels.length) {
+    const padding = px * 2;
+    const minX = Math.max(0, Math.min(...allPixels.map((pixel) => pixel.x)) - padding);
+    const minY = Math.max(0, Math.min(...allPixels.map((pixel) => pixel.y)) - padding);
+    const maxX = Math.min(W, Math.max(...allPixels.map((pixel) => pixel.x + px)) + padding);
+    const maxY = Math.min(H, Math.max(...allPixels.map((pixel) => pixel.y + px)) + padding);
+    mobileTextBounds = { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  }
+}
+
+function cellOverlapsMobileText(col, row) {
+  if (!mobileTextBounds) return false;
+  const x = gridOffsetX + col * CELL_SIZE;
+  const y = gridOffsetY + row * CELL_SIZE;
+  return x < mobileTextBounds.x + mobileTextBounds.width &&
+    x + CELL_SIZE > mobileTextBounds.x &&
+    y < mobileTextBounds.y + mobileTextBounds.height &&
+    y + CELL_SIZE > mobileTextBounds.y;
 }
 
 // ---------------------------------------------------------------------------
@@ -454,6 +476,7 @@ function renderBackground(t) {
     for (let j = 0; j < bucket.length; j++) {
       if (bucket[j] >= count) break;
       const p = fillOrder[bucket[j]];
+      if (cellOverlapsMobileText(p.col, p.row)) continue;
       ctx.fillRect(
         gridOffsetX + p.col * CELL_SIZE,
         gridOffsetY + p.row * CELL_SIZE,
@@ -469,6 +492,7 @@ function renderBackground(t) {
   for (let i = waveStart; i < count; i++) {
     const age = (i - waveStart) / Math.max(1, count - waveStart - 1);
     const p = fillOrder[i];
+    if (cellOverlapsMobileText(p.col, p.row)) continue;
     ctx.fillStyle = 'rgba(255, 255, 255, ' + (WAVE_GLOW * (1 - age)).toFixed(3) + ')';
     ctx.fillRect(
       gridOffsetX + p.col * CELL_SIZE,
@@ -612,6 +636,11 @@ function init() {
     generateZoneFill();
     computeTextPixels();
     computeMobileTextPixels();
+    canvas.dataset.textClearance = mobileTextBounds
+      ? [mobileTextBounds.x, mobileTextBounds.y, mobileTextBounds.width, mobileTextBounds.height]
+        .map(Math.round)
+        .join(',')
+      : textExclusion ? 'grid' : 'none';
   }
 
   resize();

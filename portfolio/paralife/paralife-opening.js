@@ -106,10 +106,10 @@
     return {
       beat,
       lineOpacities: [
-        1 - between(p, 0.12, 0.17),
-        between(p, 0.12, 0.17) * (1 - between(p, 0.28, 0.34)),
-        between(p, 0.28, 0.34) * (1 - between(p, 0.44, 0.50)),
-        between(p, 0.44, 0.50),
+        1 - between(p, 0.12, 0.145),
+        between(p, 0.145, 0.17) * (1 - between(p, 0.28, 0.31)),
+        between(p, 0.31, 0.34) * (1 - between(p, 0.44, 0.47)),
+        between(p, 0.47, 0.50),
       ],
       fieldAmount: 1 - between(p, 0.10, 0.16),
       perceptionAmount: between(p, 0.10, 0.16) * (1 - range(p, LEGEND_MORPH)),

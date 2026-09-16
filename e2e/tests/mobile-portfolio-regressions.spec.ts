@@ -132,6 +132,21 @@ test.describe('Paralife phone choreography', () => {
     );
     expect(visibleClients).toBeLessThanOrEqual(12);
   });
+
+  test('narrative handoffs never stack two readable lines', async ({ page }) => {
+    for (let step = 0; step <= 100; step++) {
+      const progress = step / 100;
+      const opacities = await page.evaluate(
+        (p) => (window as any).ParalifeOpening.deriveState(p).lineOpacities,
+        progress,
+      );
+      const readableLines = opacities.filter((opacity: number) => opacity > 0.05);
+      expect(
+        readableLines.length,
+        `progress=${progress.toFixed(2)} has overlapping narrative lines: ${opacities.join(', ')}`,
+      ).toBeLessThanOrEqual(1);
+    }
+  });
 });
 
 test.describe('phone narrative handoffs', () => {
